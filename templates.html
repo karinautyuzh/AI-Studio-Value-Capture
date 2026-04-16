@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Templates &amp; Tools — Healthcare AI Intake &amp; Value Framework</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+    .template-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+      overflow: hidden;
+      margin-bottom: 2.5rem;
+    }
+    .template-card-header {
+      background: var(--navy);
+      color: #fff;
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .template-card-header h2 { margin: 0; font-size: 1.2rem; }
+    .template-card-header p  { margin: .25rem 0 0; font-size: .87rem; opacity: .75; }
+    .template-meta { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .5rem; }
+    .template-badge {
+      background: rgba(255,255,255,.15);
+      color: #fff;
+      font-size: .75rem;
+      font-weight: 600;
+      padding: .2rem .7rem;
+      border-radius: 20px;
+    }
+    .template-actions {
+      display: flex;
+      gap: .75rem;
+      padding: 1rem 2rem;
+      background: #F8FAFC;
+      border-bottom: 1px solid #E2E8F0;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .btn-copy {
+      background: var(--teal);
+      color: #fff;
+      border: none;
+      padding: .5rem 1.2rem;
+      border-radius: 6px;
+      font-size: .87rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-copy:hover { background: #0773A0; }
+    .btn-copy.copied { background: #16A34A; }
+    .copy-hint { font-size: .82rem; color: var(--muted); }
+    .template-body {
+      padding: 2rem;
+    }
+    .template-preview {
+      background: #0F172A;
+      color: #E2E8F0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: .82rem;
+      line-height: 1.7;
+      border-radius: 8px;
+      padding: 1.5rem;
+      overflow-x: auto;
+      white-space: pre;
+      max-height: 480px;
+      overflow-y: auto;
+    }
+    .template-preview .md-h1   { color: #93C5FD; font-weight: 700; }
+    .template-preview .md-h2   { color: #7DD3FC; }
+    .template-preview .md-h3   { color: #BAE6FD; }
+    .template-preview .md-bold { color: #FCD34D; }
+    .template-preview .md-code { color: #86EFAC; }
+    .template-preview .md-meta { color: #94A3B8; font-style: italic; }
+    .usage-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .usage-item {
+      background: #F8FAFC;
+      border-radius: 8px;
+      padding: 1rem;
+      border-left: 3px solid var(--teal);
+    }
+    .usage-item strong { display: block; font-size: .87rem; color: var(--navy); margin-bottom: .3rem; }
+    .usage-item span   { font-size: .83rem; color: #555; }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══════════════════════════════════════════════════════════════ -->
+<nav class="navbar">
+  <a class="nav-brand" href="index.html">Healthcare AI Framework</a>
+  <button class="nav-toggle" aria-label="Toggle menu">&#9776;</button>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="intake.html">Intake</a></li>
+    <li><a href="value-framework.html">Value Framework</a></li>
+    <li><a href="kpi-library.html">KPI Library</a></li>
+    <li><a href="scoring-model.html">Scoring Model</a></li>
+    <li><a href="governance.html">Governance</a></li>
+    <li><a href="implementation.html">Implementation</a></li>
+    <li><a href="templates.html" class="active">Templates</a></li>
+  </ul>
+</nav>
+
+<!-- ═══ PAGE HERO ════════════════════════════════════════════════════════ -->
+<header class="page-hero">
+  <div class="container">
+    <p class="eyebrow">Ready-to-Use Resources</p>
+    <h1>Templates &amp; Tools</h1>
+    <p class="hero-sub">Copy-ready markdown templates for intake submissions, prioritization scorecards, and KPI dashboards. Use as-is or adapt for your organization.</p>
+  </div>
+</header>
+
+<!-- ═══ MAIN ══════════════════════════════════════════════════════════════ -->
+<main>
+
+  <section class="section">
+    <div class="container">
+
+      <!-- QUICK LINKS -->
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2.5rem;">
+        <a href="#template-intake" style="background:#EFF6FF;color:var(--blue);padding:.5rem 1.1rem;border-radius:6px;font-size:.87rem;font-weight:600;text-decoration:none;">↓ Intake Form</a>
+        <a href="#template-scorecard" style="background:#F0FFFE;color:var(--teal);padding:.5rem 1.1rem;border-radius:6px;font-size:.87rem;font-weight:600;text-decoration:none;">↓ Prioritization Scorecard</a>
+        <a href="#template-kpi" style="background:#F5F3FF;color:#7C3AED;padding:.5rem 1.1rem;border-radius:6px;font-size:.87rem;font-weight:600;text-decoration:none;">↓ KPI Dashboard</a>
+      </div>
+
+      <!-- ══════════════════════════════════════════════ -->
+      <!-- TEMPLATE 1: INTAKE FORM                        -->
+      <!-- ══════════════════════════════════════════════ -->
+      <div id="template-intake" class="template-card">
+        <div class="template-card-header">
+          <div>
+            <h2>AI Use Case Intake Form</h2>
+            <p>Complete submission template for new AI initiative requests.</p>
+            <div class="template-meta">
+              <span class="template-badge">Markdown</span>
+              <span class="template-badge">Stage 1 — Submission</span>
+              <span class="template-badge">~25 min to complete</span>
+            </div>
+          </div>
+        </div>
+        <div class="template-actions">
+          <button class="btn-copy" data-target="intake-content">Copy to Clipboard</button>
+          <span class="copy-hint">Paste into any Markdown editor, Confluence page, or GitHub issue</span>
+        </div>
+        <div class="template-body">
+          <div class="usage-grid" style="margin-bottom:1.5rem;">
+            <div class="usage-item">
+              <strong>Who Uses This</strong>
+              <span>Business unit leads, clinical champions, data science teams submitting new AI use cases</span>
+            </div>
+            <div class="usage-item">
+              <strong>When to Use</strong>
+              <span>Before any AI project begins scoping, budgeting, or technical design</span>
+            </div>
+            <div class="usage-item">
+              <strong>What Happens Next</strong>
+              <span>Submitted to AI Portfolio Lead → Stage 2 Triage within 5 business days</span>
+            </div>
+            <div class="usage-item">
+              <strong>Required Fields</strong>
+              <span>Sections 1–4 required for Stage 1. Sections 5–7 completed at Stage 3.</span>
+            </div>
+          </div>
+          <pre class="template-preview" id="intake-content"># AI Use Case Intake Form
+**Version:** 1.0 | **Submitted:** YYYY-MM-DD | **Submission ID:** AI-YYYY-###
+
+---
+
+## Section 1: Use Case Identification
+
+| Field | Response |
+|-------|----------|
+| **Use Case Name** | _Enter descriptive name (e.g., "ED Sepsis Early Warning Alert")_ |
+| **Submitting Department** | _Clinical department / business unit_ |
+| **Primary Sponsor** | _Executive or director-level sponsor name + title_ |
+| **Clinical Champion** | _Physician or clinical lead name + role_ |
+| **Technical Lead** | _Data science / IT lead name (if identified)_ |
+| **Submission Date** | _YYYY-MM-DD_ |
+| **Target Go-Live** | _Estimated quarter / fiscal year_ |
+
+---
+
+## Section 2: Problem Statement
+
+### 2.1 Current State Problem
+_Describe the clinical or operational problem this AI use case addresses.
+Be specific: What is happening today? What is the impact (patient, staff, financial)?
+Example: "ED physicians lack early warning for sepsis onset, resulting in delayed treatment initiation for ~15% of septic patients, contributing to excess mortality and ICU LOS."_
+
+### 2.2 Proposed AI Solution
+_Describe the AI/ML approach at a high level.
+What type of AI? (predictive model, NLP, computer vision, generative AI, optimization, etc.)
+What does it do, when, and for whom?_
+
+### 2.3 Scope
+- **Patient Population:** _Who does this affect? (e.g., all inpatients, ED patients >18 years)_
+- **Care Setting:** _Where is this used? (ED, ICU, ambulatory, revenue cycle, etc.)_
+- **Users:** _Who interacts with the AI output? (physicians, nurses, coders, schedulers)_
+- **Volume:** _Estimated volume impacted (patients/day, encounters/year, transactions/month)_
+
+---
+
+## Section 3: Value Hypothesis
+
+### 3.1 Primary Value Domain
+_Select the primary value domain (check one):_
+
+- [ ] Quality &amp; Speed (clinical outcomes, diagnostic accuracy, throughput)
+- [ ] Cost Savings (operational efficiency, waste reduction, labor optimization)
+- [ ] Patient Experience (HCAHPS, access, communication, care coordination)
+- [ ] Revenue Uplift (coding accuracy, throughput, denial reduction, new revenue)
+- [ ] Workforce Experience (clinician burnout, administrative burden, staff satisfaction)
+- [ ] Risk &amp; Resiliency (compliance, safety, regulatory, cyber/operational risk)
+
+### 3.2 Secondary Value Domains
+_List any additional value domains impacted:_
+
+### 3.3 Quantified Value Estimate
+| Value Category | Estimated Annual Value | Confidence | Basis |
+|----------------|----------------------|------------|-------|
+| _e.g., Reduced ICU LOS_ | _$X.XM_ | _Low / Medium / High_ | _Literature / Internal data / Expert estimate_ |
+| | | | |
+| **Total Estimated Value** | **$X.XM** | | |
+
+### 3.4 Non-Financial Value
+_Describe qualitative or strategic value not captured above (e.g., competitive differentiation, regulatory positioning, patient safety culture)._
+
+---
+
+## Section 4: Preliminary Feasibility
+
+### 4.1 Data Availability
+| Data Element | Source System | Availability | Quality |
+|--------------|--------------|-------------|---------|
+| _e.g., Vitals, labs_ | _Epic_ | _Available now_ | _High_ |
+| | | | |
+
+### 4.2 Technology Requirements
+- **Build vs. Buy:** _Build internally / Purchase vendor solution / Hybrid_
+- **Vendor (if applicable):** _Vendor name and product (if known)_
+- **EHR Integration Required:** _Yes / No — Epic FHIR / HL7 / Epic App Orchard_
+- **Infrastructure Needs:** _Cloud / on-prem / GPU / real-time streaming_
+
+### 4.3 Regulatory &amp; Compliance
+- **FDA Classification:** _Not applicable / Class I / Class II SaMD / Under review_
+- **HIPAA PHI Involved:** _Yes / No_
+- **IRB Required:** _Yes / No / Unknown_
+- **Other Compliance Flags:** _e.g., 42 CFR Part 2, state AI transparency laws_
+
+### 4.4 Estimated Resources
+| Resource | Estimate | Notes |
+|----------|----------|-------|
+| Development effort | _X FTE-months_ | |
+| Implementation effort | _X FTE-months_ | |
+| Annual operating cost | _$X_ | _Licensing, infrastructure, maintenance_ |
+| One-time capital | _$X_ | |
+
+---
+
+## Section 5: Strategic Alignment (Completed at Stage 3)
+
+_How does this use case align with each strategic priority?_
+
+| Strategic Priority | Alignment | Evidence |
+|-------------------|-----------|----------|
+| _[Strategic Goal 1]_ | _Strong / Moderate / Weak / None_ | |
+| _[Strategic Goal 2]_ | | |
+| _[Quality Plan Priority]_ | | |
+| _[Financial Target]_ | | |
+
+**Overall Alignment Score (1–5):** ___
+
+---
+
+## Section 6: Risk Assessment (Completed at Stage 3)
+
+### 6.1 AI-Specific Risks
+| Risk Category | Risk Description | Likelihood | Impact | Mitigation |
+|--------------|-----------------|------------|--------|------------|
+| Bias / Fairness | | | | |
+| Clinical Safety | | | | |
+| Data Privacy | | | | |
+| Model Drift | | | | |
+| Workflow Disruption | | | | |
+
+### 6.2 Responsible AI Checklist
+- [ ] Bias analysis planned across demographic subgroups
+- [ ] Model explainability approach defined
+- [ ] Human oversight / override mechanism designed
+- [ ] Monitoring and alerting plan established
+- [ ] Equity impact assessment completed
+
+---
+
+## Section 7: Composite Score Summary (Completed by Committee)
+
+| Dimension | Weight | Raw Score (1–5) | Weighted Score |
+|-----------|--------|-----------------|----------------|
+| Strategic Alignment | 25% | | |
+| Value Potential | 30% | | |
+| Feasibility | 20% | | |
+| Risk Profile | 15% | | |
+| Urgency | 10% | | |
+| **Composite Score** | 100% | | **/100** |
+
+**Tier Assignment:** [ ] Tier 1 — Approve Priority  [ ] Tier 2 — Pipeline  [ ] Tier 3 — Defer  [ ] Tier 4 — Decline
+
+**Committee Decision:** _______________________________________________
+
+**Decision Date:** _________________ | **Next Review Date:** _________________
+
+---
+
+*Template version 1.0 — Healthcare AI Intake &amp; Value Framework*</pre>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════ -->
+      <!-- TEMPLATE 2: PRIORITIZATION SCORECARD           -->
+      <!-- ══════════════════════════════════════════════ -->
+      <div id="template-scorecard" class="template-card">
+        <div class="template-card-header" style="background: linear-gradient(135deg, #0A2342 0%, #1E3A5F 100%);">
+          <div>
+            <h2>Prioritization Scorecard</h2>
+            <p>Committee scoring worksheet for evaluating AI use case submissions.</p>
+            <div class="template-meta">
+              <span class="template-badge">Markdown</span>
+              <span class="template-badge">Stage 3 — Prioritization</span>
+              <span class="template-badge">Used by Committee</span>
+            </div>
+          </div>
+        </div>
+        <div class="template-actions">
+          <button class="btn-copy" data-target="scorecard-content">Copy to Clipboard</button>
+          <span class="copy-hint">One scorecard per reviewer — aggregate scores for final decision</span>
+        </div>
+        <div class="template-body">
+          <div class="usage-grid" style="margin-bottom:1.5rem;">
+            <div class="usage-item">
+              <strong>Who Uses This</strong>
+              <span>Each AI Governance Committee member scores independently before calibration meeting</span>
+            </div>
+            <div class="usage-item">
+              <strong>When to Use</strong>
+              <span>Stage 3 prioritization review, or for re-scoring at quarterly portfolio reviews</span>
+            </div>
+            <div class="usage-item">
+              <strong>Scoring Scale</strong>
+              <span>1 = Very Low, 2 = Low, 3 = Moderate, 4 = High, 5 = Very High</span>
+            </div>
+            <div class="usage-item">
+              <strong>Calibration Rule</strong>
+              <span>If two reviewers differ by &gt;1 point on any dimension, discuss before averaging</span>
+            </div>
+          </div>
+          <pre class="template-preview" id="scorecard-content"># AI Use Case Prioritization Scorecard
+
+**Use Case:** _______________________________________________
+**Submission ID:** AI-YYYY-### | **Reviewer:** _______________ | **Review Date:** YYYY-MM-DD
+**Role:** [ ] Executive  [ ] Clinical  [ ] Technical  [ ] Finance  [ ] Operations  [ ] Other
+
+---
+
+## Dimension 1: Strategic Alignment (Weight: 25%)
+
+_How well does this use case advance stated organizational AI and clinical strategies?_
+
+| Score | Criteria |
+|-------|----------|
+| 5 | Directly tied to a Board-approved strategic priority; named in AI strategy roadmap |
+| 4 | Strongly aligned with strategic plan; supports 2+ strategic goals |
+| 3 | Moderate alignment; supports departmental goals consistent with strategy |
+| 2 | Tangential alignment; useful but not clearly tied to strategic priorities |
+| 1 | No clear strategic connection; opportunistic or reactive request |
+
+**Score: ___ / 5**
+
+**Rationale:** _______________________________________________
+
+---
+
+## Dimension 2: Value Potential (Weight: 30%)
+
+_What is the magnitude and certainty of value this use case can deliver?_
+
+| Score | Criteria |
+|-------|----------|
+| 5 | &gt;$5M annual value or transformational outcome improvement (&gt;20%); high evidence confidence |
+| 4 | $1M–$5M annual value or significant outcome improvement (10–20%); moderate-high confidence |
+| 3 | $250K–$1M annual value or meaningful improvement (5–10%); moderate confidence |
+| 2 | $50K–$250K annual value or incremental improvement (&lt;5%); low-moderate confidence |
+| 1 | &lt;$50K value or unclear / unquantified benefit |
+
+**Score: ___ / 5**
+
+**Rationale:** _______________________________________________
+
+### Value Breakdown
+| Domain | Value Estimate | Confidence |
+|--------|--------------|------------|
+| Quality &amp; Speed | $ | |
+| Cost Savings | $ | |
+| Patient Experience | | |
+| Revenue Uplift | $ | |
+| Workforce Experience | | |
+| Risk &amp; Resiliency | | |
+| **Total** | **$** | |
+
+---
+
+## Dimension 3: Feasibility (Weight: 20%)
+
+_How readily can this use case be implemented given current technical, data, and organizational capabilities?_
+
+| Score | Criteria |
+|-------|----------|
+| 5 | Data ready; proven technology; minimal workflow change; team capable now |
+| 4 | Data mostly ready; technology proven elsewhere; moderate integration; capable with support |
+| 3 | Data gaps manageable; technology requires customization; notable workflow change |
+| 2 | Significant data acquisition needed; technology unproven internally; major change management |
+| 1 | Data unavailable; novel/unproven technology; major organizational transformation required |
+
+**Score: ___ / 5**
+
+**Rationale:** _______________________________________________
+
+### Feasibility Sub-Scores
+| Factor | Score (1–5) | Notes |
+|--------|------------|-------|
+| Data readiness | | |
+| Technology maturity | | |
+| Integration complexity | | |
+| Organizational capacity | | |
+| Change management need | | |
+
+---
+
+## Dimension 4: Risk Profile (Weight: 15%)
+
+_What is the overall risk level? (Score 5 = LOW risk, Score 1 = HIGH risk)_
+
+| Score | Criteria |
+|-------|----------|
+| 5 | Minimal clinical risk; no regulatory concerns; low bias risk; proven in similar settings |
+| 4 | Low clinical risk; minor compliance considerations; bias risk manageable with monitoring |
+| 3 | Moderate clinical risk with mitigations; standard regulatory pathway; manageable bias risk |
+| 2 | Notable clinical safety concerns; complex compliance requirements; significant bias risk |
+| 1 | High patient safety risk; novel regulatory territory; unmitigated bias or equity concerns |
+
+**Score: ___ / 5**
+
+**Rationale:** _______________________________________________
+
+### Risk Flags
+- [ ] Patient safety risk (clinical decision support affecting direct care)
+- [ ] Regulatory risk (FDA SaMD, state AI law, CMS requirements)
+- [ ] Bias / equity risk (differential performance across subgroups)
+- [ ] Privacy risk (PHI, sensitive data categories)
+- [ ] Vendor / third-party risk (proprietary model, limited explainability)
+- [ ] Operational risk (single point of failure, workflow dependency)
+
+---
+
+## Dimension 5: Urgency (Weight: 10%)
+
+_How time-sensitive is this use case?_
+
+| Score | Criteria |
+|-------|----------|
+| 5 | Regulatory mandate or patient safety issue requiring immediate action |
+| 4 | Competitive disadvantage or contract risk if not deployed within 6 months |
+| 3 | Meaningful benefit from acting in current fiscal year |
+| 2 | Useful in next fiscal year; no immediate pressure |
+| 1 | No time sensitivity; can defer 2+ years without consequence |
+
+**Score: ___ / 5**
+
+**Rationale:** _______________________________________________
+
+---
+
+## Composite Score
+
+| Dimension | Weight | Raw Score | Weighted Score |
+|-----------|--------|-----------|----------------|
+| Strategic Alignment | × 0.25 | ___ | ___ |
+| Value Potential | × 0.30 | ___ | ___ |
+| Feasibility | × 0.20 | ___ | ___ |
+| Risk Profile | × 0.15 | ___ | ___ |
+| Urgency | × 0.10 | ___ | ___ |
+| **COMPOSITE** | **1.00** | | **___ / 100** |
+
+**Formula:** (Alignment × 25) + (Value × 30) + (Feasibility × 20) + (Risk × 15) + (Urgency × 10)
+
+---
+
+## Tier Recommendation
+
+| Score Range | Tier | Action |
+|-------------|------|--------|
+| 75–100 | **Tier 1 — Approve Priority** | Fund and staff immediately |
+| 55–74  | **Tier 2 — Pipeline** | Approve for next planning cycle |
+| 40–54  | **Tier 3 — Defer** | Return for resubmission with gaps addressed |
+| 0–39   | **Tier 4 — Decline** | Not recommended at this time |
+
+**My Recommendation:** [ ] Tier 1  [ ] Tier 2  [ ] Tier 3  [ ] Tier 4
+
+**Comments for Committee:**
+_______________________________________________
+_______________________________________________
+
+---
+
+*Scorecard version 1.0 — Healthcare AI Intake &amp; Value Framework*
+*This scorecard is confidential committee working material.*</pre>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════ -->
+      <!-- TEMPLATE 3: KPI DASHBOARD                      -->
+      <!-- ══════════════════════════════════════════════ -->
+      <div id="template-kpi" class="template-card">
+        <div class="template-card-header" style="background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);">
+          <div>
+            <h2>KPI Dashboard Template</h2>
+            <p>Portfolio-level KPI tracking report for quarterly governance reviews.</p>
+            <div class="template-meta">
+              <span class="template-badge">Markdown</span>
+              <span class="template-badge">Quarterly Review</span>
+              <span class="template-badge">Executive Audience</span>
+            </div>
+          </div>
+        </div>
+        <div class="template-actions">
+          <button class="btn-copy" data-target="kpi-content">Copy to Clipboard</button>
+          <span class="copy-hint">Populate with actuals each quarter — one report per active AI use case</span>
+        </div>
+        <div class="template-body">
+          <div class="usage-grid" style="margin-bottom:1.5rem;">
+            <div class="usage-item">
+              <strong>Who Uses This</strong>
+              <span>AI Portfolio Lead populates; presented to AI Governance Committee and C-suite</span>
+            </div>
+            <div class="usage-item">
+              <strong>When to Use</strong>
+              <span>Monthly for Tier 1 projects; quarterly for Tier 2; semi-annually for Tier 3</span>
+            </div>
+            <div class="usage-item">
+              <strong>Status Icons</strong>
+              <span>🟢 On Track  🟡 At Risk  🔴 Off Track  ⚪ Baseline Only  🔵 Exceeded</span>
+            </div>
+            <div class="usage-item">
+              <strong>Data Sources</strong>
+              <span>Pull actuals from Epic reporting, finance system, HCAHPS vendor, workforce analytics platform</span>
+            </div>
+          </div>
+          <pre class="template-preview" id="kpi-content"># AI Use Case KPI Dashboard
+
+**Use Case:** _______________________________________________
+**Submission ID:** AI-YYYY-### | **Tier:** ___ | **Domain:** _______________
+**Reporting Period:** Q_ YYYY | **Report Date:** YYYY-MM-DD | **KPI Owner:** _______________
+**Go-Live Date:** YYYY-MM-DD | **Months in Production:** ___
+
+---
+
+## Executive Summary
+
+| Status | Overall Assessment |
+|--------|-------------------|
+| 🟢 On Track / 🟡 At Risk / 🔴 Off Track | _One sentence summary of use case performance_ |
+
+**Key Wins This Period:**
+- _Bullet 1_
+- _Bullet 2_
+
+**Key Risks / Issues:**
+- _Bullet 1_
+- _Bullet 2_
+
+**Actions Required from Committee:**
+- [ ] _Action item if any_
+
+---
+
+## Primary KPIs
+
+_Primary KPIs are reported at every review cycle and drive tier status decisions._
+
+### Quality &amp; Speed KPIs
+| KPI | Baseline | Target | Actual | Trend | Status |
+|-----|----------|--------|--------|-------|--------|
+| _e.g., Diagnostic Accuracy Rate_ | _XX%_ | _XX%_ | _XX%_ | ↑ / ↓ / → | 🟢 |
+| _e.g., Time to Diagnosis (hrs)_ | _X.X_ | _X.X_ | _X.X_ | | |
+
+### Cost Savings KPIs
+| KPI | Baseline | Target | Actual | Trend | Status |
+|-----|----------|--------|--------|-------|--------|
+| _e.g., Cost per Case ($)_ | _$X,XXX_ | _$X,XXX_ | _$X,XXX_ | | |
+| _e.g., Annualized Savings ($M)_ | _$0_ | _$X.XM_ | _$X.XM_ | | |
+
+### Patient Experience KPIs
+| KPI | Baseline | Target | Actual | Trend | Status |
+|-----|----------|--------|--------|-------|--------|
+| _e.g., HCAHPS Communication Score_ | _XX%_ | _XX%_ | _XX%_ | | |
+| _e.g., Patient Portal Activation Rate_ | _XX%_ | _XX%_ | _XX%_ | | |
+
+### Revenue KPIs
+| KPI | Baseline | Target | Actual | Trend | Status |
+|-----|----------|--------|--------|-------|--------|
+| _e.g., Coding Accuracy Rate_ | _XX%_ | _XX%_ | _XX%_ | | |
+| _e.g., Clean Claim Rate_ | _XX%_ | _XX%_ | _XX%_ | | |
+
+### Workforce Experience KPIs
+| KPI | Baseline | Target | Actual | Trend | Status |
+|-----|----------|--------|--------|-------|--------|
+| _e.g., Documentation Time (min)_ | _XX min_ | _XX min_ | _XX min_ | | |
+| _e.g., Clinician Satisfaction Score_ | _X.X/5_ | _X.X/5_ | _X.X/5_ | | |
+
+### Risk &amp; Resiliency KPIs
+| KPI | Baseline | Target | Actual | Trend | Status |
+|-----|----------|--------|--------|-------|--------|
+| _e.g., Alert False Positive Rate_ | _XX%_ | _XX%_ | _XX%_ | | |
+| _e.g., AI System Uptime_ | _XX%_ | _99.5%_ | _XX%_ | | |
+
+---
+
+## Secondary KPIs
+
+_Secondary KPIs tracked quarterly; reported when relevant to current performance narrative._
+
+| KPI | Domain | Baseline | Target | Actual | Status | Notes |
+|-----|--------|----------|--------|--------|--------|-------|
+| | | | | | | |
+| | | | | | | |
+| | | | | | | |
+
+---
+
+## Monitor KPIs
+
+_Monitor KPIs tracked but reported only if crossing alert threshold._
+
+| KPI | Alert Threshold | Current Value | Alert Triggered? |
+|-----|----------------|--------------|-----------------|
+| _e.g., Demographic parity gap_ | _&gt; 5 percentage points_ | _X%_ | Yes / No |
+| _e.g., Model confidence score_ | _&lt; 0.70_ | _X.XX_ | Yes / No |
+
+---
+
+## Cumulative Value Delivered
+
+| Value Category | This Quarter | Year-to-Date | Since Go-Live |
+|----------------|-------------|--------------|---------------|
+| Quality improvement | | | |
+| Cost savings ($) | | | |
+| Revenue impact ($) | | | |
+| FTE hours saved | | | |
+| **Total Financial Value** | | | |
+
+**ROI to Date:** ___  |  **Payback Period Estimate:** ___
+
+---
+
+## AI Model Health
+
+| Metric | Threshold | Current | Status |
+|--------|-----------|---------|--------|
+| Model accuracy / AUC | ≥ _X.XX_ | _X.XX_ | |
+| Data completeness | ≥ _XX%_ | _XX%_ | |
+| Prediction volume (monthly) | ≥ _X,XXX_ | _X,XXX_ | |
+| Alert / trigger rate | _X–X%_ | _X%_ | |
+| Clinician acceptance rate | ≥ _XX%_ | _XX%_ | |
+| Demographic parity gap | ≤ _X%_ | _X%_ | |
+
+**Last Model Retraining Date:** YYYY-MM-DD
+**Next Scheduled Validation:** YYYY-MM-DD
+
+---
+
+## Adoption &amp; Engagement
+
+| Metric | Target | Actual | Notes |
+|--------|--------|--------|-------|
+| User adoption rate | _XX%_ | _XX%_ | _% of target users actively using_ |
+| Training completion | 100% | _XX%_ | |
+| Workflow integration status | Full | _Partial / Full_ | |
+| Support tickets (open) | ≤ X | _X_ | |
+| User satisfaction score | ≥ 3.5/5 | _X.X/5_ | |
+
+---
+
+## Issues &amp; Escalations
+
+| Issue | Severity | Owner | Due Date | Status |
+|-------|----------|-------|----------|--------|
+| | High / Med / Low | | YYYY-MM-DD | Open / Resolved |
+
+---
+
+## Next Quarter Targets
+
+| KPI | Current | Next Quarter Target | Planned Actions |
+|-----|---------|---------------------|-----------------|
+| | | | |
+| | | | |
+
+---
+
+## Committee Decision
+
+**Recommendation:** [ ] Continue as Tier ___  [ ] Promote to Tier ___  [ ] Demote to Tier ___  [ ] Sunset
+
+**Rationale:** _______________________________________________
+
+**Decision Date:** _________________ | **Next Review:** _________________
+
+---
+
+*Dashboard version 1.0 — Healthcare AI Intake &amp; Value Framework*
+*Data sources: Epic Reporting Workbench / Finance System / HCAHPS Vendor / Workforce Analytics*</pre>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DOWNLOAD / USAGE SECTION -->
+  <section class="section dark-section">
+    <div class="container">
+      <h2 class="section-title" style="color:#fff;">How to Use These Templates</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin-top:1.5rem;">
+        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:1.5rem;">
+          <div style="font-size:1.5rem;margin-bottom:.6rem;">📋</div>
+          <h3 style="color:#fff;font-size:1rem;margin:0 0 .5rem;">Copy &amp; Paste</h3>
+          <p style="color:rgba(255,255,255,.7);font-size:.87rem;margin:0;">Use the Copy button to grab any template. Paste into Confluence, Notion, GitHub Issues, SharePoint, or any Markdown editor.</p>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:1.5rem;">
+          <div style="font-size:1.5rem;margin-bottom:.6rem;">✏️</div>
+          <h3 style="color:#fff;font-size:1rem;margin:0 0 .5rem;">Customize Fields</h3>
+          <p style="color:rgba(255,255,255,.7);font-size:.87rem;margin:0;">Replace italicized placeholder text with your organization's specifics. Add or remove rows from tables to fit your KPI inventory.</p>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:1.5rem;">
+          <div style="font-size:1.5rem;margin-bottom:.6rem;">🔗</div>
+          <h3 style="color:#fff;font-size:1rem;margin:0 0 .5rem;">Link to Source Docs</h3>
+          <p style="color:rgba(255,255,255,.7);font-size:.87rem;margin:0;">Reference the KPI Library, Scoring Model, and Governance pages for rubric definitions, KPI calculation formulas, and committee decision rights.</p>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:1.5rem;">
+          <div style="font-size:1.5rem;margin-bottom:.6rem;">🔄</div>
+          <h3 style="color:#fff;font-size:1rem;margin:0 0 .5rem;">Version Control</h3>
+          <p style="color:rgba(255,255,255,.7);font-size:.87rem;margin:0;">Store completed templates in your version control system. Track scoring changes over time to support annual framework calibration.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══ FOOTER ════════════════════════════════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div>
+      <strong>Healthcare AI Intake &amp; Value Framework</strong>
+      <p style="margin:.4rem 0 0;font-size:.85rem;opacity:.7;">Enterprise AI Portfolio Governance for Health Systems</p>
+    </div>
+    <nav class="footer-nav">
+      <a href="index.html">Home</a>
+      <a href="intake.html">Intake</a>
+      <a href="value-framework.html">Value Framework</a>
+      <a href="kpi-library.html">KPI Library</a>
+      <a href="scoring-model.html">Scoring Model</a>
+      <a href="governance.html">Governance</a>
+      <a href="implementation.html">Implementation</a>
+      <a href="templates.html">Templates</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="assets/js/script.js"></script>
+</body>
+</html>

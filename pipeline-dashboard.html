@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pipeline &amp; Realization | AI Intake &amp; Value Framework</title>
+  <meta name="description" content="Live portfolio dashboard showing projected vs actual value realization across all AI use cases.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-brand-icon">⬡</div>
+      <span>AI Intake &amp; Value Framework</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="use-cases.html">Use Cases</a></li>
+      <li><a href="intake-prioritization.html">Intake &amp; Prioritization</a></li>
+      <li><a href="value-scoring.html">Value Scoring</a></li>
+      <li><a href="kpi-framework.html">KPI Framework</a></li>
+      <li><a href="pipeline-dashboard.html" class="active">Pipeline &amp; Realization</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<header class="page-hero">
+  <div class="wrap">
+    <div class="breadcrumb"><a href="index.html">Home</a><span style="margin:0 .4rem;opacity:.5;">›</span><span>Pipeline &amp; Realization</span></div>
+    <h1>Pipeline &amp; Realization Dashboard</h1>
+    <p class="lead">Track projected vs actual value realization across all AI use cases in the portfolio. Edit projections and actuals inline as data becomes available.</p>
+  </div>
+</header>
+
+<!-- DASHBOARD -->
+<section class="section section-alt">
+  <div class="wrap">
+
+    <!-- PROGRAM SUMMARY -->
+    <div class="sec-hd" style="margin-bottom:1.5rem;">
+      <span class="eyebrow">Overview</span>
+      <h2 class="section-title" style="font-size:1.25rem;">Program Summary</h2>
+    </div>
+
+    <div class="pa-summary-grid" id="summaryGrid"></div>
+
+    <p id="coverageNote" style="font-size:.8rem;color:var(--light);margin-bottom:2.5rem;"></p>
+
+    <!-- PIPELINE TABLE -->
+    <div class="sec-hd" style="margin-bottom:1rem;">
+      <span class="eyebrow">Portfolio</span>
+      <h2 class="section-title" style="font-size:1.25rem;">Pipeline &amp; Realization</h2>
+    </div>
+
+    <div class="pipeline-table-wrap">
+      <table class="pipeline-tbl" id="pipelineTable">
+        <thead>
+          <tr>
+            <th style="width:32px;">#</th>
+            <th>Use Case</th>
+            <th style="width:60px;">Score</th>
+            <th style="width:60px;">BU</th>
+            <th style="width:90px;">Status</th>
+            <th>Value Levers</th>
+            <th style="width:130px;">Proj → Act</th>
+            <th style="width:70px;text-align:center;">Edit</th>
+          </tr>
+        </thead>
+        <tbody id="pipelineTbody"></tbody>
+      </table>
+    </div>
+
+    <!-- RESET -->
+    <div style="margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);">
+      <div style="font-size:.8rem;color:var(--muted);margin-bottom:.75rem;">Reset all use case data back to defaults. This cannot be undone.</div>
+      <button class="btn btn-outline btn-sm" onclick="if(confirm('Reset all data to defaults?')) resetUseCases();" style="color:var(--danger);border-color:var(--danger);">Reset to default data</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div>
+      <div style="font-weight:700;color:#fff;margin-bottom:.25rem;">AI Intake &amp; Value Framework</div>
+      <div style="font-size:.85rem;color:rgba(255,255,255,.5);">AI Portfolio Governance for Research &amp; Clinical Operations</div>
+    </div>
+    <nav style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+      <a href="use-cases.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Use Cases</a>
+      <a href="intake-prioritization.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Intake</a>
+      <a href="value-scoring.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Value Scoring</a>
+      <a href="kpi-framework.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">KPI Framework</a>
+      <a href="pipeline-dashboard.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Pipeline &amp; Realization</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/script.js"></script>
+<script>
+(function() {
+
+  var bgMap  = { 'd-qual':'#E6F1FB','d-prod':'#EAF3DE','d-cost':'#FAEEDA','d-rev':'#EAF3DE','d-risk':'#FAECE7' };
+  var clrMap = { 'd-qual':'#0C447C','d-prod':'#27500A','d-cost':'#633806','d-rev':'#3B6D11','d-risk':'#712B13' };
+
+  // Helper: sum values, skipping nulls
+  function sumField(arr, getter) {
+    return arr.reduce(function(acc, uc) {
+      var v = getter(uc);
+      return v != null ? acc + Number(v) : acc;
+    }, 0);
+  }
+  function countActuals(arr, getter) {
+    return arr.filter(function(uc){ return getter(uc) != null; }).length;
+  }
+
+  // ----- RENDER SUMMARY CARDS -----
+  function renderSummary() {
+    var grid = document.getElementById('summaryGrid');
+    grid.innerHTML = '';
+
+    var metrics = [
+      {
+        title: 'Total Hours Saved',
+        proj: sumField(USE_CASES, function(uc){ return uc.projections.hoursSaved; }),
+        act:  sumField(USE_CASES, function(uc){ return uc.actuals.hoursSaved; }),
+        actN: countActuals(USE_CASES, function(uc){ return uc.actuals.hoursSaved; }),
+        fmt: fmtN
+      },
+      {
+        title: 'Users Affected',
+        proj: sumField(USE_CASES, function(uc){ return uc.projections.usersAffected; }),
+        act:  sumField(USE_CASES, function(uc){ return uc.actuals.usersAffected; }),
+        actN: countActuals(USE_CASES, function(uc){ return uc.actuals.usersAffected; }),
+        fmt: fmtN
+      },
+      {
+        title: 'Cost Savings',
+        proj: sumField(USE_CASES, function(uc){ return uc.projections.costSavings; }),
+        act:  sumField(USE_CASES, function(uc){ return uc.actuals.costSavings; }),
+        actN: countActuals(USE_CASES, function(uc){ return uc.actuals.costSavings; }),
+        fmt: fmt$
+      },
+      {
+        title: 'Productivity Savings',
+        proj: sumField(USE_CASES, function(uc){ return uc.projections.productivitySavings; }),
+        act:  sumField(USE_CASES, function(uc){ return uc.actuals.productivitySavings; }),
+        actN: countActuals(USE_CASES, function(uc){ return uc.actuals.productivitySavings; }),
+        fmt: fmt$
+      }
+    ];
+
+    metrics.forEach(function(m) {
+      var card = document.createElement('div');
+      card.className = 'pa-card';
+      card.innerHTML =
+        '<div class="pa-card-title">' + m.title + '</div>' +
+        '<div class="pa-row"><span class="pa-lbl">Projected</span><span class="pa-val">' + m.fmt(m.proj) + '</span></div>' +
+        '<hr class="pa-divider">' +
+        '<div class="pa-row"><span class="pa-lbl">Actual</span><span class="pa-val actual">' + (m.actN > 0 ? m.fmt(m.act) : '—') + '</span></div>' +
+        '<div class="pa-coverage">Actuals from ' + m.actN + ' of ' + USE_CASES.length + ' use cases</div>';
+      grid.appendChild(card);
+    });
+
+    // Coverage note
+    var withActuals = USE_CASES.filter(function(uc){ return uc.actuals.hoursSaved != null; }).length;
+    document.getElementById('coverageNote').textContent =
+      'Actuals from ' + withActuals + ' of ' + USE_CASES.length + ' use cases with production data. Remaining use cases are pre-deployment (projections only).';
+  }
+
+  // ----- STATUS PILL -----
+  function statusClass(s) {
+    var map = { 'Active':'s-active', 'Evaluating':'s-eval', 'Intake':'s-intake', 'Hold':'s-hold' };
+    return map[s] || 's-eval';
+  }
+
+  // ----- RENDER LEVER CHIPS (for edit panel) -----
+  function leverChipsHTML(uc) {
+    return LEVER_IDS.map(function(id) {
+      var bc = LEVER_BADGE_CLASS[id];
+      var bg = bgMap[bc]; var clr = clrMap[bc];
+      var checked = (uc.valueLevers && uc.valueLevers.indexOf(id) >= 0) ? 'checked' : '';
+      return '<label class="lever-chip-lbl"><input type="checkbox" name="el-' + id + '" ' + checked + '>' +
+        '<span class="chip-txt" style="background:' + bg + ';color:' + clr + ';">' + LEVER_LABELS[id] + '</span></label>';
+    }).join('');
+  }
+
+  // ----- RENDER PIPELINE TABLE -----
+  function renderPipeline() {
+    var tbody = document.getElementById('pipelineTbody');
+    tbody.innerHTML = '';
+
+    USE_CASES.forEach(function(uc, i) {
+      var tier = getTier(uc.compositeScore);
+      var scoreStyle = 'display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:' + tier.bg + ';color:' + tier.color + ';';
+
+      // Lever badges
+      var leverBadges = (uc.valueLevers || []).map(function(id) {
+        var bc = LEVER_BADGE_CLASS[id];
+        var bg = bgMap[bc]; var clr = clrMap[bc];
+        return '<span style="display:inline-block;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:600;background:' + bg + ';color:' + clr + ';margin-right:3px;">' + id + '</span>';
+      }).join('');
+
+      // Proj→Act summary
+      var projHrs  = uc.projections.hoursSaved;
+      var actHrs   = uc.actuals.hoursSaved;
+      var projAct  = fmtN(projHrs) + ' → ' + (actHrs != null ? fmtN(actHrs) : '—');
+      var projActStyle = actHrs != null ? 'color:var(--teal-dark);font-weight:600;' : 'color:var(--muted);';
+
+      // Data row
+      var tr = document.createElement('tr');
+      tr.id = 'row-' + i;
+      tr.innerHTML =
+        '<td style="color:var(--light);font-size:11px;">' + (i+1) + '</td>' +
+        '<td><span style="font-weight:600;color:var(--navy);">' + uc.name + '</span></td>' +
+        '<td><span style="' + scoreStyle + '">' + uc.compositeScore + '</span></td>' +
+        '<td><span class="uc-group-label" style="margin:0;font-size:.65rem;">' + uc.businessUnit + '</span></td>' +
+        '<td><span class="status-pill ' + statusClass(uc.status) + '">' + uc.status + '</span></td>' +
+        '<td>' + leverBadges + '</td>' +
+        '<td style="font-size:12px;' + projActStyle + '">' + projAct + ' hrs</td>' +
+        '<td style="text-align:center;"><button class="btn-edit-row" id="editBtn-' + i + '" onclick="toggleEdit(' + i + ')">Edit</button></td>';
+      tbody.appendChild(tr);
+
+      // Edit row
+      var editTr = document.createElement('tr');
+      editTr.className = 'edit-row';
+      editTr.id = 'editRow-' + i;
+
+      var statusOptions = STATUS_OPTIONS.map(function(s) {
+        return '<option value="' + s + '"' + (uc.status === s ? ' selected' : '') + '>' + s + '</option>';
+      }).join('');
+
+      editTr.innerHTML =
+        '<td colspan="8">' +
+        '<div class="edit-panel">' +
+
+        // Left: levers + status
+        '<div class="edit-panel-section">' +
+        '<h4>Value Levers</h4>' +
+        '<div class="lever-chips" id="editLevers-' + i + '">' + leverChipsHTML(uc) + '</div>' +
+        '<div style="margin-top:1rem;">' +
+        '<h4>Status</h4>' +
+        '<select class="status-select" id="editStatus-' + i + '">' + statusOptions + '</select>' +
+        '</div>' +
+        '</div>' +
+
+        // Right: proj vs actuals
+        '<div class="edit-panel-section">' +
+        '<h4>Projected vs Actual Metrics</h4>' +
+        '<div class="pa-edit-header"><span>Metric</span><span style="text-align:right;">Projected</span><span style="text-align:right;">Actual</span></div>' +
+        paEditRow('Hours saved', 'hoursSaved', i, uc, '') +
+        paEditRow('Users affected', 'usersAffected', i, uc, '') +
+        paEditRow('Cycle time reduction (%)', 'cycleTimePct', i, uc, '') +
+        paEditRow('Cost savings ($)', 'costSavings', i, uc, '') +
+        paEditRow('Productivity savings ($)', 'productivitySavings', i, uc, '') +
+        '</div>' +
+
+        '</div>' +
+        '<button class="btn-save-edit" onclick="saveEdit(' + i + ')">Save changes</button>' +
+        '</td>';
+      tbody.appendChild(editTr);
+    });
+  }
+
+  function paEditRow(label, field, i, uc, suffix) {
+    var pVal = uc.projections[field] != null ? uc.projections[field] : '';
+    var aVal = uc.actuals[field] != null ? uc.actuals[field] : '';
+    return '<div class="pa-edit-row">' +
+      '<label>' + label + '</label>' +
+      '<input type="number" id="proj-' + field + '-' + i + '" value="' + pVal + '" placeholder="—" step="any">' +
+      '<input type="number" id="act-' + field + '-' + i + '" value="' + aVal + '" placeholder="—" step="any">' +
+      '</div>';
+  }
+
+  // ----- TOGGLE EDIT ROW -----
+  window.toggleEdit = function(i) {
+    var editRow = document.getElementById('editRow-' + i);
+    var btn = document.getElementById('editBtn-' + i);
+    var isOpen = editRow.classList.contains('open');
+
+    // Close all other open edit rows
+    document.querySelectorAll('.edit-row.open').forEach(function(r) { r.classList.remove('open'); });
+    document.querySelectorAll('.btn-edit-row.active').forEach(function(b) { b.classList.remove('active'); });
+
+    if (!isOpen) {
+      editRow.classList.add('open');
+      btn.classList.add('active');
+      btn.textContent = 'Close';
+    } else {
+      btn.textContent = 'Edit';
+    }
+  };
+
+  // ----- SAVE EDIT -----
+  window.saveEdit = function(i) {
+    var uc = USE_CASES[i];
+
+    // Levers
+    var newLevers = [];
+    LEVER_IDS.forEach(function(id) {
+      var cb = document.querySelector('#editLevers-' + i + ' input[name="el-' + id + '"]');
+      if (cb && cb.checked) newLevers.push(id);
+    });
+    uc.valueLevers = newLevers;
+
+    // Status
+    var stSel = document.getElementById('editStatus-' + i);
+    if (stSel) uc.status = stSel.value;
+
+    // Projections + actuals
+    ['hoursSaved','usersAffected','cycleTimePct','costSavings','productivitySavings'].forEach(function(field) {
+      var pEl = document.getElementById('proj-' + field + '-' + i);
+      var aEl = document.getElementById('act-' + field + '-' + i);
+      if (pEl) uc.projections[field] = pEl.value !== '' ? parseFloat(pEl.value) : null;
+      if (aEl) uc.actuals[field]     = aEl.value !== '' ? parseFloat(aEl.value) : null;
+    });
+
+    // Recalculate score
+    uc.compositeScore = computeComposite(uc.scores, uc.feasibility);
+
+    saveUseCases(USE_CASES);
+
+    // Re-render
+    renderSummary();
+    renderPipeline();
+  };
+
+  // ----- INIT -----
+  renderSummary();
+  renderPipeline();
+
+})();
+</script>
+</body>
+</html>

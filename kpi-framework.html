@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KPI Framework | AI Intake &amp; Value Framework</title>
+  <meta name="description" content="Comprehensive KPI map organized by value lever — covering cycle time, error rate, FTE savings, revenue uplift, and risk resiliency metrics.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-brand-icon">⬡</div>
+      <span>AI Intake &amp; Value Framework</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="use-cases.html">Use Cases</a></li>
+      <li><a href="intake-prioritization.html">Intake &amp; Prioritization</a></li>
+      <li><a href="value-scoring.html">Value Scoring</a></li>
+      <li><a href="kpi-framework.html" class="active">KPI Framework</a></li>
+      <li><a href="pipeline-dashboard.html">Pipeline &amp; Realization</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<header class="page-hero">
+  <div class="wrap">
+    <div class="breadcrumb"><a href="index.html">Home</a><span style="margin:0 .4rem;opacity:.5;">›</span><span>KPI Framework</span></div>
+    <h1>KPI Framework</h1>
+    <p class="lead">A comprehensive KPI map organized by value lever — covering 20+ metrics from cycle time and error rate to findings resolution and sponsor NPS.</p>
+  </div>
+</header>
+
+<!-- KPI TABLE -->
+<section class="section section-alt">
+  <div class="wrap">
+
+    <div class="callout callout-info" style="margin-bottom:2rem;">
+      <div class="callout-title">Note on KPI selection</div>
+      <div class="callout-text">KPIs shown are illustrative examples. Adjust selection to match your use case during intake. Not every KPI applies to every use case — pick 3–5 primary KPIs that can realistically be tracked pre/post deployment.</div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table class="fw-tbl" style="font-size:.85rem;">
+        <thead>
+          <tr>
+            <th style="min-width:160px;">Value lever</th>
+            <th style="min-width:220px;">KPI</th>
+            <th style="min-width:130px;">Measurement type</th>
+            <th>Applicable use cases</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- QUALITY & SPEED -->
+          <tr>
+            <td rowspan="5" style="vertical-align:top;padding-top:1rem;">
+              <span class="dim-badge d-qual" style="font-size:.78rem;padding:4px 10px;">Quality &amp; speed</span>
+            </td>
+            <td style="font-weight:600;color:var(--navy);">Cycle time per report/document</td>
+            <td><span class="badge b-blue">Quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);">BioA Report Writing, ICF Drafting App, Pre-writing CRA Assistant</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--navy);">Review cycle count</td>
+            <td><span class="badge b-blue">Quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);">BioA Report Writing, Pre-writing CRA Assistant, ICF Drafting App</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--navy);">First-pass QA acceptance rate</td>
+            <td><span class="badge b-blue">Quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);">Post-Entry CRA QA, CLS Automation in GCL</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--navy);">Error / defect rate at QA intake</td>
+            <td><span class="badge b-blue">Quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);">Post-Entry CRA QA, BioA Report Writing</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--navy);">Regulatory language alignment (ICF)</td>
+            <td><span class="badge b-teal">Semi-quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);">ICF Drafting App</td>
+          </tr>
+
+          <!-- PRODUCTIVITY SAVINGS (SOFT) -->
+          <tr>
+            <td rowspan="4" style="vertical-align:top;padding-top:1rem;border-top:2px solid var(--border);">
+              <span class="dim-badge d-prod" style="font-size:.78rem;padding:4px 10px;">Productivity savings (soft)</span>
+            </td>
+            <td style="font-weight:600;color:var(--navy);border-top:2px solid var(--border);">Manual authoring hours saved per task</td>
+            <td style="border-top:2px solid var(--border);"><span class="badge b-blue">Quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);border-top:2px solid var(--border);">BioA Report Writing, Pre-writing CRA Assistant, ICF Drafting App</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--navy);">CLS setup time reduction</td>
+            <td><span class="badge b-blue">Quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);">CLS Automation in GCL</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--navy);">QA capacity freed (expert vs low-judgment)</td>
+            <td><span class="badge b-teal">Semi-quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);">Post-Entry CRA QA</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--navy);">Authoring burden score (pre/post)</td>
+            <td><span class="badge b-gray">Qualitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);">Pre-writing CRA Assistant, BioA Report Writing</td>
+          </tr>
+
+          <!-- COST SAVINGS (HARD) -->
+          <tr>
+            <td rowspan="3" style="vertical-align:top;padding-top:1rem;border-top:2px solid var(--border);">
+              <span class="dim-badge d-cost" style="font-size:.78rem;padding:4px 10px;">Cost savings (hard)</span>
+            </td>
+            <td style="font-weight:600;color:var(--navy);border-top:2px solid var(--border);">FTE cost per completed document</td>
+            <td style="border-top:2px solid var(--border);"><span class="badge b-blue">Quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);border-top:2px solid var(--border);">BioA Report Writing, ICF Drafting App</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--navy);">Rework cost avoidance ($)</td>
+            <td><span class="badge b-blue">Quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);">Post-Entry CRA QA, CLS Automation in GCL, ICF Drafting App</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--navy);">Audit / compliance penalty avoidance</td>
+            <td><span class="badge b-teal">Semi-quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);">Post-Entry CRA QA, Findings &amp; Deviations Summary</td>
+          </tr>
+
+          <!-- REVENUE UPLIFT -->
+          <tr>
+            <td rowspan="3" style="vertical-align:top;padding-top:1rem;border-top:2px solid var(--border);">
+              <span class="dim-badge d-rev" style="font-size:.78rem;padding:4px 10px;">Revenue uplift</span>
+            </td>
+            <td style="font-weight:600;color:var(--navy);border-top:2px solid var(--border);">Study / task throughput capacity increase</td>
+            <td style="border-top:2px solid var(--border);"><span class="badge b-blue">Quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);border-top:2px solid var(--border);">BioA Report Writing, CLS Automation in GCL</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--navy);">Lab / CRO billing capacity freed</td>
+            <td><span class="badge b-teal">Semi-quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);">CLS Automation in GCL</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--navy);">Sponsor satisfaction / NPS</td>
+            <td><span class="badge b-gray">Qualitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);">All active use cases</td>
+          </tr>
+
+          <!-- RISK RESILIENCY -->
+          <tr>
+            <td rowspan="4" style="vertical-align:top;padding-top:1rem;border-top:2px solid var(--border);">
+              <span class="dim-badge d-risk" style="font-size:.78rem;padding:4px 10px;">Risk resiliency</span>
+            </td>
+            <td style="font-weight:600;color:var(--navy);border-top:2px solid var(--border);">45-day findings resolution rate</td>
+            <td style="border-top:2px solid var(--border);"><span class="badge b-blue">Quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);border-top:2px solid var(--border);">Post-Entry CRA QA, Findings &amp; Deviations Summary</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--navy);">Portfolio-level risk identification speed</td>
+            <td><span class="badge b-teal">Semi-quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);">Findings &amp; Deviations Summary</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--navy);">GxP audit finding rate</td>
+            <td><span class="badge b-blue">Quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);">Post-Entry CRA QA, CLS Automation in GCL</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--navy);">Data integrity incident rate</td>
+            <td><span class="badge b-blue">Quantitative</span></td>
+            <td style="font-size:.82rem;color:var(--muted);">CLS Automation in GCL, Post-Entry CRA QA</td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- LEGEND -->
+    <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+      <span style="font-size:.8rem;font-weight:600;color:var(--muted);">Measurement types:</span>
+      <span class="badge b-blue">Quantitative</span>
+      <span style="font-size:.8rem;color:var(--muted);">Trackable with data / metrics</span>
+      <span class="badge b-teal">Semi-quantitative</span>
+      <span style="font-size:.8rem;color:var(--muted);">Directional estimates or proxy measures</span>
+      <span class="badge b-gray">Qualitative</span>
+      <span style="font-size:.8rem;color:var(--muted);">Survey / stakeholder perception</span>
+    </div>
+
+    <!-- CTA -->
+    <div style="margin-top:2.5rem;display:flex;gap:1rem;flex-wrap:wrap;">
+      <a href="intake-prioritization.html" class="btn btn-primary">Submit a use case →</a>
+      <a href="value-scoring.html" class="btn btn-outline">Score a use case →</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div>
+      <div style="font-weight:700;color:#fff;margin-bottom:.25rem;">AI Intake &amp; Value Framework</div>
+      <div style="font-size:.85rem;color:rgba(255,255,255,.5);">AI Portfolio Governance for Research &amp; Clinical Operations</div>
+    </div>
+    <nav style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+      <a href="use-cases.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Use Cases</a>
+      <a href="intake-prioritization.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Intake</a>
+      <a href="value-scoring.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Value Scoring</a>
+      <a href="kpi-framework.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">KPI Framework</a>
+      <a href="pipeline-dashboard.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Pipeline &amp; Realization</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="assets/js/script.js"></script>
+</body>
+</html>

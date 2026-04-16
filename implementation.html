@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Implementation Guide — Healthcare AI Intake & Value Framework</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+
+<!-- ═══ NAV ═══════════════════════════════════════════════════════════════ -->
+<nav class="navbar">
+  <a class="nav-brand" href="index.html">Healthcare AI Framework</a>
+  <button class="nav-toggle" aria-label="Toggle menu">&#9776;</button>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="intake.html">Intake</a></li>
+    <li><a href="value-framework.html">Value Framework</a></li>
+    <li><a href="kpi-library.html">KPI Library</a></li>
+    <li><a href="scoring-model.html">Scoring Model</a></li>
+    <li><a href="governance.html">Governance</a></li>
+    <li><a href="implementation.html" class="active">Implementation</a></li>
+    <li><a href="templates.html">Templates</a></li>
+  </ul>
+</nav>
+
+<!-- ═══ PAGE HERO ════════════════════════════════════════════════════════ -->
+<header class="page-hero">
+  <div class="container">
+    <p class="eyebrow">Deployment Playbook</p>
+    <h1>Implementation Guide</h1>
+    <p class="hero-sub">A phased roadmap for deploying the Healthcare AI Intake &amp; Value Framework — from readiness assessment through full enterprise scale.</p>
+  </div>
+</header>
+
+<!-- ═══ MAIN ══════════════════════════════════════════════════════════════ -->
+<main>
+
+  <!-- OVERVIEW CARDS -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">Implementation Overview</h2>
+      <p class="section-sub">The framework deploys across four sequential phases spanning approximately 12 months. Each phase builds on the previous and produces tangible governance artifacts and process improvements.</p>
+
+      <div class="overview-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin-top:2rem;">
+        <div class="phase-overview-card" style="background:#fff;border-radius:10px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.07);border-top:4px solid var(--teal);text-align:center;">
+          <div style="font-size:2rem;font-weight:800;color:var(--teal);">01</div>
+          <div style="font-weight:700;color:var(--navy);margin:.4rem 0 .3rem;">Foundation</div>
+          <div style="font-size:.85rem;color:var(--muted);">Months 1–3</div>
+          <div style="font-size:.85rem;margin-top:.6rem;color:#555;">Governance charter, committee setup, intake process design</div>
+        </div>
+        <div class="phase-overview-card" style="background:#fff;border-radius:10px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.07);border-top:4px solid var(--blue);text-align:center;">
+          <div style="font-size:2rem;font-weight:800;color:var(--blue);">02</div>
+          <div style="font-weight:700;color:var(--navy);margin:.4rem 0 .3rem;">Pilot</div>
+          <div style="font-size:.85rem;color:var(--muted);">Months 4–6</div>
+          <div style="font-size:.85rem;margin-top:.6rem;color:#555;">First cohort through scoring model, baseline KPI measurement</div>
+        </div>
+        <div class="phase-overview-card" style="background:#fff;border-radius:10px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.07);border-top:4px solid #7C3AED;text-align:center;">
+          <div style="font-size:2rem;font-weight:800;color:#7C3AED;">03</div>
+          <div style="font-weight:700;color:var(--navy);margin:.4rem 0 .3rem;">Scale</div>
+          <div style="font-size:.85rem;color:var(--muted);">Months 7–9</div>
+          <div style="font-size:.85rem;margin-top:.6rem;color:#555;">Full portfolio integration, value reporting, tooling rollout</div>
+        </div>
+        <div class="phase-overview-card" style="background:#fff;border-radius:10px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.07);border-top:4px solid #D97706;text-align:center;">
+          <div style="font-size:2rem;font-weight:800;color:#D97706;">04</div>
+          <div style="font-weight:700;color:var(--navy);margin:.4rem 0 .3rem;">Optimize</div>
+          <div style="font-size:.85rem;color:var(--muted);">Months 10–12</div>
+          <div style="font-size:.85rem;margin-top:.6rem;color:#555;">Annual scoring recalibration, advanced analytics, continuous improvement</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHASE 1 -->
+  <section class="section section-alt">
+    <div class="container">
+      <div class="phase-header" style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;">
+        <div style="width:56px;height:56px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;flex-shrink:0;">1</div>
+        <div>
+          <h2 style="margin:0;color:var(--navy);">Phase 1: Foundation <span style="font-size:1rem;font-weight:500;color:var(--muted);">— Months 1–3</span></h2>
+          <p style="margin:.3rem 0 0;color:var(--muted);font-size:.9rem;">Establish the governance infrastructure and design the intake process before any AI use case enters the pipeline.</p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+        <div>
+          <h3 style="color:var(--navy);font-size:1rem;margin-bottom:1rem;">Month-by-Month Milestones</h3>
+          <div class="phase-item">
+            <div class="phase-dot" style="background:var(--teal);"></div>
+            <div>
+              <strong>Month 1 — Governance Setup</strong>
+              <ul style="margin:.4rem 0 0 1rem;font-size:.9rem;color:#555;">
+                <li>Form AI Governance Committee with executive sponsor</li>
+                <li>Draft governance charter and decision rights (RACI)</li>
+                <li>Identify AI Portfolio Lead and domain champions</li>
+                <li>Conduct stakeholder alignment workshop</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase-item">
+            <div class="phase-dot" style="background:var(--teal);"></div>
+            <div>
+              <strong>Month 2 — Framework Configuration</strong>
+              <ul style="margin:.4rem 0 0 1rem;font-size:.9rem;color:#555;">
+                <li>Select configuration tier (Lite / Standard / Enterprise)</li>
+                <li>Customize scoring dimension weights for organizational strategy</li>
+                <li>Map existing KPIs to the six value domains</li>
+                <li>Identify data sources for each KPI category</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase-item">
+            <div class="phase-dot" style="background:var(--teal);"></div>
+            <div>
+              <strong>Month 3 — Process Design</strong>
+              <ul style="margin:.4rem 0 0 1rem;font-size:.9rem;color:#555;">
+                <li>Finalize intake form template and submission workflow</li>
+                <li>Establish Stage-Gate review calendar</li>
+                <li>Deploy tooling (spreadsheet, Jira, or platform)</li>
+                <li>Train committee members on scoring rubrics</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 style="color:var(--navy);font-size:1rem;margin-bottom:1rem;">Phase 1 Deliverables</h3>
+          <table class="fw-tbl">
+            <thead><tr><th>Deliverable</th><th>Owner</th><th>Status Gate</th></tr></thead>
+            <tbody>
+              <tr><td>Governance Charter</td><td>Executive Sponsor</td><td>Month 1 Exit</td></tr>
+              <tr><td>RACI Matrix</td><td>AI Portfolio Lead</td><td>Month 1 Exit</td></tr>
+              <tr><td>Configured Scoring Model</td><td>Analytics Lead</td><td>Month 2 Exit</td></tr>
+              <tr><td>KPI Baseline Inventory</td><td>Domain Champions</td><td>Month 2 Exit</td></tr>
+              <tr><td>Intake Form v1.0</td><td>AI Portfolio Lead</td><td>Month 3 Exit</td></tr>
+              <tr><td>Tooling Deployed</td><td>IT / Operations</td><td>Month 3 Exit</td></tr>
+              <tr><td>Committee Training Complete</td><td>PMO</td><td>Month 3 Exit</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHASE 2 -->
+  <section class="section">
+    <div class="container">
+      <div class="phase-header" style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;">
+        <div style="width:56px;height:56px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;flex-shrink:0;">2</div>
+        <div>
+          <h2 style="margin:0;color:var(--navy);">Phase 2: Pilot <span style="font-size:1rem;font-weight:500;color:var(--muted);">— Months 4–6</span></h2>
+          <p style="margin:.3rem 0 0;color:var(--muted);font-size:.9rem;">Run the first cohort of 5–10 AI use cases through the complete intake and scoring process to validate and refine the framework.</p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+        <div>
+          <h3 style="color:var(--navy);font-size:1rem;margin-bottom:1rem;">Month-by-Month Milestones</h3>
+          <div class="phase-item">
+            <div class="phase-dot" style="background:var(--blue);"></div>
+            <div>
+              <strong>Month 4 — Cohort Selection &amp; Intake</strong>
+              <ul style="margin:.4rem 0 0 1rem;font-size:.9rem;color:#555;">
+                <li>Identify 5–10 pilot use cases across diverse domains</li>
+                <li>Complete intake forms for each use case</li>
+                <li>Run Stage 1 (Submission) and Stage 2 (Triage) reviews</li>
+                <li>Document lessons learned from initial intake submissions</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase-item">
+            <div class="phase-dot" style="background:var(--blue);"></div>
+            <div>
+              <strong>Month 5 — Scoring &amp; Prioritization</strong>
+              <ul style="margin:.4rem 0 0 1rem;font-size:.9rem;color:#555;">
+                <li>Apply composite scoring model to all pilot use cases</li>
+                <li>Hold first formal AI Governance Committee review</li>
+                <li>Generate first prioritized portfolio view</li>
+                <li>Calibrate scoring weights based on committee feedback</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase-item">
+            <div class="phase-dot" style="background:var(--blue);"></div>
+            <div>
+              <strong>Month 6 — Baseline &amp; Refinement</strong>
+              <ul style="margin:.4rem 0 0 1rem;font-size:.9rem;color:#555;">
+                <li>Establish KPI baselines for approved use cases</li>
+                <li>Refine intake form based on submitter feedback</li>
+                <li>Publish pilot retrospective report</li>
+                <li>Obtain executive sign-off to proceed to scale</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 style="color:var(--navy);font-size:1rem;margin-bottom:1rem;">Pilot Success Criteria</h3>
+          <table class="fw-tbl">
+            <thead><tr><th>Criterion</th><th>Target</th></tr></thead>
+            <tbody>
+              <tr><td>Intake submissions completed</td><td>≥ 5 use cases</td></tr>
+              <tr><td>Committee review cycle time</td><td>≤ 15 business days Stage 1→3</td></tr>
+              <tr><td>Scoring inter-rater reliability</td><td>≥ 80% agreement within ±5 pts</td></tr>
+              <tr><td>Submitter satisfaction score</td><td>≥ 3.5 / 5.0</td></tr>
+              <tr><td>KPI baselines established</td><td>≥ 1 primary KPI per approved case</td></tr>
+              <tr><td>Portfolio view published</td><td>Yes — reviewed by CFO / CMO</td></tr>
+              <tr><td>Retrospective report delivered</td><td>Yes — approved by sponsor</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHASE 3 -->
+  <section class="section section-alt">
+    <div class="container">
+      <div class="phase-header" style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;">
+        <div style="width:56px;height:56px;border-radius:50%;background:#7C3AED;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;flex-shrink:0;">3</div>
+        <div>
+          <h2 style="margin:0;color:var(--navy);">Phase 3: Scale <span style="font-size:1rem;font-weight:500;color:var(--muted);">— Months 7–9</span></h2>
+          <p style="margin:.3rem 0 0;color:var(--muted);font-size:.9rem;">Extend the framework to the full enterprise AI portfolio, integrate with existing PMO processes, and launch portfolio-level value reporting.</p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+        <div>
+          <h3 style="color:var(--navy);font-size:1rem;margin-bottom:1rem;">Month-by-Month Milestones</h3>
+          <div class="phase-item">
+            <div class="phase-dot" style="background:#7C3AED;"></div>
+            <div>
+              <strong>Month 7 — Enterprise Rollout</strong>
+              <ul style="margin:.4rem 0 0 1rem;font-size:.9rem;color:#555;">
+                <li>Open intake pipeline to all departments / business units</li>
+                <li>Onboard all domain champions to governance process</li>
+                <li>Migrate legacy AI initiatives into portfolio view</li>
+                <li>Launch internal communications campaign</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase-item">
+            <div class="phase-dot" style="background:#7C3AED;"></div>
+            <div>
+              <strong>Month 8 — Value Reporting</strong>
+              <ul style="margin:.4rem 0 0 1rem;font-size:.9rem;color:#555;">
+                <li>Launch first quarterly portfolio dashboard</li>
+                <li>Implement KPI data collection workflows</li>
+                <li>Present portfolio status at C-suite review</li>
+                <li>Integrate with financial reporting calendar</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase-item">
+            <div class="phase-dot" style="background:#7C3AED;"></div>
+            <div>
+              <strong>Month 9 — Tooling &amp; Automation</strong>
+              <ul style="margin:.4rem 0 0 1rem;font-size:.9rem;color:#555;">
+                <li>Deploy automated scoring workflows (if Enterprise tier)</li>
+                <li>Integrate with JIRA / ServiceNow / project management tools</li>
+                <li>Build automated portfolio health dashboards</li>
+                <li>Establish data pipeline for KPI auto-refresh</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 style="color:var(--navy);font-size:1rem;margin-bottom:1rem;">Scale Phase KPIs</h3>
+          <table class="fw-tbl">
+            <thead><tr><th>Metric</th><th>Target at Month 9</th></tr></thead>
+            <tbody>
+              <tr><td>Active use cases in pipeline</td><td>≥ 20</td></tr>
+              <tr><td>Departments covered</td><td>≥ 80% of clinical &amp; operational</td></tr>
+              <tr><td>Portfolio dashboard live</td><td>Yes — updated monthly</td></tr>
+              <tr><td>KPI data coverage</td><td>≥ 70% primary KPIs tracked</td></tr>
+              <tr><td>Governance review cadence</td><td>Monthly committee meetings established</td></tr>
+              <tr><td>Executive reporting</td><td>Quarterly C-suite portfolio review</td></tr>
+              <tr><td>PMO integration</td><td>Framework embedded in project intake SOP</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHASE 4 -->
+  <section class="section">
+    <div class="container">
+      <div class="phase-header" style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;">
+        <div style="width:56px;height:56px;border-radius:50%;background:#D97706;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;flex-shrink:0;">4</div>
+        <div>
+          <h2 style="margin:0;color:var(--navy);">Phase 4: Optimize <span style="font-size:1rem;font-weight:500;color:var(--muted);">— Months 10–12</span></h2>
+          <p style="margin:.3rem 0 0;color:var(--muted);font-size:.9rem;">Mature the framework through data-driven calibration, advanced analytics, and embedding continuous improvement into the governance rhythm.</p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+        <div>
+          <h3 style="color:var(--navy);font-size:1rem;margin-bottom:1rem;">Month-by-Month Milestones</h3>
+          <div class="phase-item">
+            <div class="phase-dot" style="background:#D97706;"></div>
+            <div>
+              <strong>Month 10 — Scoring Recalibration</strong>
+              <ul style="margin:.4rem 0 0 1rem;font-size:.9rem;color:#555;">
+                <li>Analyze scoring outcomes vs. actual project performance</li>
+                <li>Recalibrate dimension weights based on realized value data</li>
+                <li>Update rubric criteria to reflect learned patterns</li>
+                <li>Publish scoring model v2.0</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase-item">
+            <div class="phase-dot" style="background:#D97706;"></div>
+            <div>
+              <strong>Month 11 — Advanced Analytics</strong>
+              <ul style="margin:.4rem 0 0 1rem;font-size:.9rem;color:#555;">
+                <li>Build predictive model for project success likelihood</li>
+                <li>Portfolio concentration analysis by domain and tier</li>
+                <li>ROI attribution reporting for completed use cases</li>
+                <li>Benchmark against external healthcare AI portfolios</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase-item">
+            <div class="phase-dot" style="background:#D97706;"></div>
+            <div>
+              <strong>Month 12 — Annual Review &amp; Renewal</strong>
+              <ul style="margin:.4rem 0 0 1rem;font-size:.9rem;color:#555;">
+                <li>Conduct full annual portfolio review with board</li>
+                <li>Refresh strategic alignment criteria for next fiscal year</li>
+                <li>Publish Year 1 AI Portfolio Impact Report</li>
+                <li>Finalize framework v2.0 roadmap for Year 2</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 style="color:var(--navy);font-size:1rem;margin-bottom:1rem;">Year 1 Success Definition</h3>
+          <table class="fw-tbl">
+            <thead><tr><th>Outcome</th><th>Target</th></tr></thead>
+            <tbody>
+              <tr><td>Use cases evaluated through full framework</td><td>≥ 30</td></tr>
+              <tr><td>Tier 1 projects delivering measurable value</td><td>≥ 3 with quantified ROI</td></tr>
+              <tr><td>Portfolio waste reduction</td><td>≥ 20% reduction in low-value projects started</td></tr>
+              <tr><td>Stakeholder satisfaction</td><td>≥ 4.0 / 5.0 governance NPS</td></tr>
+              <tr><td>Decision cycle time</td><td>≤ 30 days intake-to-decision</td></tr>
+              <tr><td>Framework adoption</td><td>100% new AI projects go through intake</td></tr>
+              <tr><td>Board-level reporting</td><td>Quarterly AI portfolio briefings established</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONFIGURATION OPTIONS -->
+  <section class="section section-alt">
+    <div class="container">
+      <h2 class="section-title">Configuration Options</h2>
+      <p class="section-sub">The framework can be deployed at three levels of maturity depending on organizational size, AI portfolio volume, and governance sophistication.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:2rem;">
+
+        <!-- Lite -->
+        <div style="background:#fff;border-radius:12px;padding:2rem;box-shadow:0 2px 12px rgba(0,0,0,.08);border:2px solid #E2E8F0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+            <h3 style="margin:0;color:var(--navy);">Lite</h3>
+            <span style="background:#F0FDF4;color:#16A34A;padding:.3rem .8rem;border-radius:20px;font-size:.8rem;font-weight:600;">Getting Started</span>
+          </div>
+          <p style="font-size:.9rem;color:#555;margin-bottom:1.2rem;">Best for organizations new to AI governance or with fewer than 10 active AI initiatives.</p>
+          <ul style="list-style:none;padding:0;margin:0;font-size:.9rem;color:#555;">
+            <li style="padding:.4rem 0;border-bottom:1px solid #F1F5F9;">✓ Spreadsheet-based intake form</li>
+            <li style="padding:.4rem 0;border-bottom:1px solid #F1F5F9;">✓ Manual composite scoring</li>
+            <li style="padding:.4rem 0;border-bottom:1px solid #F1F5F9;">✓ Quarterly committee reviews</li>
+            <li style="padding:.4rem 0;border-bottom:1px solid #F1F5F9;">✓ 3-person governance committee</li>
+            <li style="padding:.4rem 0;border-bottom:1px solid #F1F5F9;">✓ Core 20 KPIs (Primary tier only)</li>
+            <li style="padding:.4rem 0;">✓ Simple portfolio tracker tab</li>
+          </ul>
+          <div style="margin-top:1.2rem;padding-top:1rem;border-top:1px solid #F1F5F9;font-size:.85rem;color:var(--muted);">
+            <strong>Effort:</strong> 1–2 FTE months to deploy
+          </div>
+        </div>
+
+        <!-- Standard -->
+        <div style="background:#fff;border-radius:12px;padding:2rem;box-shadow:0 4px 20px rgba(8,145,178,.15);border:2px solid var(--teal);position:relative;">
+          <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--teal);color:#fff;padding:.25rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;">Recommended</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;margin-top:.5rem;">
+            <h3 style="margin:0;color:var(--navy);">Standard</h3>
+            <span style="background:#EFF6FF;color:var(--blue);padding:.3rem .8rem;border-radius:20px;font-size:.8rem;font-weight:600;">Most Common</span>
+          </div>
+          <p style="font-size:.9rem;color:#555;margin-bottom:1.2rem;">Best for organizations with 10–40 active AI use cases and an established PMO function.</p>
+          <ul style="list-style:none;padding:0;margin:0;font-size:.9rem;color:#555;">
+            <li style="padding:.4rem 0;border-bottom:1px solid #F1F5F9;">✓ Structured intake form (this framework's template)</li>
+            <li style="padding:.4rem 0;border-bottom:1px solid #F1F5F9;">✓ Weighted scoring calculator</li>
+            <li style="padding:.4rem 0;border-bottom:1px solid #F1F5F9;">✓ Monthly committee reviews + quarterly board</li>
+            <li style="padding:.4rem 0;border-bottom:1px solid #F1F5F9;">✓ Full 6-role governance committee</li>
+            <li style="padding:.4rem 0;border-bottom:1px solid #F1F5F9;">✓ Full 80+ KPI library (Primary + Secondary)</li>
+            <li style="padding:.4rem 0;">✓ Portfolio dashboard (Power BI / Tableau)</li>
+          </ul>
+          <div style="margin-top:1.2rem;padding-top:1rem;border-top:1px solid #F1F5F9;font-size:.85rem;color:var(--muted);">
+            <strong>Effort:</strong> 3–4 FTE months to deploy
+          </div>
+        </div>
+
+        <!-- Enterprise -->
+        <div style="background:#fff;border-radius:12px;padding:2rem;box-shadow:0 2px 12px rgba(0,0,0,.08);border:2px solid #E2E8F0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+            <h3 style="margin:0;color:var(--navy);">Enterprise</h3>
+            <span style="background:#F5F3FF;color:#7C3AED;padding:.3rem .8rem;border-radius:20px;font-size:.8rem;font-weight:600;">Full Scale</span>
+          </div>
+          <p style="font-size:.9rem;color:#555;margin-bottom:1.2rem;">Best for health systems with 40+ active AI projects, mature data infrastructure, and dedicated AI governance teams.</p>
+          <ul style="list-style:none;padding:0;margin:0;font-size:.9rem;color:#555;">
+            <li style="padding:.4rem 0;border-bottom:1px solid #F1F5F9;">✓ Platform-integrated intake (Jira / ServiceNow)</li>
+            <li style="padding:.4rem 0;border-bottom:1px solid #F1F5F9;">✓ Automated scoring + ML-assisted triage</li>
+            <li style="padding:.4rem 0;border-bottom:1px solid #F1F5F9;">✓ Continuous review + real-time portfolio alerts</li>
+            <li style="padding:.4rem 0;border-bottom:1px solid #F1F5F9;">✓ Extended committee + AI Ethics Board</li>
+            <li style="padding:.4rem 0;border-bottom:1px solid #F1F5F9;">✓ Full KPI library + custom domain KPIs</li>
+            <li style="padding:.4rem 0;">✓ Real-time portfolio intelligence platform</li>
+          </ul>
+          <div style="margin-top:1.2rem;padding-top:1rem;border-top:1px solid #F1F5F9;font-size:.85rem;color:var(--muted);">
+            <strong>Effort:</strong> 6–9 FTE months to deploy
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMON PITFALLS -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">Common Pitfalls &amp; Mitigations</h2>
+      <p class="section-sub">Lessons learned from healthcare AI governance implementations across academic medical centers and health systems.</p>
+      <table class="fw-tbl" style="margin-top:1.5rem;">
+        <thead>
+          <tr>
+            <th>Pitfall</th>
+            <th>Root Cause</th>
+            <th>Mitigation</th>
+            <th>Warning Signs</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Governance theater</strong> — process exists but decisions are pre-made</td>
+            <td>Committee lacks authority or executive buy-in</td>
+            <td>Embed explicit veto rights in governance charter; require CFO/CMO signature on Tier 1 approvals</td>
+            <td>100% approval rate; no projects declined</td>
+          </tr>
+          <tr>
+            <td><strong>Score gaming</strong> — submitters learn to inflate scores</td>
+            <td>Scoring rubrics too subjective; no calibration</td>
+            <td>Use blind scoring with at least 2 independent reviewers; anchor scores to concrete evidence</td>
+            <td>Average submission score creep &gt;5 pts per quarter</td>
+          </tr>
+          <tr>
+            <td><strong>KPI theater</strong> — metrics tracked but not acted on</td>
+            <td>No one owns outcome accountability</td>
+            <td>Assign named KPI owners; tie portfolio reviews to KPI actuals; sunset projects missing targets</td>
+            <td>KPIs reported but never trigger committee action</td>
+          </tr>
+          <tr>
+            <td><strong>Intake fatigue</strong> — submitters bypass process</td>
+            <td>Form too long; turnaround time too slow</td>
+            <td>Keep intake form under 30 min to complete; target ≤ 15 day Stage 1→3 cycle; provide concierge support</td>
+            <td>Direct-to-IT AI project starts without committee review</td>
+          </tr>
+          <tr>
+            <td><strong>Strategic drift</strong> — portfolio misaligned with organizational goals</td>
+            <td>Alignment criteria not refreshed annually</td>
+            <td>Annual scoring weight recalibration tied to strategic planning cycle; board-level portfolio review</td>
+            <td>Portfolio skewed heavily toward one domain; Tier 1 projects not in strategic plan</td>
+          </tr>
+          <tr>
+            <td><strong>Value attribution gap</strong> — hard to prove AI ROI</td>
+            <td>No pre-implementation baseline; attribution too narrow</td>
+            <td>Mandate baseline KPI measurement before go-live; use control groups or interrupted time series analysis</td>
+            <td>Projects in production with no outcome data after 6 months</td>
+          </tr>
+          <tr>
+            <td><strong>Siloed governance</strong> — clinical and IT AI initiatives not aligned</td>
+            <td>Separate governance structures for clinical vs. IT</td>
+            <td>Single intake funnel for all AI (clinical, operational, research); unified committee with cross-domain membership</td>
+            <td>Duplicate AI projects discovered at late stage</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- INTEGRATION MAP -->
+  <section class="section section-alt">
+    <div class="container">
+      <h2 class="section-title">Integration Map</h2>
+      <p class="section-sub">How the AI Intake &amp; Value Framework connects with existing enterprise systems and processes.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin-top:2rem;">
+
+        <div style="background:#fff;border-radius:10px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.07);">
+          <div style="font-size:1.4rem;margin-bottom:.8rem;">🏗️</div>
+          <h3 style="color:var(--navy);font-size:1rem;margin:0 0 .6rem;">PMO / Project Intake</h3>
+          <p style="font-size:.87rem;color:#555;margin:0;">AI intake form replaces or augments existing project request process. Scoring output feeds into capital planning and resource allocation.</p>
+          <div style="margin-top:1rem;font-size:.82rem;color:var(--teal);font-weight:600;">Integration Point: Project intake SOP</div>
+        </div>
+
+        <div style="background:#fff;border-radius:10px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.07);">
+          <div style="font-size:1.4rem;margin-bottom:.8rem;">💰</div>
+          <h3 style="color:var(--navy);font-size:1rem;margin:0 0 .6rem;">Finance / Budgeting</h3>
+          <p style="font-size:.87rem;color:#555;margin:0;">Value framework outputs inform budget submissions. KPI actuals feed into financial reporting. ROI tracking aligns with fiscal year reporting cadence.</p>
+          <div style="margin-top:1rem;font-size:.82rem;color:var(--teal);font-weight:600;">Integration Point: Capital budget process</div>
+        </div>
+
+        <div style="background:#fff;border-radius:10px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.07);">
+          <div style="font-size:1.4rem;margin-bottom:.8rem;">⚕️</div>
+          <h3 style="color:var(--navy);font-size:1rem;margin:0 0 .6rem;">Clinical Quality / Accreditation</h3>
+          <p style="font-size:.87rem;color:#555;margin:0;">Clinical quality KPIs (HEDIS, patient safety) feed from existing reporting systems. Framework supports Joint Commission and CMS AI accountability requirements.</p>
+          <div style="margin-top:1rem;font-size:.82rem;color:var(--teal);font-weight:600;">Integration Point: Quality management system</div>
+        </div>
+
+        <div style="background:#fff;border-radius:10px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.07);">
+          <div style="font-size:1.4rem;margin-bottom:.8rem;">🔒</div>
+          <h3 style="color:var(--navy);font-size:1rem;margin:0 0 .6rem;">Compliance / Risk</h3>
+          <p style="font-size:.87rem;color:#555;margin:0;">Risk &amp; Resiliency domain integrates with enterprise risk register. AI ethics checklist embedded in Stage 4 (Validation). HIPAA/FDA alignment built into scoring rubric.</p>
+          <div style="margin-top:1rem;font-size:.82rem;color:var(--teal);font-weight:600;">Integration Point: Enterprise risk register</div>
+        </div>
+
+        <div style="background:#fff;border-radius:10px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.07);">
+          <div style="font-size:1.4rem;margin-bottom:.8rem;">🖥️</div>
+          <h3 style="color:var(--navy);font-size:1rem;margin:0 0 .6rem;">IT / Architecture Review</h3>
+          <p style="font-size:.87rem;color:#555;margin:0;">Stage 3 (Architecture Review) maps to existing IT governance. Feasibility scoring dimension inputs from IT complexity assessment. Security review checkpoints aligned.</p>
+          <div style="margin-top:1rem;font-size:.82rem;color:var(--teal);font-weight:600;">Integration Point: IT architecture board</div>
+        </div>
+
+        <div style="background:#fff;border-radius:10px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.07);">
+          <div style="font-size:1.4rem;margin-bottom:.8rem;">📊</div>
+          <h3 style="color:var(--navy);font-size:1rem;margin:0 0 .6rem;">Analytics / Data Platform</h3>
+          <p style="font-size:.87rem;color:#555;margin:0;">KPI library maps to existing data warehouse tables and analytics catalogs. Automated KPI refresh via existing BI pipelines (Epic, Epic Caboodle, Clarity, Snowflake).</p>
+          <div style="margin-top:1rem;font-size:.82rem;color:var(--teal);font-weight:600;">Integration Point: Analytics data catalog</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- READINESS CHECKLIST -->
+  <section class="section dark-section">
+    <div class="container">
+      <h2 class="section-title" style="color:#fff;">Pre-Launch Readiness Checklist</h2>
+      <p class="section-sub" style="color:rgba(255,255,255,.75);">Complete these items before opening the intake pipeline to the organization.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;">
+        <div>
+          <h3 style="color:#93C5FD;font-size:1rem;margin-bottom:1rem;">Governance Readiness</h3>
+          <ul style="list-style:none;padding:0;margin:0;color:rgba(255,255,255,.85);font-size:.9rem;">
+            <li style="padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.1);">☐ Executive sponsor identified and committed</li>
+            <li style="padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.1);">☐ Governance charter drafted and approved</li>
+            <li style="padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.1);">☐ Committee membership confirmed (min. 4 roles)</li>
+            <li style="padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.1);">☐ Decision rights (RACI) defined and communicated</li>
+            <li style="padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.1);">☐ Escalation path documented</li>
+            <li style="padding:.5rem 0;">☐ Review cadence scheduled on calendars</li>
+          </ul>
+        </div>
+        <div>
+          <h3 style="color:#93C5FD;font-size:1rem;margin-bottom:1rem;">Process &amp; Tools Readiness</h3>
+          <ul style="list-style:none;padding:0;margin:0;color:rgba(255,255,255,.85);font-size:.9rem;">
+            <li style="padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.1);">☐ Intake form finalized and accessible to submitters</li>
+            <li style="padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.1);">☐ Scoring model calibrated and tested</li>
+            <li style="padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.1);">☐ Portfolio tracking tool deployed</li>
+            <li style="padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.1);">☐ KPI baseline collection process defined</li>
+            <li style="padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.1);">☐ Communications plan executed (org-wide awareness)</li>
+            <li style="padding:.5rem 0;">☐ Training completed for all committee members</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══ FOOTER ════════════════════════════════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div>
+      <strong>Healthcare AI Intake &amp; Value Framework</strong>
+      <p style="margin:.4rem 0 0;font-size:.85rem;opacity:.7;">Enterprise AI Portfolio Governance for Health Systems</p>
+    </div>
+    <nav class="footer-nav">
+      <a href="index.html">Home</a>
+      <a href="intake.html">Intake</a>
+      <a href="value-framework.html">Value Framework</a>
+      <a href="kpi-library.html">KPI Library</a>
+      <a href="scoring-model.html">Scoring Model</a>
+      <a href="governance.html">Governance</a>
+      <a href="implementation.html">Implementation</a>
+      <a href="templates.html">Templates</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="assets/js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intake &amp; Prioritization | AI Intake &amp; Value Framework</title>
+  <meta name="description" content="Submit a new AI use case for evaluation. Capture problem context, proposed solution, value levers, and KPIs for structured prioritization.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-brand-icon">⬡</div>
+      <span>AI Intake &amp; Value Framework</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="use-cases.html">Use Cases</a></li>
+      <li><a href="intake-prioritization.html" class="active">Intake &amp; Prioritization</a></li>
+      <li><a href="value-scoring.html">Value Scoring</a></li>
+      <li><a href="kpi-framework.html">KPI Framework</a></li>
+      <li><a href="pipeline-dashboard.html">Pipeline &amp; Realization</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<header class="page-hero">
+  <div class="wrap">
+    <div class="breadcrumb"><a href="index.html">Home</a><span style="margin:0 .4rem;opacity:.5;">›</span><span>Intake &amp; Prioritization</span></div>
+    <h1>Intake &amp; Prioritization</h1>
+    <p class="lead">Submit a new AI or automation use case for evaluation. Complete all five sections to ensure your submission enters the pipeline with consistent, actionable information.</p>
+  </div>
+</header>
+
+<!-- INTAKE FORM -->
+<section class="section section-alt">
+  <div class="wrap" style="max-width:860px;">
+
+    <div class="callout callout-info" style="margin-bottom:2rem;">
+      <div class="callout-title">How intake works</div>
+      <div class="callout-text">Fill out this form to add a use case to the shared pipeline. After submission, navigate to <a href="value-scoring.html" style="color:var(--blue);font-weight:600;">Value Scoring</a> to score your use case and assign a composite priority tier.</div>
+    </div>
+
+    <form id="intakeForm" novalidate>
+
+      <!-- SECTION 1: BASIC INFO -->
+      <div class="intake-card" style="margin-bottom:1.5rem;">
+        <div class="form-section-title">1. Basic Information</div>
+
+        <div class="intake-field">
+          <label class="intake-label" for="ucName">Use Case Name <span style="color:var(--danger);">*</span></label>
+          <input class="intake-input" type="text" id="ucName" placeholder="e.g. BioA AI-Augmented Report Writing" required>
+        </div>
+
+        <div class="intake-grid-2">
+          <div class="intake-field">
+            <label class="intake-label" for="ucBU">Business Unit</label>
+            <select class="intake-select" id="ucBU"></select>
+          </div>
+          <div class="intake-field">
+            <label class="intake-label" for="ucStatus">Initial Status</label>
+            <select class="intake-select" id="ucStatus"></select>
+          </div>
+        </div>
+
+        <div class="intake-grid-2">
+          <div class="intake-field">
+            <label class="intake-label" for="ucAIType">AI / Automation Type</label>
+            <select class="intake-select" id="ucAIType"></select>
+          </div>
+          <div class="intake-field">
+            <label class="intake-label" for="ucRegulatory">Regulatory Environment</label>
+            <select class="intake-select" id="ucRegulatory">
+              <option value="GxP-regulated">GxP-regulated</option>
+              <option value="Non-GxP">Non-GxP</option>
+              <option value="Mixed">Mixed</option>
+              <option value="Unknown">Unknown</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="intake-grid-2">
+          <div class="intake-field">
+            <label class="intake-label" for="ucSponsor">Executive Sponsor</label>
+            <input class="intake-input" type="text" id="ucSponsor" placeholder="e.g. VP, Analytical Sciences">
+          </div>
+          <div class="intake-field">
+            <label class="intake-label" for="ucUsers">Estimated Users</label>
+            <select class="intake-select" id="ucUsers">
+              <option value="1–10">1–10</option>
+              <option value="11–50" selected>11–50</option>
+              <option value="51–200">51–200</option>
+              <option value="200+">200+</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: PROBLEM & SOLUTION -->
+      <div class="intake-card" style="margin-bottom:1.5rem;">
+        <div class="form-section-title">2. Problem &amp; Proposed Solution</div>
+
+        <div class="intake-field">
+          <label class="intake-label" for="ucProblem">Problem Statement</label>
+          <textarea class="intake-textarea" id="ucProblem" placeholder="Describe the current pain point, inefficiency, or risk being addressed. What is broken or slow today?" style="min-height:100px;"></textarea>
+        </div>
+
+        <div class="intake-field">
+          <label class="intake-label" for="ucSolution">Proposed AI Solution</label>
+          <textarea class="intake-textarea" id="ucSolution" placeholder="Describe the proposed AI or automation approach. What will it do? What inputs does it use?" style="min-height:100px;"></textarea>
+        </div>
+      </div>
+
+      <!-- SECTION 3: FEASIBILITY -->
+      <div class="intake-card" style="margin-bottom:1.5rem;">
+        <div class="form-section-title">3. Feasibility Signals</div>
+
+        <div class="intake-grid-3">
+          <div class="intake-field">
+            <label class="intake-label" for="ucDataAvail">Data Availability</label>
+            <select class="intake-select" id="ucDataAvail">
+              <option value="Readily available">Readily available</option>
+              <option value="Partial – needs work">Partial – needs work</option>
+              <option value="Significant gaps">Significant gaps</option>
+              <option value="Unknown">Unknown</option>
+            </select>
+          </div>
+          <div class="intake-field">
+            <label class="intake-label" for="ucComplexity">Implementation Complexity</label>
+            <select class="intake-select" id="ucComplexity">
+              <option value="Low (&lt;1 month)">Low (&lt;1 month)</option>
+              <option value="Medium (1–3 months)" selected>Medium (1–3 months)</option>
+              <option value="High (3–6 months)">High (3–6 months)</option>
+              <option value="Very high (6+ months)">Very high (6+ months)</option>
+            </select>
+          </div>
+          <div class="intake-field">
+            <label class="intake-label" for="ucRegRisk">Regulatory Risk Level</label>
+            <select class="intake-select" id="ucRegRisk">
+              <option value="Low">Low</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: VALUE LEVERS -->
+      <div class="intake-card" style="margin-bottom:1.5rem;">
+        <div class="form-section-title">4. Value Levers</div>
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem;">Select all value levers this use case is expected to impact. You will score each lever in detail on the Value Scoring page.</p>
+        <div class="lever-chips" id="leverChips"></div>
+      </div>
+
+      <!-- SECTION 5: KPI TAGS -->
+      <div class="intake-card" style="margin-bottom:1.5rem;">
+        <div class="form-section-title">5. Key KPIs</div>
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem;">Select the KPIs most relevant to measuring this use case's success. You can adjust these at any time.</p>
+        <div class="kpi-tag-cloud" id="kpiTagCloud"></div>
+      </div>
+
+      <!-- SUBMIT -->
+      <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+        <button type="submit" class="btn btn-primary" style="font-size:.95rem;padding:.75rem 2rem;">Submit Use Case →</button>
+        <button type="button" class="btn btn-outline btn-sm" id="resetFormBtn">Reset form</button>
+        <span id="validationMsg" style="font-size:.85rem;color:var(--danger);display:none;">Please enter a use case name before submitting.</span>
+      </div>
+
+    </form>
+
+    <!-- CONFIRMATION -->
+    <div class="submit-confirmation" id="submitConfirmation">
+      <h3>&#10003; Use case submitted successfully</h3>
+      <p id="confirmText">Your use case has been added to the pipeline. Next step: score it to assign a composite priority tier and understand its value potential.</p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+        <a href="value-scoring.html" class="btn btn-primary" id="scoreThisBtn">Score this use case →</a>
+        <button class="btn btn-outline btn-sm" id="addAnotherBtn">Add another use case</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div>
+      <div style="font-weight:700;color:#fff;margin-bottom:.25rem;">AI Intake &amp; Value Framework</div>
+      <div style="font-size:.85rem;color:rgba(255,255,255,.5);">AI Portfolio Governance for Research &amp; Clinical Operations</div>
+    </div>
+    <nav style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+      <a href="use-cases.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Use Cases</a>
+      <a href="intake-prioritization.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Intake</a>
+      <a href="value-scoring.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Value Scoring</a>
+      <a href="kpi-framework.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">KPI Framework</a>
+      <a href="pipeline-dashboard.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Pipeline &amp; Realization</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/script.js"></script>
+<script>
+(function() {
+
+  // Populate BU dropdown
+  var buSel = document.getElementById('ucBU');
+  BU_OPTIONS.forEach(function(b) {
+    var o = document.createElement('option'); o.value = b; o.textContent = b; buSel.appendChild(o);
+  });
+
+  // Populate AI type dropdown
+  var aiSel = document.getElementById('ucAIType');
+  AI_TYPES.forEach(function(t) {
+    var o = document.createElement('option'); o.value = t; o.textContent = t; aiSel.appendChild(o);
+  });
+
+  // Populate status dropdown
+  var stSel = document.getElementById('ucStatus');
+  STATUS_OPTIONS.forEach(function(s) {
+    var o = document.createElement('option'); o.value = s; o.textContent = s; stSel.appendChild(o);
+  });
+  stSel.value = 'Intake';
+
+  // Render lever chips
+  var leverWrap = document.getElementById('leverChips');
+  var bgMap = { 'd-qual':'#E6F1FB', 'd-prod':'#EAF3DE', 'd-cost':'#FAEEDA', 'd-rev':'#EAF3DE', 'd-risk':'#FAECE7' };
+  var clrMap = { 'd-qual':'#0C447C', 'd-prod':'#27500A', 'd-cost':'#633806', 'd-rev':'#3B6D11', 'd-risk':'#712B13' };
+
+  LEVER_IDS.forEach(function(id) {
+    var bc = LEVER_BADGE_CLASS[id];
+    var bg = bgMap[bc] || '#F1F5F9';
+    var clr = clrMap[bc] || '#475569';
+
+    var lbl = document.createElement('label');
+    lbl.className = 'lever-chip-lbl';
+    lbl.innerHTML =
+      '<input type="checkbox" name="lever" value="' + id + '">' +
+      '<span class="chip-txt" style="background:' + bg + ';color:' + clr + ';">' + LEVER_LABELS[id] + '</span>';
+    leverWrap.appendChild(lbl);
+  });
+
+  // Render KPI tag cloud
+  var kpiWrap = document.getElementById('kpiTagCloud');
+  KPI_TAGS.forEach(function(tag) {
+    var lbl = document.createElement('label');
+    lbl.className = 'kpi-tag-lbl';
+    lbl.innerHTML =
+      '<input type="checkbox" name="kpiTag" value="' + tag.id + '">' +
+      '<span class="tag-txt">' + tag.label + '</span>';
+    kpiWrap.appendChild(lbl);
+  });
+
+  // Form submit
+  var form = document.getElementById('intakeForm');
+  var confirmation = document.getElementById('submitConfirmation');
+  var validationMsg = document.getElementById('validationMsg');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var name = document.getElementById('ucName').value.trim();
+    if (!name) {
+      validationMsg.style.display = 'inline';
+      document.getElementById('ucName').focus();
+      return;
+    }
+    validationMsg.style.display = 'none';
+
+    // Collect selected levers
+    var selectedLevers = [];
+    document.querySelectorAll('#leverChips input[type=checkbox]:checked').forEach(function(cb) {
+      selectedLevers.push(cb.value);
+    });
+
+    // Collect selected KPI tags
+    var selectedKPIs = [];
+    document.querySelectorAll('#kpiTagCloud input[type=checkbox]:checked').forEach(function(cb) {
+      selectedKPIs.push(cb.value);
+    });
+
+    // Build new UC object with defaults for scoring fields
+    var newUC = {
+      id: 'uc-' + Date.now(),
+      name: name,
+      businessUnit: document.getElementById('ucBU').value,
+      aiType: document.getElementById('ucAIType').value,
+      regulatory: document.getElementById('ucRegulatory').value,
+      status: document.getElementById('ucStatus').value,
+      problemStatement: document.getElementById('ucProblem').value.trim(),
+      proposedSolution: document.getElementById('ucSolution').value.trim(),
+      estimatedUsers: document.getElementById('ucUsers').value,
+      dataAvailability: document.getElementById('ucDataAvail').value,
+      complexity: document.getElementById('ucComplexity').value,
+      sponsor: document.getElementById('ucSponsor').value.trim(),
+      valueLevers: selectedLevers,
+      kpiTags: selectedKPIs,
+      scores: { quality:3, productivity:3, cost:3, revenue:3, risk:3 },
+      feasibility: { dataReadiness:3, techComplexity:3, regulatoryRisk:3 },
+      productivityAssumption: { hourlyRate:65, hoursPerTask:2, tasksPerYear:200 },
+      compositeScore: 0,
+      projections: { hoursSaved:null, usersAffected:null, cycleTimePct:null, costSavings:null, productivitySavings:null },
+      actuals: { hoursSaved:null, usersAffected:null, cycleTimePct:null, costSavings:null, productivitySavings:null }
+    };
+    newUC.compositeScore = computeComposite(newUC.scores, newUC.feasibility);
+
+    USE_CASES.push(newUC);
+    saveUseCases(USE_CASES);
+
+    // Store pending score id for Value Scoring page auto-select
+    try { localStorage.setItem('ai_framework_pending_score', newUC.id); } catch(ex) {}
+
+    // Show confirmation
+    document.getElementById('confirmText').textContent =
+      '"' + name + '" has been added to the pipeline with default scores (3/5 on all levers). ' +
+      'Visit Value Scoring to fine-tune the scores and assign a priority tier.';
+
+    form.style.display = 'none';
+    confirmation.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Add another
+  document.getElementById('addAnotherBtn').addEventListener('click', function() {
+    form.reset();
+    document.getElementById('ucStatus').value = 'Intake';
+    confirmation.style.display = 'none';
+    form.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Reset form
+  document.getElementById('resetFormBtn').addEventListener('click', function() {
+    form.reset();
+    document.getElementById('ucStatus').value = 'Intake';
+    validationMsg.style.display = 'none';
+  });
+
+})();
+</script>
+</body>
+</html>

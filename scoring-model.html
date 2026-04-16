@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scoring Model | AI Framework</title>
+  <meta name="description" content="Weighted five-dimension scoring model with interactive calculator for prioritizing AI initiatives in healthcare.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand"><div class="nav-brand-icon">⬡</div><span>AI Intake &amp; Value Framework</span></a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li><li><a href="intake.html">Intake</a></li>
+      <li><a href="value-framework.html">Value Framework</a></li><li><a href="kpi-library.html">KPI Library</a></li>
+      <li><a href="scoring-model.html">Scoring Model</a></li><li><a href="governance.html">Governance</a></li>
+      <li><a href="implementation.html">Implementation</a></li><li><a href="templates.html">Templates</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="page-hero">
+  <div class="wrap">
+    <div class="breadcrumb"><a href="index.html">Home</a><span class="breadcrumb-sep">›</span><span>Scoring Model</span></div>
+    <h1>Scoring Model</h1>
+    <p class="lead">A weighted, five-dimension model that converts qualitative and quantitative assessment into a single 0–100 composite score for portfolio prioritization.</p>
+  </div>
+</header>
+
+<!-- WEIGHTS OVERVIEW -->
+<section class="section section-alt">
+  <div class="wrap">
+    <div class="two-col">
+      <div>
+        <span class="eyebrow">Dimensions &amp; Weights</span>
+        <h2 class="section-title mb-4">Five Scoring Dimensions</h2>
+        <p class="section-sub mb-6">Each dimension is scored 0–100. Scores from multiple evaluators are averaged before weighting and calibrated in a committee session before governance decisions.</p>
+        <div class="callout callout-info">
+          <div class="callout-title">Composite Score Formula</div>
+          <div class="callout-text" style="font-family:var(--mono);font-size:.8rem;">Score = (Alignment × 0.25) + (Value × 0.30) + (Feasibility × 0.20) + (Risk × 0.15) + (Urgency × 0.10)</div>
+        </div>
+      </div>
+      <div class="card" style="padding:2rem;">
+        <div class="w-bar-wrap">
+          <div class="w-bar-hd"><span class="w-bar-lbl">Value Potential</span><span class="w-bar-val">30%</span></div>
+          <div class="w-bar-track"><div class="w-bar-fill" data-w="30%" style="width:0%"></div></div>
+        </div>
+        <div class="w-bar-wrap">
+          <div class="w-bar-hd"><span class="w-bar-lbl">Strategic Alignment</span><span class="w-bar-val">25%</span></div>
+          <div class="w-bar-track"><div class="w-bar-fill" data-w="25%" style="width:0%"></div></div>
+        </div>
+        <div class="w-bar-wrap">
+          <div class="w-bar-hd"><span class="w-bar-lbl">Feasibility &amp; Readiness</span><span class="w-bar-val">20%</span></div>
+          <div class="w-bar-track"><div class="w-bar-fill" data-w="20%" style="width:0%"></div></div>
+        </div>
+        <div class="w-bar-wrap">
+          <div class="w-bar-hd"><span class="w-bar-lbl">Risk</span><span class="w-bar-val">15%</span></div>
+          <div class="w-bar-track"><div class="w-bar-fill" data-w="15%" style="width:0%"></div></div>
+        </div>
+        <div class="w-bar-wrap">
+          <div class="w-bar-hd"><span class="w-bar-lbl">Urgency</span><span class="w-bar-val">10%</span></div>
+          <div class="w-bar-track"><div class="w-bar-fill" data-w="10%" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIMENSION RUBRICS -->
+<section class="section">
+  <div class="wrap">
+    <div class="sec-hd">
+      <span class="eyebrow">Evaluation Rubrics</span>
+      <h2 class="section-title">Dimension-by-Dimension Rubrics</h2>
+      <p class="section-sub">Each rubric defines what each score range represents. Evaluators score independently before a calibration session.</p>
+    </div>
+    <div class="accordion">
+
+      <div class="acc-item">
+        <button class="acc-trigger">
+          <div><div class="acc-title">Dimension 1 — Strategic Alignment</div><div class="acc-meta">Weight: 25% · How directly the initiative supports organizational strategy</div></div>
+          <svg class="acc-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+        </button>
+        <div class="acc-body">
+          <div class="tbl-wrap mb-4">
+            <table class="rubric-tbl">
+              <thead><tr><th>Score</th><th>Label</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td><span class="score-range sr-high">90–100</span></td><td><strong>Exemplary</strong></td><td>Directly named in a current strategic priority or board-level initiative; aligns with 3+ strategic goals</td></tr>
+                <tr><td><span class="score-range sr-good">75–89</span></td><td><strong>Strong</strong></td><td>Clearly supports a stated strategic priority; sponsor is a strategic pillar owner</td></tr>
+                <tr><td><span class="score-range sr-mid">55–74</span></td><td><strong>Moderate</strong></td><td>Supports organizational direction but not explicitly named in strategy; VP-level alignment</td></tr>
+                <tr><td><span class="score-range sr-low">30–54</span></td><td><strong>Weak</strong></td><td>Tangential connection to strategy; primarily a department-level improvement</td></tr>
+                <tr><td><span class="score-range sr-poor">0–29</span></td><td><strong>Misaligned</strong></td><td>Does not support current organizational strategy; may conflict with strategic direction</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-sm text-muted"><strong>Guiding questions:</strong> Is this initiative referenced in the current strategic plan? Which executive strategic goal does it directly advance? Has leadership publicly committed to solving this problem?</p>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-trigger">
+          <div><div class="acc-title">Dimension 2 — Value Potential</div><div class="acc-meta">Weight: 30% · Expected magnitude, breadth, and durability of value</div></div>
+          <svg class="acc-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+        </button>
+        <div class="acc-body">
+          <p class="text-sm font-semibold text-navy mb-3">2a. Value Magnitude</p>
+          <div class="tbl-wrap mb-4">
+            <table class="rubric-tbl">
+              <thead><tr><th>Score</th><th>Tier</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td><span class="score-range sr-high">90–100</span></td><td>Tier 1</td><td>&gt; $10M annual value or organization-wide quality/experience shift</td></tr>
+                <tr><td><span class="score-range sr-good">75–89</span></td><td>Tier 2</td><td>$2M – $10M annual value or major department-level improvement</td></tr>
+                <tr><td><span class="score-range sr-mid">55–74</span></td><td>Tier 3</td><td>$500K – $2M annual value or measurable team-level improvement</td></tr>
+                <tr><td><span class="score-range sr-low">30–54</span></td><td>Tier 4</td><td>&lt; $500K annual value or enabling capability for future value</td></tr>
+                <tr><td><span class="score-range sr-poor">0–29</span></td><td>—</td><td>Unclear or negligible expected value</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="grid-2 mb-4">
+            <div class="callout callout-success"><div class="callout-title">Breadth Bonus</div><div class="callout-text">+5 points per additional value domain impacted beyond the primary (max +15, capped at 100)</div></div>
+            <div class="callout callout-warn"><div class="callout-title">Confidence Adjustment</div><div class="callout-text">High: ±0 · Medium: −5 · Low: −15 · Applied to the magnitude score</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-trigger">
+          <div><div class="acc-title">Dimension 3 — Feasibility &amp; Readiness</div><div class="acc-meta">Weight: 20% · Average of data readiness, technical feasibility, and operational readiness</div></div>
+          <svg class="acc-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+        </button>
+        <div class="acc-body">
+          <div class="tbl-wrap">
+            <table class="rubric-tbl">
+              <thead><tr><th>Sub-dimension</th><th>Score 90–100</th><th>Score 50–69</th><th>Score 0–19</th></tr></thead>
+              <tbody>
+                <tr><td><strong>3a. Data Readiness</strong></td><td>Data exists, is accessible, clean, and confirmed by IT</td><td>Significant data prep or new capture required</td><td>Critical data does not exist or is inaccessible</td></tr>
+                <tr><td><strong>3b. Technical Feasibility</strong></td><td>Proven technology; vendor selected; similar deployment is live</td><td>Emerging technology; less proven in healthcare</td><td>Unproven or purely theoretical approach</td></tr>
+                <tr><td><strong>3c. Operational Readiness</strong></td><td>Sponsor committed; team identified; resources available; change plan exists</td><td>Sponsor interested; team and resources TBD</td><td>No sponsor, no team, no resources identified</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout callout-info mt-4"><div class="callout-title">Composite Formula</div><div class="callout-text">Feasibility Score = Average of 3a + 3b + 3c scores</div></div>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-trigger">
+          <div><div class="acc-title">Dimension 4 — Risk</div><div class="acc-meta">Weight: 15% · Higher risk = lower score</div></div>
+          <svg class="acc-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+        </button>
+        <div class="acc-body">
+          <div class="tbl-wrap mb-4">
+            <table class="rubric-tbl">
+              <thead><tr><th>Score</th><th>Label</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td><span class="score-range sr-high">90–100</span></td><td>Low Risk</td><td>Standard deployment; no patient safety exposure; minimal regulatory concern; known implementation pattern</td></tr>
+                <tr><td><span class="score-range sr-good">70–89</span></td><td>Managed</td><td>Some complexity; minor regulatory touchpoints; manageable dependencies</td></tr>
+                <tr><td><span class="score-range sr-mid">50–69</span></td><td>Moderate</td><td>Meaningful complexity; regulatory review required; 1–2 critical dependencies</td></tr>
+                <tr><td><span class="score-range sr-low">20–49</span></td><td>High</td><td>High complexity; significant regulatory exposure; multiple critical dependencies or unknown factors</td></tr>
+                <tr><td><span class="score-range sr-poor">0–19</span></td><td>Critical</td><td>Patient safety involvement; active regulatory scrutiny; unresolved legal concerns; no precedent</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-sm text-muted"><strong>Risk factors to evaluate:</strong> Patient safety involvement · Regulatory exposure (FDA, CMS, state) · PHI/data privacy · Vendor concentration · Change management complexity · AI explainability requirements · Equity and bias considerations</p>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-trigger">
+          <div><div class="acc-title">Dimension 5 — Urgency</div><div class="acc-meta">Weight: 10% · Time sensitivity and cost of delay</div></div>
+          <svg class="acc-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+        </button>
+        <div class="acc-body">
+          <div class="tbl-wrap">
+            <table class="rubric-tbl">
+              <thead><tr><th>Score</th><th>Label</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td><span class="score-range sr-high">90–100</span></td><td>Immediate</td><td>Hard regulatory or contractual deadline within 90 days; or active patient safety risk</td></tr>
+                <tr><td><span class="score-range sr-good">75–89</span></td><td>High</td><td>Regulatory or competitive deadline within 6 months; significant penalty or revenue risk if delayed</td></tr>
+                <tr><td><span class="score-range sr-mid">55–74</span></td><td>Moderate</td><td>Benefits increase with earlier action; competitive context warrants timely deployment</td></tr>
+                <tr><td><span class="score-range sr-low">30–54</span></td><td>Low</td><td>Valuable but timing is flexible; no material cost of delay</td></tr>
+                <tr><td><span class="score-range sr-poor">0–29</span></td><td>Deferred</td><td>Better addressed in a future planning cycle; premature now</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- INTERACTIVE CALCULATOR -->
+<section class="section section-alt" id="calculator">
+  <div class="wrap">
+    <div class="sec-hd sec-hd-center">
+      <span class="eyebrow">Interactive Tool</span>
+      <h2 class="section-title">Score Calculator</h2>
+      <p class="section-sub">Use the sliders to enter dimension scores and see the weighted composite score and tier recommendation update in real time.</p>
+    </div>
+    <div style="max-width: 680px; margin: 0 auto;">
+      <div class="score-calc">
+        <div class="calc-dim">
+          <div class="calc-lbl">Strategic Alignment <span class="w-pct">(25%)</span><span class="c-val" id="dim-alignment-val">50</span></div>
+          <input type="range" class="calc-slider" id="dim-alignment" min="0" max="100" value="50">
+        </div>
+        <div class="calc-dim">
+          <div class="calc-lbl">Value Potential <span class="w-pct">(30%)</span><span class="c-val" id="dim-value-val">50</span></div>
+          <input type="range" class="calc-slider" id="dim-value" min="0" max="100" value="50">
+        </div>
+        <div class="calc-dim">
+          <div class="calc-lbl">Feasibility &amp; Readiness <span class="w-pct">(20%)</span><span class="c-val" id="dim-feasibility-val">50</span></div>
+          <input type="range" class="calc-slider" id="dim-feasibility" min="0" max="100" value="50">
+        </div>
+        <div class="calc-dim">
+          <div class="calc-lbl">Risk <span class="w-pct">(15%)</span><span class="c-val" id="dim-risk-val">50</span></div>
+          <input type="range" class="calc-slider" id="dim-risk" min="0" max="100" value="50">
+        </div>
+        <div class="calc-dim">
+          <div class="calc-lbl">Urgency <span class="w-pct">(10%)</span><span class="c-val" id="dim-urgency-val">50</span></div>
+          <input type="range" class="calc-slider" id="dim-urgency" min="0" max="100" value="50">
+        </div>
+
+        <div class="calc-result" id="scoreRing" style="background:conic-gradient(var(--teal) 50%, #E2E8F0 0%);">
+          <div class="calc-score-big" id="compositeScore">50</div>
+          <div class="calc-tier" id="tierResult">Tier 2 — Approve: Pipeline</div>
+          <div class="calc-action" id="tierAction">Queue for next available capacity. Hold in prioritized backlog.</div>
+        </div>
+
+        <div style="text-align:center;margin-top:1rem;">
+          <button id="calcReset" class="btn btn-outline btn-sm">Reset to 50</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRIORITIZATION TIERS -->
+<section class="section">
+  <div class="wrap">
+    <div class="sec-hd">
+      <span class="eyebrow">Decision Tiers</span>
+      <h2 class="section-title">Prioritization Tiers</h2>
+    </div>
+    <div class="grid-4 mb-12">
+      <div class="card" style="border-top:4px solid var(--success);">
+        <div class="card-title" style="color:var(--success);">Tier 1 · Score 75–100</div>
+        <div style="font-weight:700;font-size:1rem;color:var(--navy);margin-bottom:.375rem;">Approve: Priority</div>
+        <div class="card-text">Proceed to initiation immediately. Assign PM and set charter timeline within 5 business days.</div>
+      </div>
+      <div class="card" style="border-top:4px solid var(--blue);">
+        <div class="card-title" style="color:var(--blue);">Tier 2 · Score 55–74</div>
+        <div style="font-weight:700;font-size:1rem;color:var(--navy);margin-bottom:.375rem;">Approve: Pipeline</div>
+        <div class="card-text">Queue for next available capacity. Hold in prioritized backlog; revisit when resources open.</div>
+      </div>
+      <div class="card" style="border-top:4px solid var(--warning);">
+        <div class="card-title" style="color:var(--warning);">Tier 3 · Score 40–54</div>
+        <div style="font-weight:700;font-size:1rem;color:var(--navy);margin-bottom:.375rem;">Defer</div>
+        <div class="card-text">Revisit in 90 days. Return to sponsor with written conditions for advancement.</div>
+      </div>
+      <div class="card" style="border-top:4px solid var(--danger);">
+        <div class="card-title" style="color:var(--danger);">Tier 4 · Score &lt;40</div>
+        <div style="font-weight:700;font-size:1rem;color:var(--navy);margin-bottom:.375rem;">Decline</div>
+        <div class="card-text">Not recommended at this time. Notify sponsor with written rationale within 3 business days.</div>
+      </div>
+    </div>
+
+    <div class="callout callout-warn">
+      <div class="callout-title">Automatic Disqualifiers</div>
+      <div class="callout-text">Regardless of composite score, a use case should not be approved if any of the following apply: active legal hold or litigation · unresolved patient safety risk identified in clinical review · regulatory prohibition blocking deployment · no identified executive sponsor willing to commit · duplicate of an initiative already in flight.</div>
+    </div>
+  </div>
+</section>
+
+<!-- WEIGHT CUSTOMIZATION -->
+<section class="section section-alt">
+  <div class="wrap">
+    <div class="sec-hd">
+      <span class="eyebrow">Customization</span>
+      <h2 class="section-title">Weight Customization Guidance</h2>
+      <p class="section-sub">Organizations may adjust dimension weights annually to reflect the current strategic context. Constraints: no dimension below 5%, no dimension above 40%, and weights must sum to 100%.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table class="fw-tbl">
+        <thead><tr><th>Strategic Context</th><th>Suggested Adjustment</th></tr></thead>
+        <tbody>
+          <tr><td>Margin recovery program underway</td><td>Increase Value Potential to 35%; reduce Urgency to 5%</td></tr>
+          <tr><td>Regulatory audit or accreditation cycle</td><td>Increase Risk to 25%; reduce Strategic Alignment to 15%</td></tr>
+          <tr><td>Competitive differentiation priority</td><td>Increase Strategic Alignment to 35%; reduce Feasibility to 15%</td></tr>
+          <tr><td>Workforce crisis / high clinical turnover</td><td>Apply 1.25× multiplier to Workforce domain KPIs in Value Potential sub-score</td></tr>
+          <tr><td>Patient safety incident recovery</td><td>Increase Risk to 25%; apply veto authority to CMO on Risk score &lt; 50</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div><div class="footer-brand">Healthcare AI Intake + Prioritization &amp; Value Framework</div><div class="footer-copy">MIT License · healthcare-ai-intake-value-framework</div></div>
+    <nav class="footer-nav"><a href="index.html">Home</a><a href="intake.html">Intake</a><a href="value-framework.html">Value</a><a href="kpi-library.html">KPIs</a><a href="governance.html">Governance</a><a href="implementation.html">Implementation</a><a href="templates.html">Templates</a></nav>
+  </div>
+</footer>
+<script src="assets/js/script.js"></script>
+</body>
+</html>

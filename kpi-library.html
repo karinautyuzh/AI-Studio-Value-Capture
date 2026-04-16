@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KPI Library | AI Framework</title>
+  <meta name="description" content="Comprehensive library of 80+ KPI definitions across six healthcare AI value domains.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand"><div class="nav-brand-icon">⬡</div><span>AI Intake &amp; Value Framework</span></a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li><li><a href="intake.html">Intake</a></li>
+      <li><a href="value-framework.html">Value Framework</a></li><li><a href="kpi-library.html">KPI Library</a></li>
+      <li><a href="scoring-model.html">Scoring Model</a></li><li><a href="governance.html">Governance</a></li>
+      <li><a href="implementation.html">Implementation</a></li><li><a href="templates.html">Templates</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="page-hero">
+  <div class="wrap">
+    <div class="breadcrumb"><a href="index.html">Home</a><span class="breadcrumb-sep">›</span><span>KPI Library</span></div>
+    <h1>KPI Library</h1>
+    <p class="lead">80+ KPI definitions across six value domains — each with definition, type, calculation method, and data source guidance. Select 1–3 primary KPIs per initiative before launch.</p>
+  </div>
+</header>
+
+<!-- SEARCH + GUIDANCE -->
+<section class="section-sm section-alt">
+  <div class="wrap">
+    <div class="two-col" style="align-items:center;">
+      <div>
+        <label for="kpiSearch" class="font-semibold text-navy" style="display:block;margin-bottom:.5rem;">Search KPIs</label>
+        <input type="text" id="kpiSearch" placeholder="Search by name, domain, or data source…" style="width:100%;padding:.625rem 1rem;border:1px solid var(--border);border-radius:var(--r);font-size:.9rem;outline:none;transition:border-color var(--ease);" onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='var(--border)'">
+        <span id="kpiCount" style="font-size:.8rem;color:var(--muted);margin-top:.375rem;display:block;"></span>
+      </div>
+      <div class="card" style="padding:1.25rem;">
+        <p class="font-semibold text-navy text-sm mb-2">KPI Selection Rules</p>
+        <ul style="font-size:.8rem;color:var(--muted);display:flex;flex-direction:column;gap:.375rem;">
+          <li>→ Select <strong>1–3 primary KPIs</strong> directly driven by the initiative</li>
+          <li>→ Add <strong>1–3 secondary KPIs</strong> for adjacent value or early signals</li>
+          <li>→ Every KPI needs a <strong>baseline before launch</strong></li>
+          <li>→ Include at least <strong>one quantitative</strong> KPI</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KPI TABS -->
+<section class="section">
+  <div class="wrap">
+    <div class="tabs-wrap">
+      <div class="tab-list" role="tablist">
+        <button class="tab-btn active" data-tab="tab-quality" role="tab"><span class="tab-dot" style="color:var(--c-quality)"></span>Quality &amp; Speed</button>
+        <button class="tab-btn" data-tab="tab-cost" role="tab"><span class="tab-dot" style="color:var(--c-cost)"></span>Cost Savings</button>
+        <button class="tab-btn" data-tab="tab-patient" role="tab"><span class="tab-dot" style="color:var(--c-patient)"></span>Patient Experience</button>
+        <button class="tab-btn" data-tab="tab-revenue" role="tab"><span class="tab-dot" style="color:var(--c-revenue)"></span>Revenue Uplift</button>
+        <button class="tab-btn" data-tab="tab-workforce" role="tab"><span class="tab-dot" style="color:var(--c-workforce)"></span>Workforce Experience</button>
+        <button class="tab-btn" data-tab="tab-risk" role="tab"><span class="tab-dot" style="color:var(--c-risk)"></span>Risk &amp; Resiliency</button>
+      </div>
+
+      <!-- TAB: QUALITY & SPEED -->
+      <div class="tab-panel active" id="tab-quality" role="tabpanel">
+        <h3 style="color:var(--c-quality);margin:1.5rem 0 .75rem;">Category 1.1 — Clinical Quality &amp; Safety</h3>
+        <div class="tbl-wrap mb-6">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">Diagnostic Error Rate</td><td>% of diagnoses later found to be incorrect or incomplete</td><td><span class="badge b-blue">Quant</span></td><td class="col-calc">(Amended diagnoses ÷ total) × 100</td><td>EHR, quality audit</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Guideline Adherence Rate</td><td>% of care encounters following applicable clinical guidelines</td><td><span class="badge b-blue">Quant</span></td><td class="col-calc">(Compliant encounters ÷ total applicable) × 100</td><td>EHR, clinical protocols</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Serious Safety Event Rate</td><td>Preventable serious safety events per 1,000 patient days</td><td><span class="badge b-blue">Quant</span></td><td class="col-calc">Events ÷ patient days × 1,000</td><td>Safety reporting system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Near-Miss Detection Rate</td><td>% of potential safety events caught before reaching the patient</td><td><span class="badge b-blue">Quant</span></td><td class="col-calc">(Caught near-misses ÷ total) × 100</td><td>Safety reporting, AI alert log</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Sepsis Early Detection Rate</td><td>% of sepsis cases flagged by AI within defined early window</td><td><span class="badge b-blue">Quant</span></td><td class="col-calc">(Early flagged ÷ total sepsis) × 100</td><td>EHR, AI alert log</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Care Variation Index</td><td>Degree of unexplained variation from expected care path</td><td><span class="badge b-gray">Qual/Quant</span></td><td class="col-calc">Analytics team calculation; scored 1–5</td><td>Clinical analytics</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="color:var(--c-quality);margin:.75rem 0 .75rem;">Category 1.2 — Process Throughput &amp; Cycle Time</h3>
+        <div class="tbl-wrap mb-6">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">Average Cycle Time</td><td>Average time from process start to completion (e.g., order to result)</td><td><span class="badge b-blue">Quant</span></td><td class="col-calc">Mean elapsed time across sampled transactions</td><td>Workflow system, EHR</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Time-to-Decision</td><td>Average time from data availability to clinical or operational decision</td><td><span class="badge b-blue">Quant</span></td><td class="col-calc">Mean elapsed time from trigger to action</td><td>Workflow system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Process Throughput Rate</td><td>Number of transactions or cases processed per unit time</td><td><span class="badge b-blue">Quant</span></td><td class="col-calc">Count of completions ÷ time period</td><td>Workflow system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Rework Rate</td><td>% of transactions requiring correction or reprocessing</td><td><span class="badge b-blue">Quant</span></td><td class="col-calc">(Reworked items ÷ total) × 100</td><td>Workflow system, QA log</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">First-Time Right Rate</td><td>% of transactions completed correctly on first attempt</td><td><span class="badge b-blue">Quant</span></td><td class="col-calc">(First-pass completions ÷ total) × 100</td><td>Workflow system</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="color:var(--c-quality);margin:.75rem 0 .75rem;">Category 1.3 — Documentation Quality</h3>
+        <div class="tbl-wrap">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">Documentation Completeness Score</td><td>% of required fields populated in clinical documentation</td><td><span class="badge b-blue">Quant</span></td><td class="col-calc">(Populated fields ÷ required fields) × 100</td><td>EHR</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Coding Specificity Rate</td><td>% of diagnoses coded to highest available specificity level</td><td><span class="badge b-blue">Quant</span></td><td class="col-calc">(Highest-specificity codes ÷ total codes) × 100</td><td>EHR, coding system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Documentation Accuracy Rate</td><td>% of clinical notes reviewed and found accurate by QA</td><td><span class="badge b-blue">Quant</span></td><td class="col-calc">(Accurate notes ÷ reviewed notes) × 100</td><td>QA review process</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Coder Query Rate</td><td>Coding queries per 100 encounters requiring provider clarification</td><td><span class="badge b-blue">Quant</span></td><td class="col-calc">Queries ÷ encounters × 100</td><td>Coding system</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: COST SAVINGS -->
+      <div class="tab-panel" id="tab-cost" role="tabpanel">
+        <h3 style="color:var(--c-cost);margin:1.5rem 0 .75rem;">Category 2.1 — Labor Efficiency</h3>
+        <div class="tbl-wrap mb-6">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">FTE Hours Avoided</td><td>Hours of manual work eliminated by automation per period</td><td><span class="badge b-green">Quant</span></td><td class="col-calc">(Pre-AI vol × pre-AI time) − (Post-AI vol × post-AI time)</td><td>Time study, workflow system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Cost Per Transaction</td><td>Fully-loaded cost to complete one transaction or encounter</td><td><span class="badge b-green">Quant</span></td><td class="col-calc">Total cost ÷ transaction volume</td><td>Finance, HR</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Labor Cost as % of Revenue</td><td>Staff cost as a proportion of net revenue</td><td><span class="badge b-green">Quant</span></td><td class="col-calc">Total labor cost ÷ net revenue × 100</td><td>Finance</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Overtime Hours Rate</td><td>Overtime hours as % of total hours worked in the period</td><td><span class="badge b-green">Quant</span></td><td class="col-calc">OT hours ÷ total hours × 100</td><td>Payroll system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Productivity Index</td><td>Output per FTE relative to pre-AI baseline</td><td><span class="badge b-green">Quant</span></td><td class="col-calc">(Current output/FTE) ÷ (Baseline output/FTE)</td><td>Finance, workforce analytics</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 style="color:var(--c-cost);margin:.75rem 0 .75rem;">Category 2.2 — Avoidable Costs</h3>
+        <div class="tbl-wrap mb-6">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">Avoidable Readmission Rate</td><td>% of readmissions identified as potentially preventable</td><td><span class="badge b-green">Quant</span></td><td class="col-calc">(Avoidable readmissions ÷ total admissions) × 100</td><td>EHR, utilization management</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Avoidable Readmission Cost</td><td>Dollar value of avoidable readmissions per period</td><td><span class="badge b-green">Quant</span></td><td class="col-calc">Avoidable readmissions × avg cost per readmission</td><td>Finance, utilization mgmt</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Duplicate Order Rate</td><td>% of orders identified as duplicate or clinically unnecessary</td><td><span class="badge b-green">Quant</span></td><td class="col-calc">(Duplicate orders ÷ total orders) × 100</td><td>EHR, order management</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Penalty Avoidance</td><td>$ value of regulatory or payer penalties avoided</td><td><span class="badge b-green">Quant</span></td><td class="col-calc">Estimated penalty exposure × reduction rate</td><td>Compliance, finance</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 style="color:var(--c-cost);margin:.75rem 0 .75rem;">Category 2.3 — Supply Chain</h3>
+        <div class="tbl-wrap">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">Inventory Carrying Cost</td><td>Cost of holding inventory on hand per period</td><td><span class="badge b-green">Quant</span></td><td class="col-calc">Avg inventory value × carrying cost rate</td><td>Supply chain, finance</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Stockout Rate</td><td>% of orders where item was not available when needed</td><td><span class="badge b-green">Quant</span></td><td class="col-calc">(Stockout events ÷ total order events) × 100</td><td>Supply chain system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Supply Expense Per Case</td><td>Supply cost per adjusted patient case</td><td><span class="badge b-green">Quant</span></td><td class="col-calc">Total supply cost ÷ adjusted cases</td><td>Finance, supply chain</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: PATIENT EXPERIENCE -->
+      <div class="tab-panel" id="tab-patient" role="tabpanel">
+        <h3 style="color:var(--c-patient);margin:1.5rem 0 .75rem;">Category 3.1 — Satisfaction &amp; Sentiment</h3>
+        <div class="tbl-wrap mb-6">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">CAHPS Composite Score</td><td>CMS-standard patient experience survey composite</td><td><span class="badge b-purple">Quant</span></td><td class="col-calc">Per CMS CAHPS methodology</td><td>Survey platform</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Press Ganey Overall Score</td><td>Overall satisfaction score from Press Ganey survey (0–100)</td><td><span class="badge b-purple">Quant</span></td><td class="col-calc">Mean survey response</td><td>Press Ganey</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Patient Net Promoter Score</td><td>Likelihood of patient to recommend the organization</td><td><span class="badge b-purple">Quant</span></td><td class="col-calc">% Promoters − % Detractors</td><td>Survey platform</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Patient Complaint Rate</td><td>Formal patient complaints per 1,000 encounters</td><td><span class="badge b-purple">Quant</span></td><td class="col-calc">Complaints ÷ encounters × 1,000</td><td>Patient relations</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Patient Sentiment Score</td><td>AI-analyzed sentiment from patient feedback and messages</td><td><span class="badge b-gray">Qual/Quant</span></td><td class="col-calc">Sentiment model output (0–100 scale)</td><td>Feedback platform, AI tool</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 style="color:var(--c-patient);margin:.75rem 0 .75rem;">Category 3.2 — Access &amp; Scheduling</h3>
+        <div class="tbl-wrap mb-6">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">Third Next Available Appt</td><td>Days until the third next available appointment (standard access metric)</td><td><span class="badge b-purple">Quant</span></td><td class="col-calc">Days from today to 3rd available slot</td><td>Scheduling system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">No-Show Rate</td><td>% of scheduled appointments where patient did not attend</td><td><span class="badge b-purple">Quant</span></td><td class="col-calc">(No-shows ÷ total scheduled) × 100</td><td>Scheduling system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Appointment Fill Rate</td><td>% of available appointment slots that are filled</td><td><span class="badge b-purple">Quant</span></td><td class="col-calc">(Filled slots ÷ total slots) × 100</td><td>Scheduling system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Door-to-Provider Time</td><td>Time from patient arrival to first provider contact in ED/urgent care</td><td><span class="badge b-purple">Quant</span></td><td class="col-calc">Mean elapsed time from arrival to contact</td><td>EHR, ED tracking system</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 style="color:var(--c-patient);margin:.75rem 0 .75rem;">Category 3.3 — Engagement &amp; Communication</h3>
+        <div class="tbl-wrap">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">Patient Portal Enrollment Rate</td><td>% of active patients enrolled in patient portal</td><td><span class="badge b-purple">Quant</span></td><td class="col-calc">(Enrolled ÷ total active patients) × 100</td><td>Portal system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Portal Engagement Rate</td><td>% of enrolled patients actively using portal features</td><td><span class="badge b-purple">Quant</span></td><td class="col-calc">(Active users ÷ enrolled users) × 100</td><td>Portal system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Message Response Time</td><td>Average hours to respond to patient portal messages</td><td><span class="badge b-purple">Quant</span></td><td class="col-calc">Mean elapsed response time in hours</td><td>Portal system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Care Plan Adherence Rate</td><td>% of patients following prescribed care plan actions</td><td><span class="badge b-purple">Quant</span></td><td class="col-calc">(Adherent patients ÷ total care plan patients) × 100</td><td>EHR, patient outreach</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: REVENUE UPLIFT -->
+      <div class="tab-panel" id="tab-revenue" role="tabpanel">
+        <h3 style="color:var(--c-revenue);margin:1.5rem 0 .75rem;">Category 4.1 — Coding &amp; Capture</h3>
+        <div class="tbl-wrap mb-6">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">Case Mix Index (CMI)</td><td>Average relative weight of all cases billed; indicator of coding accuracy</td><td><span class="badge b-teal">Quant</span></td><td class="col-calc">Sum of DRG weights ÷ total cases</td><td>Finance, coding system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">HCC Capture Rate</td><td>% of clinically indicated HCC codes documented and coded</td><td><span class="badge b-teal">Quant</span></td><td class="col-calc">(Captured HCCs ÷ expected HCCs) × 100</td><td>EHR, coding system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Revenue Per Encounter</td><td>Net revenue per patient encounter</td><td><span class="badge b-teal">Quant</span></td><td class="col-calc">Net revenue ÷ total encounters</td><td>Finance</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Charge Capture Rate</td><td>% of billable services successfully charged</td><td><span class="badge b-teal">Quant</span></td><td class="col-calc">(Charges submitted ÷ chargeable services) × 100</td><td>Billing system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Undercoding Rate</td><td>% of encounters where AI identified missed or downgraded codes</td><td><span class="badge b-teal">Quant</span></td><td class="col-calc">(Undercode flags ÷ total reviews) × 100</td><td>AI coding tool</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 style="color:var(--c-revenue);margin:.75rem 0 .75rem;">Category 4.2 — Denial &amp; Prior Authorization</h3>
+        <div class="tbl-wrap mb-6">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">Claim Denial Rate</td><td>% of submitted claims denied on first pass</td><td><span class="badge b-teal">Quant</span></td><td class="col-calc">(Denied claims ÷ total submitted) × 100</td><td>Revenue cycle system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">First-Pass Acceptance Rate</td><td>% of claims accepted without rejection or denial</td><td><span class="badge b-teal">Quant</span></td><td class="col-calc">(Accepted claims ÷ total submitted) × 100</td><td>Revenue cycle system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Denial Reversal Rate</td><td>% of denied claims successfully appealed and recovered</td><td><span class="badge b-teal">Quant</span></td><td class="col-calc">(Reversed denials ÷ total denied) × 100</td><td>Revenue cycle system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Days in Accounts Receivable</td><td>Average days from service to payment</td><td><span class="badge b-teal">Quant</span></td><td class="col-calc">Total AR ÷ average daily net revenue</td><td>Finance, revenue cycle</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Prior Auth Approval Rate</td><td>% of prior auth requests approved on first submission</td><td><span class="badge b-teal">Quant</span></td><td class="col-calc">(Approved ÷ total submitted) × 100</td><td>Auth management system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Prior Auth Cycle Time</td><td>Average days from PA submission to payer decision</td><td><span class="badge b-teal">Quant</span></td><td class="col-calc">Mean days from submission to decision</td><td>Auth management system</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 style="color:var(--c-revenue);margin:.75rem 0 .75rem;">Category 4.3 — Capacity &amp; Throughput</h3>
+        <div class="tbl-wrap">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">OR Utilization Rate</td><td>% of scheduled OR time actually used for cases</td><td><span class="badge b-teal">Quant</span></td><td class="col-calc">(Actual OR time ÷ scheduled time) × 100</td><td>OR scheduling system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Bed Occupancy Rate</td><td>% of licensed beds occupied on average</td><td><span class="badge b-teal">Quant</span></td><td class="col-calc">(Patient days ÷ available bed days) × 100</td><td>Bed management system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Discharge Before Noon Rate</td><td>% of inpatient discharges occurring before 12:00 PM</td><td><span class="badge b-teal">Quant</span></td><td class="col-calc">(AM discharges ÷ total discharges) × 100</td><td>EHR</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Length of Stay Variance</td><td>Actual LOS vs. expected geometric mean LOS by DRG</td><td><span class="badge b-teal">Quant</span></td><td class="col-calc">Actual LOS − Geometric mean LOS</td><td>Finance, EHR</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: WORKFORCE EXPERIENCE -->
+      <div class="tab-panel" id="tab-workforce" role="tabpanel">
+        <h3 style="color:var(--c-workforce);margin:1.5rem 0 .75rem;">Category 5.1 — Administrative Burden</h3>
+        <div class="tbl-wrap mb-6">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">Documentation Time Per Encounter</td><td>Average minutes spent on clinical documentation per visit</td><td><span class="badge b-orange">Quant</span></td><td class="col-calc">Total documentation minutes ÷ encounters</td><td>EHR audit log, time study</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">After-Hours Documentation Rate</td><td>% of documentation completed outside scheduled hours ("pajama time")</td><td><span class="badge b-orange">Quant</span></td><td class="col-calc">(After-hours notes ÷ total notes) × 100</td><td>EHR audit log</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">In-Basket Message Volume</td><td>Average in-basket messages per provider per day</td><td><span class="badge b-orange">Quant</span></td><td class="col-calc">Total messages ÷ providers ÷ days</td><td>EHR inbox analytics</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Admin Task Time Ratio</td><td>% of shift time spent on administrative vs. clinical tasks</td><td><span class="badge b-orange">Quant</span></td><td class="col-calc">Admin task time ÷ total shift time × 100</td><td>Time study, workflow tool</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 style="color:var(--c-workforce);margin:.75rem 0 .75rem;">Category 5.2 — Staff Satisfaction &amp; Retention</h3>
+        <div class="tbl-wrap mb-6">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">Employee Engagement Score</td><td>Overall staff engagement from annual or pulse surveys (0–100)</td><td><span class="badge b-orange">Quant</span></td><td class="col-calc">Mean survey response</td><td>HR survey platform</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Clinician NPS (cNPS)</td><td>Likelihood of clinician to recommend the organization as a place to work</td><td><span class="badge b-orange">Quant</span></td><td class="col-calc">% Promoters − % Detractors</td><td>HR survey platform</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Voluntary Turnover Rate</td><td>% of staff who voluntarily resigned in the period</td><td><span class="badge b-orange">Quant</span></td><td class="col-calc">(Voluntary separations ÷ avg headcount) × 100</td><td>HR system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Burnout Risk Index</td><td>Proportion of staff scoring in high-burnout range on validated scale</td><td><span class="badge b-gray">Qual/Quant</span></td><td class="col-calc">% of respondents in high-risk category</td><td>Burnout assessment tool</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Workforce AI Adoption Rate</td><td>% of eligible staff actively using the AI tool</td><td><span class="badge b-orange">Quant</span></td><td class="col-calc">(Active users ÷ eligible users) × 100</td><td>AI tool analytics</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 style="color:var(--c-workforce);margin:.75rem 0 .75rem;">Category 5.3 — Training &amp; Competency</h3>
+        <div class="tbl-wrap">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">AI Training Completion Rate</td><td>% of staff completing required AI tool training</td><td><span class="badge b-orange">Quant</span></td><td class="col-calc">(Completions ÷ assigned staff) × 100</td><td>LMS</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Time-to-Proficiency</td><td>Average days from training start to competency certification</td><td><span class="badge b-orange">Quant</span></td><td class="col-calc">Mean days from training start to sign-off</td><td>LMS, HR</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Training Satisfaction Score</td><td>Staff satisfaction with AI training experience (0–5 scale)</td><td><span class="badge b-orange">Quant</span></td><td class="col-calc">Mean response on training survey</td><td>LMS, HR survey</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: RISK & RESILIENCY -->
+      <div class="tab-panel" id="tab-risk" role="tabpanel">
+        <h3 style="color:var(--c-risk);margin:1.5rem 0 .75rem;">Category 6.1 — Regulatory &amp; Compliance</h3>
+        <div class="tbl-wrap mb-6">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">Compliance Exception Rate</td><td>Compliance exceptions per audit cycle as a % of items reviewed</td><td><span class="badge b-red">Quant</span></td><td class="col-calc">Exceptions ÷ items reviewed × 100</td><td>Compliance audit system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Audit Finding Rate</td><td>Significant audit findings per review period</td><td><span class="badge b-red">Quant</span></td><td class="col-calc">Count of significant findings per period</td><td>Internal/external audit</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Regulatory Submission Timeliness</td><td>% of required regulatory submissions filed on time</td><td><span class="badge b-red">Quant</span></td><td class="col-calc">(On-time submissions ÷ total required) × 100</td><td>Compliance tracking</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">AI Model Compliance Score</td><td>Degree to which AI models meet regulatory and ethical standards</td><td><span class="badge b-gray">Qual</span></td><td class="col-calc">Scored assessment by compliance/legal/IT</td><td>Model governance review</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 style="color:var(--c-risk);margin:.75rem 0 .75rem;">Category 6.2 — Patient Safety</h3>
+        <div class="tbl-wrap mb-6">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">Serious Safety Event Rate</td><td>Serious safety events per 1,000 patient days</td><td><span class="badge b-red">Quant</span></td><td class="col-calc">Events ÷ patient days × 1,000</td><td>Safety reporting</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Medication Error Rate</td><td>Medication errors per 1,000 medication administrations</td><td><span class="badge b-red">Quant</span></td><td class="col-calc">Errors ÷ administrations × 1,000</td><td>Pharmacy, safety system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">High-Risk Patient ID Rate</td><td>% of high-risk patients flagged by AI and receiving intervention</td><td><span class="badge b-red">Quant</span></td><td class="col-calc">(Flagged + intervened ÷ total high-risk) × 100</td><td>EHR, AI alert system</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Alert Fatigue Rate</td><td>% of AI alerts dismissed without clinical action</td><td><span class="badge b-red">Quant</span></td><td class="col-calc">(Dismissed alerts ÷ total alerts) × 100</td><td>AI alert log</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 style="color:var(--c-risk);margin:.75rem 0 .75rem;">Category 6.3 — Operational Resiliency &amp; AI Model Performance</h3>
+        <div class="tbl-wrap">
+          <table class="fw-tbl">
+            <thead><tr><th class="col-kpi">KPI</th><th>Definition</th><th class="col-type">Type</th><th class="col-calc">Calculation</th><th>Data Source</th></tr></thead>
+            <tbody>
+              <tr class="kpi-row"><td class="col-kpi">System Uptime / Availability</td><td>% of time AI system is available and performing as expected</td><td><span class="badge b-red">Quant</span></td><td class="col-calc">(Uptime hours ÷ total hours) × 100</td><td>IT monitoring</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Mean Time to Resolve (MTTR)</td><td>Average time from issue detection to resolution</td><td><span class="badge b-red">Quant</span></td><td class="col-calc">Mean elapsed time from detection to close</td><td>IT monitoring</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Data Quality Score</td><td>Composite score of data completeness, accuracy, and timeliness</td><td><span class="badge b-red">Quant</span></td><td class="col-calc">Calculated from data quality dimensions (0–100)</td><td>Data governance</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Model Drift Rate</td><td>Degree of degradation in model performance over time</td><td><span class="badge b-red">Quant</span></td><td class="col-calc">Δ in accuracy/F1 from baseline per period</td><td>Model monitoring</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Bias Audit Score</td><td>Result of periodic bias audit across demographic groups</td><td><span class="badge b-gray">Qual</span></td><td class="col-calc">Audit findings: High / Medium / Low / None</td><td>Bias audit process</td></tr>
+              <tr class="kpi-row"><td class="col-kpi">Human Override Rate</td><td>% of AI recommendations overridden by a human decision-maker</td><td><span class="badge b-red">Quant</span></td><td class="col-calc">(Overrides ÷ total AI recommendations) × 100</td><td>AI system log</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- end tabs-wrap -->
+  </div>
+</section>
+
+<!-- KPI SELECTION GUIDANCE -->
+<section class="section section-alt">
+  <div class="wrap">
+    <div class="two-col">
+      <div>
+        <span class="eyebrow">Selection Guidance</span>
+        <h2 class="section-title mb-4">Choosing the Right KPIs</h2>
+        <div class="checklist">
+          <li>Select KPIs that are <strong>directly influenced</strong> by the AI initiative — not tangentially</li>
+          <li>Choose metrics with an <strong>existing data source and baseline</strong> before launch</li>
+          <li>Include at least one <strong>leading indicator</strong> (early signal) and one <strong>lagging indicator</strong> (final outcome)</li>
+          <li>Limit primary KPIs to <strong>3 maximum</strong> to maintain accountability</li>
+          <li>Confirm the data owner can provide the metric on the required frequency</li>
+        </div>
+      </div>
+      <div>
+        <span class="eyebrow">KPI Tiers</span>
+        <h2 class="section-title mb-4">Reporting Tiers</h2>
+        <div class="tbl-wrap">
+          <table class="fw-tbl">
+            <thead><tr><th>Tier</th><th>Purpose</th><th>Frequency</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Tier 1 — Primary</strong></td><td>The 1–2 KPIs the initiative is primarily accountable for</td><td>Monthly</td></tr>
+              <tr><td><strong>Tier 2 — Secondary</strong></td><td>Supporting metrics indicating initiative health</td><td>Quarterly</td></tr>
+              <tr><td><strong>Tier 3 — Monitor</strong></td><td>Background metrics to watch for unintended effects</td><td>Quarterly or as needed</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div><div class="footer-brand">Healthcare AI Intake + Prioritization &amp; Value Framework</div><div class="footer-copy">MIT License · healthcare-ai-intake-value-framework</div></div>
+    <nav class="footer-nav"><a href="index.html">Home</a><a href="intake.html">Intake</a><a href="value-framework.html">Value</a><a href="scoring-model.html">Scoring</a><a href="governance.html">Governance</a><a href="implementation.html">Implementation</a><a href="templates.html">Templates</a></nav>
+  </div>
+</footer>
+<script src="assets/js/script.js"></script>
+</body>
+</html>

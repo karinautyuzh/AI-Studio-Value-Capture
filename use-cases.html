@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Use Case Details | AI Intake &amp; Value Framework</title>
+  <meta name="description" content="Detailed use case documentation for six AI initiatives across ASD, CRA, and ICF — including descriptions, value hypotheses, and key value questions.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-brand-icon">⬡</div>
+      <span>AI Intake &amp; Value Framework</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="use-cases.html" class="active">Use Cases</a></li>
+      <li><a href="intake-prioritization.html">Intake &amp; Prioritization</a></li>
+      <li><a href="value-scoring.html">Value Scoring</a></li>
+      <li><a href="kpi-framework.html">KPI Framework</a></li>
+      <li><a href="pipeline-dashboard.html">Pipeline &amp; Realization</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<header class="page-hero">
+  <div class="wrap">
+    <div class="breadcrumb"><a href="index.html">Home</a><span style="margin:0 .4rem;opacity:.5;">›</span><span>Use Cases</span></div>
+    <h1>Use Case Details</h1>
+    <p class="lead">Six AI use cases currently in the portfolio, grouped by business area. Each entry documents the problem context, proposed solution, and key value questions that guide scoring and measurement.</p>
+  </div>
+</header>
+
+<!-- SUMMARY BAR (dynamic) -->
+<div class="stats-bar">
+  <div class="wrap">
+    <div id="ucStatsGrid" class="stats-grid"></div>
+  </div>
+</div>
+
+<!-- USE CASES (rendered from shared data store) -->
+<section class="section" id="ucSection">
+  <div class="wrap" id="ucSectionWrap">
+
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section section-alt">
+  <div class="wrap" style="text-align:center;">
+    <h2 class="section-title">Ready to Submit a New Use Case?</h2>
+    <p class="section-sub" style="margin:0 auto 2rem;">Use the intake form to submit a new AI idea. The framework will guide you through scoring and prioritization automatically.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="intake-prioritization.html" class="btn btn-primary">Open Intake Form →</a>
+      <a href="intake-prioritization.html#pipeline" class="btn btn-outline">View Full Pipeline</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div>
+      <div style="font-weight:700;color:#fff;margin-bottom:.25rem;">AI Intake &amp; Value Framework</div>
+      <div style="font-size:.85rem;color:rgba(255,255,255,.5);">AI Portfolio Governance for Research &amp; Clinical Operations</div>
+    </div>
+    <nav style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+      <a href="use-cases.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Use Cases</a>
+      <a href="intake-prioritization.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Intake &amp; Prioritization</a>
+      <a href="value-framework.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Value Framework</a>
+      <a href="intake-prioritization.html#kpis" style="font-size:.85rem;color:rgba(255,255,255,.55);">KPI Framework</a>
+      <a href="intake-prioritization.html#pipeline" style="font-size:.85rem;color:rgba(255,255,255,.55);">Pipeline View</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="assets/js/script.js"></script>
+<script src="assets/js/data.js"></script>
+<script>
+(function() {
+  // Page-local KVQ data (static reference content per UC id)
+  var UC_KVQ = {
+    'bioa-report': [
+      'Where in the current BioA reporting process do scientists spend the most non-value-added time (e.g., drafting, reformatting, copy-paste)?',
+      'How much report cycle time is driven by initial drafting vs. downstream review and rework?',
+      'What quality issues (inconsistency, missing sections, formatting errors) create rework or client dissatisfaction today?',
+      'How would faster, more consistent draft reports change BioA throughput or capacity constraints?'
+    ],
+    'cls-automation': [
+      'How long does CLS setup take today, and what portion is repetitive or rules-based?',
+      'Where do CLS errors most commonly originate, and what is the downstream impact (rework, delays, quality risk)?',
+      'How does CLS setup speed affect study start timelines or lab throughput?',
+      'What is the operational and compliance risk of inconsistent CLS configurations across studies?',
+      'How do we measure success: speed, error reduction, or both?'
+    ],
+    'cra-qa': [
+      'What percentage of QA findings today are basic completeness or consistency issues?',
+      'How much QA capacity is spent on low-judgment checks versus expert review?',
+      'How does earlier issue detection affect the 45-day findings resolution requirement?',
+      'Where do delayed or missed QA issues create compliance or audit risk?'
+    ],
+    'cra-prewriting': [
+      'Which CRA writing tasks are most time-consuming and least differentiated?',
+      'How often does poor initial drafting drive review cycles or re-submission?',
+      'How does improved consistency help with inspection readiness or sponsor confidence?'
+    ],
+    'findings-summary': [
+      'How often are systemic issues identified too late?',
+      'How would clearer summaries improve decision-making at study or portfolio level?'
+    ],
+    'icf-drafting': [
+      'How much time is currently spent drafting and re-drafting ICFs across countries?',
+      'Where do handoffs between legal, clinical, and regulatory teams cause rework?',
+      'What risks arise from incorrect template or regulatory language selection?',
+      'How does faster ICF drafting affect study startup timelines?'
+    ]
+  };
+
+  var BU_COLOR  = { ASD:'var(--teal)', CRA:'var(--blue)', ICF:'#7C3AED', SDTM:'#D97706' };
+  var BU_NAME   = { ASD:'Analytical Services Division', CRA:'Clinical Research Associates', ICF:'Informed Consent Forms', SDTM:'Study Data Tabulation Model' };
+  var LETTERS   = 'ABCDEFGH';
+  var ST_CLASS  = { Active:'s-active', Evaluating:'s-eval', Intake:'s-intake', Hold:'s-hold' };
+
+  // ----- STATS BAR -----
+  var statusCounts = {};
+  var buCounts = {};
+  USE_CASES.forEach(function(uc) {
+    statusCounts[uc.status] = (statusCounts[uc.status] || 0) + 1;
+    buCounts[uc.businessUnit] = (buCounts[uc.businessUnit] || 0) + 1;
+  });
+
+  var statsGrid = document.getElementById('ucStatsGrid');
+  if (statsGrid) {
+    statsGrid.innerHTML = '';
+    // Per-BU counts (only show BUs that have UCs)
+    Object.keys(buCounts).forEach(function(bu) {
+      var card = document.createElement('div');
+      card.className = 'stat-card';
+      card.innerHTML = '<div class="stat-num"><em>' + buCounts[bu] + '</em></div><div class="stat-lbl">' + bu + ' Use Case' + (buCounts[bu] !== 1 ? 's' : '') + '</div>';
+      statsGrid.appendChild(card);
+    });
+    // Status summary
+    var statusParts = ['Active','Evaluating','Intake','Hold']
+      .filter(function(s){ return statusCounts[s]; })
+      .map(function(s){ return statusCounts[s] + ' ' + s; });
+    var stCard = document.createElement('div');
+    stCard.className = 'stat-card';
+    stCard.innerHTML = '<div class="stat-num"><em>' + USE_CASES.length + '</em></div><div class="stat-lbl">' + statusParts.join(' · ') + '</div>';
+    statsGrid.appendChild(stCard);
+  }
+
+  // ----- UC GROUPS -----
+  var wrap = document.getElementById('ucSectionWrap');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+
+  // Group UCs by BU, preserving order of first appearance
+  var groups = {}, buOrder = [];
+  USE_CASES.forEach(function(uc) {
+    if (!groups[uc.businessUnit]) { groups[uc.businessUnit] = []; buOrder.push(uc.businessUnit); }
+    groups[uc.businessUnit].push(uc);
+  });
+
+  buOrder.forEach(function(bu, gi) {
+    var ucs    = groups[bu];
+    var buClr  = BU_COLOR[bu] || 'var(--navy)';
+    var buFull = BU_NAME[bu] ? bu + ' \u2014 ' + BU_NAME[bu] : bu;
+
+    var groupEl = document.createElement('div');
+    groupEl.className = 'uc-group';
+
+    var labelEl = document.createElement('div');
+    labelEl.className = 'uc-group-label';
+    labelEl.style.background = buClr;
+    labelEl.innerHTML = LETTERS[gi] + ' &nbsp;&middot;&nbsp; ' + buFull;
+    groupEl.appendChild(labelEl);
+
+    ucs.forEach(function(uc, i) {
+      var tier   = getTier(uc.compositeScore);
+      var scCls  = ST_CLASS[uc.status] || 's-eval';
+      var kvqs   = UC_KVQ[uc.id] || [];
+
+      // Lever badges
+      var leverBadges = (uc.valueLevers || []).map(function(id) {
+        var bc = LEVER_BADGE_CLASS[id] || '';
+        return '<span class="dim-badge ' + bc + '">' + (LEVER_LABELS[id] || id) + '</span>';
+      }).join('');
+
+      // KVQ list
+      var kvqItems = kvqs.length
+        ? kvqs.map(function(q) { return '<li>' + q + '</li>'; }).join('')
+        : '<li style="color:var(--muted);font-style:italic;">Key value questions not yet defined — refine via the intake form.</li>';
+
+      var card = document.createElement('div');
+      card.className = 'uc-card';
+      card.innerHTML =
+        '<div class="uc-card-head">' +
+          '<div class="uc-num" style="background:' + buClr + ';">' + (i + 1) + '</div>' +
+          '<div>' +
+            '<div class="uc-name">' + uc.name + '</div>' +
+            '<div class="uc-type">' + uc.aiType +
+              ' &nbsp;&middot;&nbsp; <span class="status-pill ' + scCls + '">' + uc.status + '</span>' +
+              ' &nbsp;&middot;&nbsp; Score: <strong>' + uc.compositeScore + '/100</strong>' +
+              ' &mdash; <span style="color:' + tier.color + ';font-weight:600;">' + tier.badge + '</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">' +
+          '<div>' +
+            '<p class="uc-desc">' + (uc.proposedSolution || uc.problemStatement || '') + '</p>' +
+            '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.5rem;">' + leverBadges + '</div>' +
+          '</div>' +
+          '<div>' +
+            '<div class="uc-vq-label">Key Value Questions</div>' +
+            '<ul class="uc-vq-list">' + kvqItems + '</ul>' +
+          '</div>' +
+        '</div>';
+      groupEl.appendChild(card);
+    });
+
+    wrap.appendChild(groupEl);
+  });
+})();
+</script>
+</body>
+</html>

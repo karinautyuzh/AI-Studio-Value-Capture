@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Value Scoring | AI Intake &amp; Value Framework</title>
+  <meta name="description" content="Score AI use cases across five value levers and feasibility dimensions to generate a composite priority score.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-brand-icon">⬡</div>
+      <span>AI Intake &amp; Value Framework</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="use-cases.html">Use Cases</a></li>
+      <li><a href="intake-prioritization.html">Intake &amp; Prioritization</a></li>
+      <li><a href="value-scoring.html" class="active">Value Scoring</a></li>
+      <li><a href="kpi-framework.html">KPI Framework</a></li>
+      <li><a href="pipeline-dashboard.html">Pipeline &amp; Realization</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<header class="page-hero">
+  <div class="wrap">
+    <div class="breadcrumb"><a href="index.html">Home</a><span style="margin:0 .4rem;opacity:.5;">›</span><span>Value Scoring</span></div>
+    <h1>Value Scoring</h1>
+    <p class="lead">Score a use case across five value levers and three feasibility dimensions to generate a composite priority score from 0–100.</p>
+  </div>
+</header>
+
+<!-- SCORING -->
+<section class="section section-alt">
+  <div class="wrap" style="max-width:860px;">
+
+    <!-- UC SELECTOR BAR -->
+    <div class="uc-selector-bar">
+      <label style="font-size:.8rem;font-weight:600;color:var(--muted);white-space:nowrap;">Select use case:</label>
+      <select id="ucSelector">
+        <option value="">— Score new use case —</option>
+      </select>
+      <div class="uc-badge-strip" id="ucBadgeStrip"></div>
+    </div>
+
+    <!-- UC INFO BANNER -->
+    <div class="uc-info-banner" id="ucInfoBanner" style="display:none;"></div>
+
+    <!-- SCORING GRID -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;">
+
+      <!-- LEFT: LEVERS + FEASIBILITY + PRODUCTIVITY -->
+      <div>
+
+        <!-- VALUE LEVERS -->
+        <div class="scoring-section">
+          <div class="scoring-section-title">Value Lever Scores (1 = minimal, 5 = transformative)</div>
+          <div id="leverRows"></div>
+        </div>
+
+        <!-- FEASIBILITY -->
+        <div class="scoring-section">
+          <div class="scoring-section-title">Feasibility Assessment</div>
+          <div id="feasRows"></div>
+        </div>
+
+        <!-- PRODUCTIVITY ASSUMPTION -->
+        <div class="scoring-section">
+          <div class="scoring-section-title">Productivity Value Assumption</div>
+          <div class="assumption-group">
+            <div class="assumption-note">These inputs drive the estimated annual productivity value calculation. Adjust to match your use case context.</div>
+            <div class="assumption-row">
+              <label>Hourly rate (fully loaded, $)</label>
+              <input type="number" id="assHourlyRate" min="0" max="500" step="5" value="65">
+              <span></span>
+            </div>
+            <div class="assumption-row">
+              <label>Hours saved per task</label>
+              <input type="number" id="assHoursTask" min="0" max="100" step="0.5" value="2">
+              <span></span>
+            </div>
+            <div class="assumption-row">
+              <label>Tasks per year</label>
+              <input type="number" id="assTasksYear" min="0" max="10000" step="10" value="200">
+              <span></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.625rem;padding-top:.625rem;border-top:1px solid var(--border);">
+              <span style="font-size:.82rem;color:var(--muted);">Est. annual productivity value</span>
+              <span class="assumption-derived" id="productivityDerived">$26,000</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: RESULT CARD -->
+      <div>
+        <div class="score-result-card" id="scoreResultCard">
+          <div class="score-result-top">
+            <div class="score-big-circle" id="scoreBigCircle" style="background:#EAF3DE;color:#27500A;">
+              <span class="score-big-num" id="scoreBigNum">—</span>
+              <span class="score-big-of">/100</span>
+            </div>
+            <div style="flex:1;">
+              <div class="score-tier-label" id="scoreTierLabel">Select a use case or adjust sliders</div>
+              <div class="score-tier-action" id="scoreTierAction">Scores update in real time as you adjust the levers and feasibility inputs.</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="score-bar-wrap">
+              <div class="score-bar-fill" id="scoreBarFill" style="width:0%;background:#27500A;"></div>
+            </div>
+            <div class="score-scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          </div>
+
+          <div class="interpretation-box" id="interpretationBox" style="display:none;">
+            <div class="int-label">Interpretation</div>
+            <p id="interpretationText"></p>
+          </div>
+
+          <button class="formula-toggle" id="formulaToggle" onclick="toggleFormula()">&#9660; Show scoring formula</button>
+          <div class="formula-box" id="formulaBox">
+            <strong>Composite Score Formula</strong><br><br>
+            <code>raw = sum( lever_score[i] × weight[i] )</code><br>
+            Weights: Quality 25%, Productivity 20%, Cost 20%, Revenue 20%, Risk 15%<br><br>
+            <code>feasibility = ( dataReadiness + (6 − techComplexity) + (6 − regulatoryRisk) ) / 15</code><br><br>
+            <code>composite = min(100, round( raw × 16 + feasibility × 20 ))</code><br><br>
+            Lever scores range 1–5. Feasibility inputs range 1–5. Higher feasibility scores reflect better data readiness and lower complexity/risk.
+          </div>
+        </div>
+
+        <!-- SAVE BUTTON -->
+        <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+          <button class="btn btn-primary" id="saveScoresBtn" onclick="saveScores()">Save scores</button>
+          <span id="savedMsg" style="font-size:.85rem;color:var(--success);display:none;font-weight:600;">&#10003; Saved</span>
+        </div>
+
+        <!-- LEVER WEIGHT REFERENCE -->
+        <div style="margin-top:1.5rem;background:var(--bg);border-radius:var(--r);padding:1rem;">
+          <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.625rem;">Lever weight reference</div>
+          <div id="leverWeightRef"></div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div>
+      <div style="font-weight:700;color:#fff;margin-bottom:.25rem;">AI Intake &amp; Value Framework</div>
+      <div style="font-size:.85rem;color:rgba(255,255,255,.5);">AI Portfolio Governance for Research &amp; Clinical Operations</div>
+    </div>
+    <nav style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+      <a href="use-cases.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Use Cases</a>
+      <a href="intake-prioritization.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Intake</a>
+      <a href="value-scoring.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Value Scoring</a>
+      <a href="kpi-framework.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">KPI Framework</a>
+      <a href="pipeline-dashboard.html" style="font-size:.85rem;color:rgba(255,255,255,.55);">Pipeline &amp; Realization</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/script.js"></script>
+<script>
+(function() {
+
+  var selectedUCIndex = -1;
+
+  var bgMap  = { 'd-qual':'#E6F1FB','d-prod':'#EAF3DE','d-cost':'#FAEEDA','d-rev':'#EAF3DE','d-risk':'#FAECE7' };
+  var clrMap = { 'd-qual':'#0C447C','d-prod':'#27500A','d-cost':'#633806','d-rev':'#3B6D11','d-risk':'#712B13' };
+
+  // ----- POPULATE UC SELECTOR -----
+  function populateUCSelector() {
+    var sel = document.getElementById('ucSelector');
+    // Remove all but first option
+    while (sel.options.length > 1) sel.remove(1);
+    USE_CASES.forEach(function(uc, i) {
+      var o = document.createElement('option');
+      o.value = i;
+      o.textContent = uc.name + ' (' + uc.businessUnit + ')';
+      sel.appendChild(o);
+    });
+
+    // Auto-select pending
+    try {
+      var pendingId = localStorage.getItem('ai_framework_pending_score');
+      if (pendingId) {
+        var idx = USE_CASES.findIndex(function(uc){ return uc.id === pendingId; });
+        if (idx >= 0) {
+          sel.value = idx;
+          loadUCScores(idx);
+          localStorage.removeItem('ai_framework_pending_score');
+        }
+      }
+    } catch(e) {}
+  }
+
+  // ----- RENDER LEVER ROWS -----
+  function renderLeverRows() {
+    var wrap = document.getElementById('leverRows');
+    wrap.innerHTML = '';
+    LEVER_IDS.forEach(function(id) {
+      var bc = LEVER_BADGE_CLASS[id];
+      var bg = bgMap[bc]; var clr = clrMap[bc];
+      var w = Math.round(LEVER_WEIGHTS[id] * 100);
+      var row = document.createElement('div');
+      row.className = 'lever-score-row';
+      row.innerHTML =
+        '<span class="lever-score-label" style="color:' + clr + ';">' + LEVER_LABELS[id] + '</span>' +
+        '<input type="range" class="calc-slider" id="sl-' + id + '" min="1" max="5" step="1" value="3" oninput="window._vsOnSlider()">' +
+        '<span id="sv-' + id + '" style="font-size:13px;font-weight:700;color:' + clr + ';">3</span>' +
+        '<span class="lever-weight-tag">' + w + '%</span>';
+      wrap.appendChild(row);
+    });
+  }
+
+  // ----- RENDER FEASIBILITY ROWS (segmented buttons) -----
+  var FEAS_DEFS = [
+    { id:'dataReadiness',  label:'Data readiness',   hint:'1 = major gaps  ·  5 = fully available' },
+    { id:'techComplexity', label:'Tech complexity',  hint:'1 = simple  ·  5 = very complex (score inverted)' },
+    { id:'regulatoryRisk', label:'Regulatory risk',  hint:'1 = low risk  ·  5 = high risk (score inverted)' }
+  ];
+
+  window._fsSeg = function(feasId, val) {
+    var grp = document.getElementById('fg-' + feasId);
+    if (!grp) return;
+    grp.querySelectorAll('.seg-btn').forEach(function(b) {
+      b.classList.toggle('active', parseInt(b.dataset.val) === val);
+    });
+    recalculate();
+  };
+
+  function renderFeasRows() {
+    var wrap = document.getElementById('feasRows');
+    wrap.innerHTML = '';
+    FEAS_DEFS.forEach(function(f) {
+      var btns = '';
+      for (var v = 1; v <= 5; v++) {
+        btns += '<button type="button" class="seg-btn' + (v === 3 ? ' active' : '') + '" data-val="' + v + '" onclick="window._fsSeg(\'' + f.id + '\',' + v + ')">' + v + '</button>';
+      }
+      var row = document.createElement('div');
+      row.className = 'feas-row';
+      row.innerHTML =
+        '<span class="lever-score-label">' + f.label + '</span>' +
+        '<div class="seg-grp" id="fg-' + f.id + '">' + btns + '</div>' +
+        '<span class="feas-hint">' + f.hint + '</span>';
+      wrap.appendChild(row);
+    });
+  }
+
+  // ----- RENDER WEIGHT REFERENCE -----
+  function renderWeightRef() {
+    var wrap = document.getElementById('leverWeightRef');
+    wrap.innerHTML = '';
+    LEVER_IDS.forEach(function(id) {
+      var bc = LEVER_BADGE_CLASS[id];
+      var bg = bgMap[bc]; var clr = clrMap[bc];
+      var w = Math.round(LEVER_WEIGHTS[id] * 100);
+      var div = document.createElement('div');
+      div.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:.375rem;font-size:.82rem;';
+      div.innerHTML =
+        '<span style="display:inline-block;padding:2px 8px;border-radius:20px;background:' + bg + ';color:' + clr + ';font-size:.75rem;font-weight:600;">' + LEVER_LABELS[id] + '</span>' +
+        '<span style="font-weight:700;color:var(--navy);">' + w + '%</span>';
+      wrap.appendChild(div);
+    });
+  }
+
+  // ----- LOAD UC SCORES INTO SLIDERS -----
+  window.loadUCScores = function(idx) {
+    selectedUCIndex = parseInt(idx);
+    var uc = USE_CASES[selectedUCIndex];
+    if (!uc) return;
+
+    // Show info banner
+    var tier = getTier(uc.compositeScore);
+    var banner = document.getElementById('ucInfoBanner');
+    var pillStyle = 'display:inline-block;padding:2px 10px;border-radius:20px;font-size:.75rem;font-weight:700;background:' + tier.bg + ';color:' + tier.color + ';';
+    banner.innerHTML =
+      '<strong>' + uc.name + '</strong> &nbsp;|&nbsp; ' + uc.businessUnit +
+      ' &nbsp;|&nbsp; <span style="' + pillStyle + '">' + tier.badge + '</span>' +
+      ' &nbsp;|&nbsp; ' + uc.status;
+    banner.style.display = 'block';
+
+    // Lever sliders
+    LEVER_IDS.forEach(function(id) {
+      var sl = document.getElementById('sl-' + id);
+      if (sl) {
+        sl.value = uc.scores[id] || 3;
+        document.getElementById('sv-' + id).textContent = sl.value;
+      }
+    });
+
+    // Feasibility segmented buttons
+    FEAS_DEFS.forEach(function(f) {
+      var val = uc.feasibility[f.id] || 3;
+      var grp = document.getElementById('fg-' + f.id);
+      if (grp) {
+        grp.querySelectorAll('.seg-btn').forEach(function(b) {
+          b.classList.toggle('active', parseInt(b.dataset.val) === val);
+        });
+      }
+    });
+
+    // Productivity assumptions
+    document.getElementById('assHourlyRate').value = uc.productivityAssumption.hourlyRate || 65;
+    document.getElementById('assHoursTask').value  = uc.productivityAssumption.hoursPerTask || 2;
+    document.getElementById('assTasksYear').value  = uc.productivityAssumption.tasksPerYear || 200;
+
+    recalculate();
+  };
+
+  // ----- RECALCULATE -----
+  window._vsOnSlider = function() { recalculate(); };
+
+  function recalculate() {
+    // Read lever scores
+    var scores = {};
+    LEVER_IDS.forEach(function(id) {
+      var sl = document.getElementById('sl-' + id);
+      var v = sl ? parseInt(sl.value) : 3;
+      scores[id] = v;
+      var sv = document.getElementById('sv-' + id);
+      if (sv) sv.textContent = v;
+    });
+
+    // Read feasibility from segmented buttons
+    var feasibility = {};
+    FEAS_DEFS.forEach(function(f) {
+      var grp = document.getElementById('fg-' + f.id);
+      var active = grp ? grp.querySelector('.seg-btn.active') : null;
+      feasibility[f.id] = active ? parseInt(active.dataset.val) : 3;
+    });
+
+    // Productivity
+    var hr  = parseFloat(document.getElementById('assHourlyRate').value) || 0;
+    var ht  = parseFloat(document.getElementById('assHoursTask').value) || 0;
+    var ty  = parseFloat(document.getElementById('assTasksYear').value) || 0;
+    var prodVal = hr * ht * ty;
+    document.getElementById('productivityDerived').textContent = '$' + Math.round(prodVal).toLocaleString();
+
+    // Build temp UC for getInterpretation
+    var tempUC = {
+      scores: scores,
+      feasibility: feasibility,
+      productivityAssumption: { hourlyRate: hr, hoursPerTask: ht, tasksPerYear: ty }
+    };
+
+    var score = computeComposite(scores, feasibility);
+    var tier  = getTier(score);
+
+    // Update circle
+    var circle = document.getElementById('scoreBigCircle');
+    circle.style.background = tier.bg;
+    circle.style.color = tier.color;
+    document.getElementById('scoreBigNum').textContent = score;
+
+    // Tier label + action
+    document.getElementById('scoreTierLabel').textContent = tier.label;
+    document.getElementById('scoreTierAction').textContent = tier.action;
+
+    // Bar
+    document.getElementById('scoreBarFill').style.width = score + '%';
+    document.getElementById('scoreBarFill').style.background = tier.color;
+
+    // Interpretation
+    var interp = getInterpretation(score, tempUC);
+    document.getElementById('interpretationText').textContent = interp;
+    document.getElementById('interpretationBox').style.display = 'block';
+
+    // Hide saved msg on change
+    document.getElementById('savedMsg').style.display = 'none';
+  }
+
+  // ----- SAVE SCORES -----
+  window.saveScores = function() {
+    if (selectedUCIndex < 0 || !USE_CASES[selectedUCIndex]) {
+      alert('Please select a use case from the dropdown before saving.');
+      return;
+    }
+    var uc = USE_CASES[selectedUCIndex];
+
+    LEVER_IDS.forEach(function(id) {
+      var sl = document.getElementById('sl-' + id);
+      if (sl) uc.scores[id] = parseInt(sl.value);
+    });
+    FEAS_DEFS.forEach(function(f) {
+      var grp = document.getElementById('fg-' + f.id);
+      var active = grp ? grp.querySelector('.seg-btn.active') : null;
+      if (active) uc.feasibility[f.id] = parseInt(active.dataset.val);
+    });
+    uc.productivityAssumption.hourlyRate  = parseFloat(document.getElementById('assHourlyRate').value) || 0;
+    uc.productivityAssumption.hoursPerTask = parseFloat(document.getElementById('assHoursTask').value) || 0;
+    uc.productivityAssumption.tasksPerYear = parseFloat(document.getElementById('assTasksYear').value) || 0;
+    uc.compositeScore = computeComposite(uc.scores, uc.feasibility);
+
+    saveUseCases(USE_CASES);
+
+    // Update banner
+    loadUCScores(selectedUCIndex);
+
+    var savedMsg = document.getElementById('savedMsg');
+    savedMsg.style.display = 'inline';
+    setTimeout(function(){ savedMsg.style.display = 'none'; }, 2500);
+  };
+
+  // ----- FORMULA TOGGLE -----
+  window.toggleFormula = function() {
+    var box = document.getElementById('formulaBox');
+    var btn = document.getElementById('formulaToggle');
+    var open = box.style.display === 'block';
+    box.style.display = open ? 'none' : 'block';
+    btn.textContent = (open ? '\u25BC' : '\u25B2') + (open ? ' Show scoring formula' : ' Hide scoring formula');
+  };
+
+  // ----- UC SELECTOR CHANGE -----
+  document.getElementById('ucSelector').addEventListener('change', function() {
+    var val = this.value;
+    if (val === '') {
+      selectedUCIndex = -1;
+      document.getElementById('ucInfoBanner').style.display = 'none';
+      document.getElementById('ucBadgeStrip').innerHTML = '';
+      // Reset sliders to default 3
+      LEVER_IDS.forEach(function(id) {
+        var sl = document.getElementById('sl-' + id);
+        if (sl) { sl.value = 3; document.getElementById('sv-' + id).textContent = '3'; }
+      });
+      FEAS_DEFS.forEach(function(f) {
+        var grp = document.getElementById('fg-' + f.id);
+        if (grp) {
+          grp.querySelectorAll('.seg-btn').forEach(function(b) {
+            b.classList.toggle('active', b.dataset.val === '3');
+          });
+        }
+      });
+      document.getElementById('assHourlyRate').value = 65;
+      document.getElementById('assHoursTask').value  = 2;
+      document.getElementById('assTasksYear').value  = 200;
+      recalculate();
+    } else {
+      loadUCScores(parseInt(val));
+    }
+  });
+
+  // Productivity input listeners
+  ['assHourlyRate','assHoursTask','assTasksYear'].forEach(function(id) {
+    document.getElementById(id).addEventListener('input', recalculate);
+  });
+
+  // ----- INIT -----
+  renderLeverRows();
+  renderFeasRows();
+  renderWeightRef();
+  populateUCSelector();
+  recalculate();
+
+})();
+</script>
+</body>
+</html>
