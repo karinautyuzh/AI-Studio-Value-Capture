@@ -1016,3 +1016,68 @@ input[type=range].calc-slider::-moz-range-thumb {
   .pipeline-tbl th:nth-child(4), .pipeline-tbl td:nth-child(4) { display:none; }
   .pipeline-tbl th:nth-child(6), .pipeline-tbl td:nth-child(6) { display:none; }
 }
+
+/* ================================================================
+   31. LIFECYCLE FLOW
+   ================================================================ */
+.lifecycle-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:.875rem;
+  margin-top:2rem;
+}
+.lifecycle-step {
+  background:var(--surface);
+  border-radius:var(--r-lg);
+  padding:1.25rem 1rem;
+  text-align:center;
+  border-top:3px solid var(--teal);
+  box-shadow:var(--sh-sm);
+  position:relative;
+}
+.lifecycle-num {
+  width:34px; height:34px; border-radius:50%;
+  background:var(--teal); color:#fff;
+  font-weight:800; font-size:.85rem;
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto .75rem;
+}
+.lifecycle-title {
+  font-weight:700; font-size:.875rem;
+  color:var(--navy); margin-bottom:.3rem;
+}
+.lifecycle-sub {
+  font-size:.775rem; color:var(--muted); line-height:1.5;
+}
+@media (max-width:600px) {
+  .lifecycle-grid { grid-template-columns:1fr 1fr; }
+}
+
+/* ================================================================
+   32. PRIORITIZATION CRITERIA CARDS
+   ================================================================ */
+.criteria-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:1rem;
+  margin-top:1.25rem;
+}
+.criteria-card {
+  background:var(--surface);
+  border-radius:var(--r-md);
+  padding:1.1rem 1rem;
+  border-left:3px solid var(--teal);
+  box-shadow:var(--sh-sm);
+}
+.criteria-card-num {
+  font-size:.68rem; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase;
+  color:var(--teal); margin-bottom:.25rem;
+}
+.criteria-card-title {
+  font-weight:700; font-size:.875rem;
+  color:var(--navy); margin-bottom:.3rem;
+}
+.criteria-card-desc {
+  font-size:.8rem; color:var(--muted); line-height:1.55;
+}

@@ -37,7 +37,7 @@
   <div class="wrap">
     <span class="eyebrow">AI Portfolio Management</span>
     <h1 class="hero-title">Intake, Prioritization &amp;<br>Value Framework</h1>
-    <p class="hero-sub">A structured operating model for evaluating, prioritizing, and measuring the value of AI and automation investments — from first idea to sustained business impact. Currently tracking 6 active use cases across ASD, CRA, and ICF.</p>
+    <p class="hero-sub">A structured operating model for evaluating, prioritizing, and measuring the value of AI and automation investments — from first idea to sustained business impact. Currently tracking 4 use cases across CRA, BioA, CLS, and ICF.</p>
     <div class="hero-ctas">
       <a href="use-cases.html" class="btn btn-primary">View Use Cases →</a>
       <a href="intake-prioritization.html" class="btn btn-ghost">Submit a Use Case</a>
@@ -90,8 +90,56 @@
   </div>
 </section>
 
-<!-- FRAMEWORK TOOLS -->
+<!-- USE CASE LIFECYCLE -->
 <section class="section">
+  <div class="wrap">
+    <div class="sec-hd sec-hd-center">
+      <span class="eyebrow">Lifecycle</span>
+      <h2 class="section-title">Use Case Lifecycle</h2>
+      <p class="section-sub">Every AI idea moves through a consistent seven-stage lifecycle — ensuring structured evaluation, measured delivery, and sustained value realization.</p>
+    </div>
+    <div class="lifecycle-grid">
+      <div class="lifecycle-step">
+        <div class="lifecycle-num">1</div>
+        <div class="lifecycle-title">Submission</div>
+        <div class="lifecycle-sub">Capture the use case via the structured intake form with problem, solution, and context.</div>
+      </div>
+      <div class="lifecycle-step">
+        <div class="lifecycle-num">2</div>
+        <div class="lifecycle-title">Prioritization</div>
+        <div class="lifecycle-sub">Score value levers and feasibility to assign a composite priority tier (0–100).</div>
+      </div>
+      <div class="lifecycle-step">
+        <div class="lifecycle-num">3</div>
+        <div class="lifecycle-title">Intake</div>
+        <div class="lifecycle-sub">Review and validate submission completeness before committing to discovery.</div>
+      </div>
+      <div class="lifecycle-step">
+        <div class="lifecycle-num">4</div>
+        <div class="lifecycle-title">Discovery</div>
+        <div class="lifecycle-sub">Define success metrics, data requirements, architecture, and delivery scope.</div>
+      </div>
+      <div class="lifecycle-step">
+        <div class="lifecycle-num">5</div>
+        <div class="lifecycle-title">POC</div>
+        <div class="lifecycle-sub">Build a focused proof of concept to test core assumptions with real data.</div>
+      </div>
+      <div class="lifecycle-step">
+        <div class="lifecycle-num">6</div>
+        <div class="lifecycle-title">Build</div>
+        <div class="lifecycle-sub">Develop and validate the full solution with stakeholders and QA sign-off.</div>
+      </div>
+      <div class="lifecycle-step">
+        <div class="lifecycle-num">7</div>
+        <div class="lifecycle-title">Deploy &amp; Scale</div>
+        <div class="lifecycle-sub">Roll out to production, onboard users, and track KPI realization over time.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FRAMEWORK TOOLS -->
+<section class="section section-alt">
   <div class="wrap">
     <div class="sec-hd">
       <span class="eyebrow">Interactive Tools</span>
@@ -133,13 +181,13 @@
 </section>
 
 <!-- USE CASES TEASER (rendered from shared data store) -->
-<section class="section section-alt">
+<section class="section">
   <div class="wrap">
     <div class="sec-hd" style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:2rem;">
       <div>
         <span class="eyebrow">Current Portfolio</span>
         <h2 class="section-title">Active Use Cases</h2>
-        <p class="section-sub" id="homeUCSubtitle">AI use cases spanning analytical reporting, CRA writing assistance, quality assurance, and informed consent — grouped by business area.</p>
+        <p class="section-sub" id="homeUCSubtitle">AI use cases spanning CRA findings management, bioanalytical report compilation, central lab spec translation, and ICF country adaptation — grouped by business area.</p>
       </div>
       <a href="use-cases.html" class="btn btn-outline btn-sm">View all details →</a>
     </div>
@@ -245,7 +293,7 @@
 <script src="assets/js/data.js"></script>
 <script>
 (function() {
-  var BU_COLOR  = { ASD:'var(--teal)', CRA:'var(--blue)', ICF:'#7C3AED', SDTM:'#D97706', GCL:'#059669' };
+  var BU_COLOR  = { CRA:'var(--blue)', BioA:'var(--teal)', CLS:'#059669', ICF:'#7C3AED' };
   var ST_CLASS  = { Active:'s-active', Evaluating:'s-eval', Intake:'s-intake', Hold:'s-hold' };
   var BG_MAP    = { 'd-qual':'#E6F1FB','d-prod':'#EAF3DE','d-cost':'#FAEEDA','d-rev':'#EAF3DE','d-risk':'#FAECE7' };
   var CLR_MAP   = { 'd-qual':'#0C447C','d-prod':'#27500A','d-cost':'#633806','d-rev':'#3B6D11','d-risk':'#712B13' };

@@ -1,5 +1,5 @@
 /* ============================================================
-   AI Framework — Central Data Store v2.0
+   AI Framework — Central Data Store v3.0
    ============================================================ */
 'use strict';
 
@@ -43,7 +43,7 @@ const PRIORITY_TIERS = [
     action:'Insufficient value or feasibility case. Decline and document rationale.' }
 ];
 
-const BU_OPTIONS = ['ASD','CRA','ICF','SDTM','Other'];
+const BU_OPTIONS = ['CRA','BioA','CLS','ICF','Other'];
 const AI_TYPES   = [
   'Generative AI – document drafting',
   'Generative AI – summarization',
@@ -57,133 +57,91 @@ const STATUS_OPTIONS = ['Active','Evaluating','Intake','Hold'];
 // ----- DEFAULT USE CASE DATA -----
 const DEFAULT_USE_CASES = [
   {
-    id:'bioa-report', name:'BioA AI-Augmented Report Writing',
-    businessUnit:'ASD', aiType:'Generative AI – document drafting', regulatory:'GxP-regulated', status:'Active',
-    problemStatement:'Scientists spend significant time manually drafting BioA analytical and study reports, leading to inconsistency, reformatting cycles, and delayed turnaround.',
-    proposedSolution:'AI synthesizes structured data and prior report patterns into high-quality draft narratives, reducing authoring effort while remaining GxP-compliant.',
-    estimatedUsers:'11–50', dataAvailability:'Readily available', complexity:'Medium (1–3 months)', sponsor:'VP, Analytical Sciences',
-    valueLevers:['quality','productivity','cost','revenue'],
-    kpiTags:['cycle-time','review-cycles','authoring-hours','throughput','ftes-saved'],
-    homeKPI:'Cycle time per report · Error rate at QA intake',
+    id:'cra-findings-dashboard', name:'CRA Findings & Deviations Dashboard',
+    businessUnit:'CRA', aiType:'Decision support', regulatory:'GxP-regulated', status:'Active',
+    problemStatement:'Findings and deviations data is fragmented across systems, making it difficult for CRAs and study teams to surface systemic issues, monitor aging items, or prioritize resolution across the portfolio.',
+    proposedSolution:'An AI-powered dashboard aggregates findings, deviations, and CAPAs across all active studies, surfacing trends, aging items, and risk signals — enabling proactive management rather than reactive firefighting.',
+    estimatedUsers:'11–50', dataAvailability:'Readily available', complexity:'Medium (1–3 months)', sponsor:'Head of Clinical Operations',
+    valueLevers:['quality','productivity','risk'],
+    kpiTags:['findings-resolution','audit-findings','throughput','qa-acceptance'],
+    homeKPI:'45-day findings resolution rate · Systemic issue detection speed',
     kvqs:[
-      'Where in the current BioA reporting process do scientists spend the most non-value-added time (e.g., drafting, reformatting, copy-paste)?',
-      'How much report cycle time is driven by initial drafting vs. downstream review and rework?',
-      'What quality issues (inconsistency, missing sections, formatting errors) create rework or client dissatisfaction today?',
-      'How would faster, more consistent draft reports change BioA throughput or capacity constraints?'
+      'What percentage of findings exceed the 45-day resolution window today, and where does delay originate?',
+      'How much time do study managers spend manually aggregating findings data for status reviews?',
+      'How often are systemic cross-study issues identified too late to prevent escalation?',
+      'How would a unified findings view change prioritization decisions at the portfolio level?'
     ],
-    scores:{ quality:5, productivity:4, cost:3, revenue:4, risk:5 },
-    feasibility:{ dataReadiness:5, techComplexity:2, regulatoryRisk:2 },
-    productivityAssumption:{ hourlyRate:75, hoursPerTask:4, tasksPerYear:300 },
-    compositeScore:85,
-    projections:{ hoursSaved:1200, usersAffected:15, cycleTimePct:40, costSavings:180000, productivitySavings:90000 },
-    actuals:     { hoursSaved:980,  usersAffected:12, cycleTimePct:35, costSavings:145000, productivitySavings:72000 }
+    scores:{ quality:5, productivity:4, cost:3, revenue:3, risk:5 },
+    feasibility:{ dataReadiness:4, techComplexity:3, regulatoryRisk:3 },
+    productivityAssumption:{ hourlyRate:70, hoursPerTask:3, tasksPerYear:350 },
+    compositeScore:77,
+    projections:{ hoursSaved:1050, usersAffected:30, cycleTimePct:45, costSavings:110000, productivitySavings:73500 },
+    actuals:     { hoursSaved:870,  usersAffected:26, cycleTimePct:38, costSavings:88000, productivitySavings:59000 }
   },
   {
-    id:'cls-automation', name:'Connexion CLS Automation in GCL',
-    businessUnit:'ASD', aiType:'Workflow automation', regulatory:'GxP-regulated', status:'Active',
-    problemStatement:'Manual CLS configuration in Connexion LIMS is error-prone, time-consuming, and inconsistent across studies.',
-    proposedSolution:'AI automates CLS setup and configuration, reducing manual errors and accelerating setup time.',
-    estimatedUsers:'11–50', dataAvailability:'Readily available', complexity:'Medium (1–3 months)', sponsor:'Director, Global Central Labs',
-    valueLevers:['quality','productivity','risk','cost'],
-    kpiTags:['setup-time','error-rate','data-integrity','throughput'],
-    homeKPI:'CLS setup time reduction · Data integrity incident rate',
+    id:'bioa-report-compilation', name:'BioA Manual Study Report Compilation',
+    businessUnit:'BioA', aiType:'Generative AI – document drafting', regulatory:'GxP-regulated', status:'Evaluating',
+    problemStatement:'Bioanalytical scientists spend significant time manually compiling assay data, QC results, and narrative sections into study reports — creating inconsistency across authors and delaying sponsor deliverables.',
+    proposedSolution:'AI synthesizes structured assay data, QC summaries, and historical report patterns into high-quality draft narratives, reducing authoring effort and improving report consistency while remaining GxP-compliant.',
+    estimatedUsers:'11–50', dataAvailability:'Readily available', complexity:'Medium (1–3 months)', sponsor:'VP, Bioanalytical Sciences',
+    valueLevers:['quality','productivity','cost','revenue'],
+    kpiTags:['cycle-time','review-cycles','authoring-hours','throughput','ftes-saved'],
+    homeKPI:'Cycle time per report · First-pass QA acceptance rate',
     kvqs:[
-      'How long does CLS setup take today, and what portion is repetitive or rules-based?',
-      'Where do CLS errors most commonly originate, and what is the downstream impact (rework, delays, quality risk)?',
-      'How does CLS setup speed affect study start timelines or lab throughput?',
-      'What is the operational and compliance risk of inconsistent CLS configurations across studies?',
-      'How do we measure success: speed, error reduction, or both?'
+      'Where in the BioA reporting process do scientists spend the most non-value-added time — drafting, reformatting, or copy-paste?',
+      'How much of report cycle time is driven by initial authoring versus downstream review and rework?',
+      'What quality issues (missing sections, inconsistent formatting) create sponsor dissatisfaction or re-submission today?',
+      'How would faster, more consistent draft reports affect BioA throughput or capacity constraints?'
+    ],
+    scores:{ quality:5, productivity:4, cost:3, revenue:3, risk:4 },
+    feasibility:{ dataReadiness:5, techComplexity:2, regulatoryRisk:2 },
+    productivityAssumption:{ hourlyRate:75, hoursPerTask:4, tasksPerYear:300 },
+    compositeScore:79,
+    projections:{ hoursSaved:1200, usersAffected:18, cycleTimePct:40, costSavings:160000, productivitySavings:90000 },
+    actuals:     { hoursSaved:null, usersAffected:null, cycleTimePct:null, costSavings:null, productivitySavings:null }
+  },
+  {
+    id:'cls-protocol-translation', name:'CLS Manual Protocol-to-Lab Spec Translation',
+    businessUnit:'CLS', aiType:'Workflow automation', regulatory:'GxP-regulated', status:'Evaluating',
+    problemStatement:'Central Lab Services teams manually translate study protocols into lab specification documents — a repetitive, error-prone process that slows study startup and introduces configuration inconsistencies across sites.',
+    proposedSolution:'AI extracts structured lab requirements from protocol documents and auto-populates lab specification templates, reducing manual effort, accelerating setup time, and flagging ambiguities for human review.',
+    estimatedUsers:'11–50', dataAvailability:'Readily available', complexity:'Medium (1–3 months)', sponsor:'Director, Central Lab Services',
+    valueLevers:['quality','productivity','cost','risk'],
+    kpiTags:['setup-time','error-rate','data-integrity','startup-time','rework-cost'],
+    homeKPI:'Lab spec setup time · Configuration error rate per study',
+    kvqs:[
+      'How much time does protocol-to-lab-spec translation currently take per study, and what portion is purely rules-based?',
+      'Where do configuration errors most commonly originate, and what is the downstream impact on timelines or quality?',
+      'How does lab spec setup speed affect overall study startup milestones?',
+      'What is the compliance risk of inconsistent lab configurations across sites and studies?'
     ],
     scores:{ quality:5, productivity:4, cost:4, revenue:3, risk:4 },
     feasibility:{ dataReadiness:4, techComplexity:3, regulatoryRisk:3 },
-    productivityAssumption:{ hourlyRate:65, hoursPerTask:2, tasksPerYear:400 },
+    productivityAssumption:{ hourlyRate:65, hoursPerTask:3, tasksPerYear:400 },
     compositeScore:78,
-    projections:{ hoursSaved:800, usersAffected:20, cycleTimePct:60, costSavings:120000, productivitySavings:60000 },
-    actuals:     { hoursSaved:650, usersAffected:18, cycleTimePct:50, costSavings:95000,  productivitySavings:48000 }
-  },
-  {
-    id:'cra-qa', name:'Post-Entry CRA QA',
-    businessUnit:'CRA', aiType:'QA / validation', regulatory:'GxP-regulated', status:'Evaluating',
-    problemStatement:'Post-entry QA is largely manual, catching issues late and consuming high-value QA capacity on low-judgment checks.',
-    proposedSolution:'AI performs automated post-entry checks to identify missing fields, inconsistencies, and rule violations before formal QA review.',
-    estimatedUsers:'11–50', dataAvailability:'Readily available', complexity:'Medium (1–3 months)', sponsor:'Head of CRA Quality',
-    valueLevers:['quality','risk','productivity','cost'],
-    kpiTags:['qa-acceptance','error-rate','findings-resolution','audit-findings','rework-cost'],
-    homeKPI:'First-pass QA acceptance rate · 45-day findings resolution',
-    kvqs:[
-      'What percentage of QA findings today are basic completeness or consistency issues?',
-      'How much QA capacity is spent on low-judgment checks versus expert review?',
-      'How does earlier issue detection affect the 45-day findings resolution requirement?',
-      'Where do delayed or missed QA issues create compliance or audit risk?'
-    ],
-    scores:{ quality:5, productivity:4, cost:3, revenue:2, risk:5 },
-    feasibility:{ dataReadiness:5, techComplexity:2, regulatoryRisk:3 },
-    productivityAssumption:{ hourlyRate:70, hoursPerTask:1, tasksPerYear:600 },
-    compositeScore:76,
-    projections:{ hoursSaved:600, usersAffected:30, cycleTimePct:50, costSavings:90000, productivitySavings:45000 },
+    projections:{ hoursSaved:1200, usersAffected:22, cycleTimePct:55, costSavings:130000, productivitySavings:78000 },
     actuals:     { hoursSaved:null, usersAffected:null, cycleTimePct:null, costSavings:null, productivitySavings:null }
   },
   {
-    id:'cra-prewriting', name:'Pre-writing CRA Assistant',
-    businessUnit:'CRA', aiType:'Generative AI – document drafting', regulatory:'GxP-regulated', status:'Evaluating',
-    problemStatement:'CRAs spend significant time drafting findings, deviations, and CAPAs from scratch, leading to inconsistency and high review cycle counts.',
-    proposedSolution:'GenAI assistant pre-drafts CRA text using standardized language, historical patterns, and structured inputs.',
-    estimatedUsers:'51–200', dataAvailability:'Partial – needs work', complexity:'High (3–6 months)', sponsor:'CRA Operations Lead',
-    valueLevers:['quality','productivity','risk'],
-    kpiTags:['review-cycles','authoring-hours','qa-acceptance','adoption-rate'],
-    homeKPI:'Review cycle count · Authoring burden score (pre/post)',
-    kvqs:[
-      'Which CRA writing tasks are most time-consuming and least differentiated?',
-      'How often does poor initial drafting drive review cycles or re-submission?',
-      'How does improved consistency help with inspection readiness or sponsor confidence?'
-    ],
-    scores:{ quality:4, productivity:5, cost:3, revenue:2, risk:4 },
-    feasibility:{ dataReadiness:4, techComplexity:3, regulatoryRisk:3 },
-    productivityAssumption:{ hourlyRate:70, hoursPerTask:3, tasksPerYear:300 },
-    compositeScore:71,
-    projections:{ hoursSaved:900, usersAffected:45, cycleTimePct:30, costSavings:60000, productivitySavings:75000 },
-    actuals:     { hoursSaved:null, usersAffected:null, cycleTimePct:null, costSavings:null, productivitySavings:null }
-  },
-  {
-    id:'findings-summary', name:'Findings & Deviations Summary',
-    businessUnit:'CRA', aiType:'Generative AI – summarization', regulatory:'GxP-regulated', status:'Hold',
-    problemStatement:'Systemic issues across studies are identified too late because findings data is siloed and difficult to aggregate manually.',
-    proposedSolution:'AI summarizes open and aging findings across studies, highlighting trends and priority actions.',
-    estimatedUsers:'11–50', dataAvailability:'Partial – needs work', complexity:'Medium (1–3 months)', sponsor:'Study Operations Director',
-    valueLevers:['quality','risk','productivity'],
-    kpiTags:['findings-resolution','audit-findings','throughput'],
-    homeKPI:'Portfolio-level risk identification speed · Systemic issue detection',
-    kvqs:[
-      'How often are systemic issues identified too late?',
-      'How would clearer summaries improve decision-making at study or portfolio level?'
-    ],
-    scores:{ quality:3, productivity:3, cost:2, revenue:2, risk:5 },
-    feasibility:{ dataReadiness:4, techComplexity:2, regulatoryRisk:3 },
-    productivityAssumption:{ hourlyRate:65, hoursPerTask:2, tasksPerYear:200 },
-    compositeScore:61,
-    projections:{ hoursSaved:400, usersAffected:25, cycleTimePct:40, costSavings:40000, productivitySavings:35000 },
-    actuals:     { hoursSaved:null, usersAffected:null, cycleTimePct:null, costSavings:null, productivitySavings:null }
-  },
-  {
-    id:'icf-drafting', name:'ICF Drafting App',
+    id:'icf-country-workflow', name:'ICF Master to Country to Site Workflow',
     businessUnit:'ICF', aiType:'Generative AI – document drafting', regulatory:'GxP-regulated', status:'Intake',
-    problemStatement:'Country-adapted ICF drafting is time-consuming and error-prone due to manual template selection and regulatory language choices.',
-    proposedSolution:'GenAI application generates country-adapted draft ICF documents in Word with Track Changes using protocol metadata and regulatory precedents.',
+    problemStatement:'Adapting master ICFs for individual countries and sites requires multiple handoffs between legal, clinical, and regulatory teams — driving rework, version confusion, and delays in study startup timelines.',
+    proposedSolution:'AI automates the ICF adaptation workflow from master template through country-specific and site-level versions, applying regulatory language rules and flagging deviations for human review before submission.',
     estimatedUsers:'11–50', dataAvailability:'Partial – needs work', complexity:'High (3–6 months)', sponsor:'Head of Regulatory Affairs',
     valueLevers:['quality','productivity','cost','risk'],
-    kpiTags:['cycle-time','startup-time','rework-cost','authoring-hours'],
-    homeKPI:'Study startup time · ICF drafting time per country',
+    kpiTags:['cycle-time','startup-time','rework-cost','authoring-hours','review-cycles'],
+    homeKPI:'Study startup time · ICF adaptation cycle time per country',
     kvqs:[
-      'How much time is currently spent drafting and re-drafting ICFs across countries?',
-      'Where do handoffs between legal, clinical, and regulatory teams cause rework?',
-      'What risks arise from incorrect template or regulatory language selection?',
-      'How does faster ICF drafting affect study startup timelines?'
+      'How much time is currently spent adapting the master ICF for each country and site across a typical study?',
+      'Where do handoffs between legal, clinical, and regulatory teams introduce the most delay or rework?',
+      'What risks arise from incorrect regulatory language or template selection during country adaptation?',
+      'How does faster ICF adaptation affect study startup milestones and sponsor satisfaction?'
     ],
-    scores:{ quality:4, productivity:4, cost:3, revenue:3, risk:3 },
-    feasibility:{ dataReadiness:4, techComplexity:3, regulatoryRisk:3 },
+    scores:{ quality:4, productivity:4, cost:3, revenue:3, risk:4 },
+    feasibility:{ dataReadiness:3, techComplexity:3, regulatoryRisk:3 },
     productivityAssumption:{ hourlyRate:80, hoursPerTask:6, tasksPerYear:150 },
-    compositeScore:69,
-    projections:{ hoursSaved:700, usersAffected:20, cycleTimePct:50, costSavings:80000, productivitySavings:55000 },
+    compositeScore:70,
+    projections:{ hoursSaved:900, usersAffected:20, cycleTimePct:45, costSavings:95000, productivitySavings:72000 },
     actuals:     { hoursSaved:null, usersAffected:null, cycleTimePct:null, costSavings:null, productivitySavings:null }
   }
 ];
@@ -223,7 +181,7 @@ function calcProductivityValue(assumption) {
 }
 
 // ----- STORAGE LAYER -----
-var STORAGE_KEY = 'ai_framework_uc_v2';
+var STORAGE_KEY = 'ai_framework_uc_v3';
 
 function loadUseCases() {
   try { var r = localStorage.getItem(STORAGE_KEY); if (r) return JSON.parse(r); } catch(e) {}

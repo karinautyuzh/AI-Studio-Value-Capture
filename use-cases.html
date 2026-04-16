@@ -90,44 +90,34 @@
 (function() {
   // Page-local KVQ data (static reference content per UC id)
   var UC_KVQ = {
-    'bioa-report': [
-      'Where in the current BioA reporting process do scientists spend the most non-value-added time (e.g., drafting, reformatting, copy-paste)?',
-      'How much report cycle time is driven by initial drafting vs. downstream review and rework?',
-      'What quality issues (inconsistency, missing sections, formatting errors) create rework or client dissatisfaction today?',
-      'How would faster, more consistent draft reports change BioA throughput or capacity constraints?'
+    'cra-findings-dashboard': [
+      'What percentage of findings exceed the 45-day resolution window today, and where does delay originate?',
+      'How much time do study managers spend manually aggregating findings data for status reviews?',
+      'How often are systemic cross-study issues identified too late to prevent escalation?',
+      'How would a unified findings view change prioritization decisions at the portfolio level?'
     ],
-    'cls-automation': [
-      'How long does CLS setup take today, and what portion is repetitive or rules-based?',
-      'Where do CLS errors most commonly originate, and what is the downstream impact (rework, delays, quality risk)?',
-      'How does CLS setup speed affect study start timelines or lab throughput?',
-      'What is the operational and compliance risk of inconsistent CLS configurations across studies?',
-      'How do we measure success: speed, error reduction, or both?'
+    'bioa-report-compilation': [
+      'Where in the BioA reporting process do scientists spend the most non-value-added time — drafting, reformatting, or copy-paste?',
+      'How much of report cycle time is driven by initial authoring versus downstream review and rework?',
+      'What quality issues (missing sections, inconsistent formatting) create sponsor dissatisfaction or re-submission today?',
+      'How would faster, more consistent draft reports affect BioA throughput or capacity constraints?'
     ],
-    'cra-qa': [
-      'What percentage of QA findings today are basic completeness or consistency issues?',
-      'How much QA capacity is spent on low-judgment checks versus expert review?',
-      'How does earlier issue detection affect the 45-day findings resolution requirement?',
-      'Where do delayed or missed QA issues create compliance or audit risk?'
+    'cls-protocol-translation': [
+      'How much time does protocol-to-lab-spec translation currently take per study, and what portion is purely rules-based?',
+      'Where do configuration errors most commonly originate, and what is the downstream impact on timelines or quality?',
+      'How does lab spec setup speed affect overall study startup milestones?',
+      'What is the compliance risk of inconsistent lab configurations across sites and studies?'
     ],
-    'cra-prewriting': [
-      'Which CRA writing tasks are most time-consuming and least differentiated?',
-      'How often does poor initial drafting drive review cycles or re-submission?',
-      'How does improved consistency help with inspection readiness or sponsor confidence?'
-    ],
-    'findings-summary': [
-      'How often are systemic issues identified too late?',
-      'How would clearer summaries improve decision-making at study or portfolio level?'
-    ],
-    'icf-drafting': [
-      'How much time is currently spent drafting and re-drafting ICFs across countries?',
-      'Where do handoffs between legal, clinical, and regulatory teams cause rework?',
-      'What risks arise from incorrect template or regulatory language selection?',
-      'How does faster ICF drafting affect study startup timelines?'
+    'icf-country-workflow': [
+      'How much time is currently spent adapting the master ICF for each country and site across a typical study?',
+      'Where do handoffs between legal, clinical, and regulatory teams introduce the most delay or rework?',
+      'What risks arise from incorrect regulatory language or template selection during country adaptation?',
+      'How does faster ICF adaptation affect study startup milestones and sponsor satisfaction?'
     ]
   };
 
-  var BU_COLOR  = { ASD:'var(--teal)', CRA:'var(--blue)', ICF:'#7C3AED', SDTM:'#D97706' };
-  var BU_NAME   = { ASD:'Analytical Services Division', CRA:'Clinical Research Associates', ICF:'Informed Consent Forms', SDTM:'Study Data Tabulation Model' };
+  var BU_COLOR  = { CRA:'var(--blue)', BioA:'var(--teal)', CLS:'#059669', ICF:'#7C3AED' };
+  var BU_NAME   = { CRA:'Clinical Research Associates', BioA:'Bioanalysis', CLS:'Central Lab Services', ICF:'Informed Consent Forms' };
   var LETTERS   = 'ABCDEFGH';
   var ST_CLASS  = { Active:'s-active', Evaluating:'s-eval', Intake:'s-intake', Hold:'s-hold' };
 
