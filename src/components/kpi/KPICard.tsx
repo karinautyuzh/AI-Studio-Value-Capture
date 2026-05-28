@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ChevronDown, ChevronUp, Edit2, Check } from 'lucide-react';
 import { KPI, KPIStatus } from '../../types';
 import { cn } from '../../lib/utils';

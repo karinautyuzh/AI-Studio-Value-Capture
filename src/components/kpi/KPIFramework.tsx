@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { KPI, KPIStatus } from '../../types';
 import KPICard from './KPICard';
 

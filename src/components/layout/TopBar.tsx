@@ -1,4 +1,3 @@
-import React from 'react';
 import { TabId } from './Sidebar';
 
 const tabLabels: Record<TabId, string> = {

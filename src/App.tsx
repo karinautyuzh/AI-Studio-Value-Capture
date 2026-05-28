@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import AppShell from './components/layout/AppShell';
 import { TabId } from './components/layout/Sidebar';
 import ExecutiveOverview from './components/overview/ExecutiveOverview';
