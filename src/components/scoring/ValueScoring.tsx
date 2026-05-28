@@ -10,7 +10,6 @@ import {
 } from 'recharts';
 import { ScoringCategory } from '../../types';
 import { calcWeightedValueScore } from '../../lib/calculations';
-import { cn } from '../../lib/utils';
 
 interface ValueScoringProps {
   categories: ScoringCategory[];
