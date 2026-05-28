@@ -159,6 +159,74 @@
   </div>
 </section>
 
+<!-- PROJECTION LOGIC & VALUE ESTIMATE -->
+<section class="section section-alt" id="projectionSection">
+  <div class="wrap" style="max-width:860px;">
+
+    <div class="sec-hd">
+      <span class="eyebrow">Calculation Methodology</span>
+      <h2 class="section-title">Projection vs Actual Logic</h2>
+      <p class="section-sub">How projections are built from assumptions, what formulas drive them, and how to read actuals against the projected baseline.</p>
+    </div>
+
+    <!-- DEFINITIONS -->
+    <div class="proj-def-grid">
+      <div class="proj-def-card">
+        <div class="proj-def-icon">📐</div>
+        <div class="proj-def-title">What is a Projection?</div>
+        <div class="proj-def-text">An upfront estimate of the expected value a use case will deliver once deployed. Calculated from your assumptions about task volume, hours saved per task, and fully loaded hourly cost. The projection is the measurable baseline used for ROI tracking.</div>
+      </div>
+      <div class="proj-def-card">
+        <div class="proj-def-icon">📊</div>
+        <div class="proj-def-title">What is an Actual?</div>
+        <div class="proj-def-text">A measured value recorded after the use case is live. Reflects real performance data — hours logged, savings realized, users served. Entered manually in the Pipeline &amp; Realization dashboard and compared against the projection baseline to calculate variance.</div>
+      </div>
+    </div>
+
+    <!-- FORMULAS -->
+    <div class="proj-formula-card">
+      <div class="proj-formula-title">How Projections Are Calculated — Formulas</div>
+      <div class="proj-formula-grid">
+        <div class="proj-formula-item">
+          <div class="proj-formula-label">Projected hours saved / year</div>
+          <div class="proj-formula-eq"><code>hours saved per task &times; tasks per year</code></div>
+        </div>
+        <div class="proj-formula-item">
+          <div class="proj-formula-label">Projected productivity savings (soft)</div>
+          <div class="proj-formula-eq"><code>projected hours saved &times; fully loaded hourly rate ($)</code></div>
+        </div>
+        <div class="proj-formula-item">
+          <div class="proj-formula-label">Projected cost savings (hard)</div>
+          <div class="proj-formula-eq">Entered directly in the Pipeline — reflects direct cost avoidance: rework elimination, error correction, or compliance penalties prevented. Not derived from the hourly rate formula above.</div>
+        </div>
+        <div class="proj-formula-item">
+          <div class="proj-formula-label">Variance &amp; Variance %</div>
+          <div class="proj-formula-eq">
+            <code>variance = actual &minus; projected</code><br>
+            <code>variance % = (actual &minus; projected) &divide; projected &times; 100</code><br>
+            A positive variance means the use case outperformed its projection.
+          </div>
+        </div>
+      </div>
+      <div class="proj-assumption-note">The three inputs driving soft savings — hours saved per task, tasks per year, and fully loaded hourly rate — are editable in the <strong>Productivity Value Assumption</strong> panel above. All calculations update in real time as you adjust them.</div>
+    </div>
+
+    <!-- PLAIN ENGLISH SUMMARY -->
+    <div class="proj-summary-card">
+      <div class="proj-summary-label">Estimated Annual Value &mdash; from current assumptions</div>
+      <p class="proj-summary-text" id="projSummaryText">Select a use case above, or adjust the assumption inputs, to see a projected value estimate.</p>
+    </div>
+
+    <!-- PROJECTION VS ACTUAL COMPARISON -->
+    <div id="projVsActualWrap" style="display:none;">
+      <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:1rem;">Projection vs Actual &mdash; Key Metrics</div>
+      <div class="proj-vs-grid" id="projVsGrid"></div>
+      <p style="font-size:.78rem;color:var(--muted);margin-top:.75rem;">Enter or update actuals in the <a href="pipeline-dashboard.html" style="color:var(--blue);">Pipeline &amp; Realization</a> dashboard. Hard cost savings projections are also set there.</p>
+    </div>
+
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer class="footer">
   <div class="wrap footer-inner">
@@ -386,6 +454,9 @@
 
     // Hide saved msg on change
     document.getElementById('savedMsg').style.display = 'none';
+
+    // Update projection logic section
+    updateProjectionSection();
   }
 
   // ----- SAVE SCORES -----
@@ -462,6 +533,99 @@
   ['assHourlyRate','assHoursTask','assTasksYear'].forEach(function(id) {
     document.getElementById(id).addEventListener('input', recalculate);
   });
+
+  // ----- PROJECTION LOGIC SECTION -----
+  function updateProjectionSection() {
+    var hr = parseFloat(document.getElementById('assHourlyRate').value) || 0;
+    var ht = parseFloat(document.getElementById('assHoursTask').value)  || 0;
+    var ty = parseFloat(document.getElementById('assTasksYear').value)  || 0;
+
+    var projHours = Math.round(ht * ty);
+    var projSoft  = Math.round(hr * projHours);
+
+    // Plain-English narrative
+    var el = document.getElementById('projSummaryText');
+    if (el) {
+      if (projHours > 0 && hr > 0) {
+        el.textContent =
+          'Based on ' + ht + ' hr' + (ht !== 1 ? 's' : '') + ' saved per task \u00d7 ' +
+          Math.round(ty).toLocaleString() + ' tasks per year = ' +
+          projHours.toLocaleString() + ' projected hours saved annually. ' +
+          'At a fully loaded rate of $' + hr.toLocaleString() + '/hr, this generates an estimated ' +
+          '$' + projSoft.toLocaleString() + ' in soft productivity value per year. ' +
+          'Hard cost savings (rework avoidance, error correction, penalty prevention) are tracked separately as pipeline projections.';
+      } else {
+        el.textContent = 'Enter assumption values above to generate a projection estimate.';
+      }
+    }
+
+    // Show/hide projection vs actual table
+    var wrap = document.getElementById('projVsActualWrap');
+    if (!wrap) return;
+
+    if (selectedUCIndex < 0 || !USE_CASES[selectedUCIndex]) {
+      wrap.style.display = 'none';
+      return;
+    }
+    updateProjVsActual(USE_CASES[selectedUCIndex], projHours, projSoft);
+  }
+
+  function updateProjVsActual(uc, projHours, projSoft) {
+    var wrap = document.getElementById('projVsActualWrap');
+    var grid = document.getElementById('projVsGrid');
+    if (!wrap || !grid) return;
+
+    var p = uc.projections || {};
+    var a = uc.actuals    || {};
+
+    var rows = [
+      { label:'Hours saved / year',          proj:projHours,       actual:a.hoursSaved,          isCurrency:false, isPct:false },
+      { label:'Productivity savings (soft)',  proj:projSoft,        actual:a.productivitySavings,  isCurrency:true,  isPct:false },
+      { label:'Hard cost savings',           proj:p.costSavings,   actual:a.costSavings,           isCurrency:true,  isPct:false },
+      { label:'Users affected',              proj:p.usersAffected, actual:a.usersAffected,         isCurrency:false, isPct:false },
+      { label:'Cycle time reduction',        proj:p.cycleTimePct,  actual:a.cycleTimePct,          isCurrency:false, isPct:true  }
+    ];
+
+    var hasAny = rows.some(function(r){ return r.actual != null && r.actual !== ''; });
+    wrap.style.display = 'block';
+
+    if (!hasAny) {
+      grid.innerHTML = '<div class="proj-no-actuals">No actuals recorded yet. Enter measured values in the <a href="pipeline-dashboard.html">Pipeline &amp; Realization</a> dashboard to track performance against this baseline.</div>';
+      return;
+    }
+
+    grid.innerHTML = '';
+    rows.forEach(function(row) {
+      var pv = (row.proj != null && row.proj !== '') ? parseFloat(row.proj) : null;
+      var av = (row.actual != null && row.actual !== '') ? parseFloat(row.actual) : null;
+      var hasP = pv !== null && !isNaN(pv) && pv > 0;
+      var hasA = av !== null && !isNaN(av);
+
+      function fmtV(v) {
+        if (v === null || v === undefined || isNaN(v)) return '\u2014';
+        if (row.isCurrency) return '$' + Math.round(v).toLocaleString();
+        if (row.isPct) return v + '%';
+        return Math.round(v).toLocaleString();
+      }
+
+      var varNum = (hasP && hasA) ? (av - pv) : null;
+      var varPct = (hasP && hasA && pv !== 0 && !row.isPct) ? Math.round((av - pv) / pv * 100) : null;
+      var vClr   = (varNum === null) ? 'var(--light)' : (varNum >= 0 ? '#059669' : '#DC2626');
+      var vSign  = (varNum !== null && varNum > 0) ? '+' : '';
+
+      var card = document.createElement('div');
+      card.className = 'proj-vs-card';
+      card.innerHTML =
+        '<div class="proj-vs-label">' + row.label + '</div>' +
+        '<div class="proj-vs-row">' +
+          '<div class="proj-vs-cell"><div class="proj-vs-sub">Projected</div><div class="proj-vs-val">' + fmtV(hasP ? pv : null) + '</div></div>' +
+          '<div class="proj-vs-cell"><div class="proj-vs-sub">Actual</div><div class="proj-vs-val" style="color:var(--teal-dark);">' + fmtV(hasA ? av : null) + '</div></div>' +
+          '<div class="proj-vs-cell"><div class="proj-vs-sub">Variance</div><div class="proj-vs-val" style="color:' + vClr + ';">' + (varNum !== null ? vSign + fmtV(varNum) : '\u2014') + '</div></div>' +
+          '<div class="proj-vs-cell"><div class="proj-vs-sub">Var %</div><div class="proj-vs-val" style="color:' + vClr + ';">' + (varPct !== null ? vSign + varPct + '%' : (row.isPct ? 'n/a' : '\u2014')) + '</div></div>' +
+        '</div>';
+      grid.appendChild(card);
+    });
+  }
 
   // ----- INIT -----
   renderLeverRows();

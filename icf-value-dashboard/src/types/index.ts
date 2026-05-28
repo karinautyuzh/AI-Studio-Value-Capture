@@ -1,0 +1,98 @@
+export type KPIStatus = 'tbd' | 'baseline-confirmed' | 'tracking-live' | 'at-risk' | 'on-track';
+export type PhaseStatus = 'complete' | 'in-progress' | 'upcoming' | 'future';
+
+export interface KPI {
+  id: string;
+  number: number;
+  title: string;
+  definition: string;
+  baseline: number | null;
+  baselineUnit: string;
+  baselineLabel: string;
+  target: number | null;
+  targetUnit: string;
+  targetLabel: string;
+  currentActual: number | null;
+  status: KPIStatus;
+  formula: string;
+  owner: string;
+  dataSource: string;
+  projectedImpact: string;
+  actualImpact: string | null;
+  measurableFrom: string;
+  notes: string;
+}
+
+export interface RoadmapPhase {
+  id: string;
+  name: string;
+  timing: string;
+  status: PhaseStatus;
+  targetDate: string;
+  capabilities: string[];
+  kpisUnlocked: string[];
+  valueMilestone: string;
+  dependencies: string[];
+  completedCapabilities: string[];
+}
+
+export interface PipelinePhase {
+  id: string;
+  phase: string;
+  quarter: string;
+  capabilitiesPlanned: string[];
+  capabilitiesCompleted: string[];
+  projectedHoursSaved: number;
+  actualHoursSaved: number | null;
+  kpisMeasurable: string[];
+  risks: string[];
+  status: PhaseStatus;
+}
+
+export interface ScoringCategory {
+  id: string;
+  name: string;
+  projectedScore: number;
+  actualScore: number;
+  weight: number;
+  description: string;
+  drivers: string[];
+}
+
+export interface ReadinessItem {
+  id: string;
+  name: string;
+  status: 'ready' | 'partial' | 'not-ready' | 'future';
+  owner: string;
+  dependency: string;
+  notes: string;
+  readinessContribution: number;
+  category: string;
+}
+
+export interface AssumptionItem {
+  id: string;
+  question: string;
+  category: string;
+  status: 'open' | 'confirmed' | 'in-progress' | 'blocked';
+  owner: string;
+  impact: 'high' | 'medium' | 'low';
+  notes: string;
+  targetDate: string;
+}
+
+export interface CalculatorInputs {
+  countryBaseline: number;
+  countryTargetReduction: number;
+  countryAnnualVolume: number;
+  siteBaseline: number;
+  siteTargetReduction: number;
+  siteAnnualVolume: number;
+  hourlyRate: number;
+  qeBaseline: number;
+  qeTargetReduction: number;
+  costPerQE: number;
+  endToEndBaseline: number;
+  endToEndTargetReduction: number;
+  annualStudyVolume: number;
+}

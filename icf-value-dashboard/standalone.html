@@ -1,0 +1,1626 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICF Assistant Value Framework — Thermo Fisher Scientific</title>
+
+  <!-- Tailwind Play CDN with TFS custom palette -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#BE0000', dark: '#8B0000' },
+            tfs: { charcoal: '#2C2C2C', teal: '#00857C', blue: '#1A6EA8', offwhite: '#F8F8F6', gray: '#E8E8E4' }
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+
+  <!-- Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- React 18 + ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <!-- Babel Standalone (JSX transform) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; background: #F8F8F6; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F8F8F6; }
+    ::-webkit-scrollbar-thumb { background: #C8C8C4; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #A8A8A4; }
+    input[type=number]::-webkit-inner-spin-button { opacity: 1; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useMemo } = React;
+
+// ─────────────────────────────────────────────────────────────────
+// BRAND TOKENS
+// ─────────────────────────────────────────────────────────────────
+const C = {
+  red:      '#BE0000',
+  darkRed:  '#8B0000',
+  charcoal: '#2C2C2C',
+  teal:     '#00857C',
+  blue:     '#1A6EA8',
+  offwhite: '#F8F8F6',
+  gray:     '#E8E8E4',
+  amber:    '#D97706',
+};
+
+// ─────────────────────────────────────────────────────────────────
+// DATA — KPIs
+// ─────────────────────────────────────────────────────────────────
+const KPI_DATA = [
+  {
+    id: 'kpi-1', number: 1,
+    title: 'Country ICF Adaptation Timeline',
+    definition: 'Reduction in effort from ICF draft initiation to Country ICF approved. Measured via ICF Assistant stage timestamps.',
+    baseline: 12, baselineUnit: 'hrs/doc',
+    target: 50, targetUnit: '%', targetLabel: '50% reduction in adaptation effort',
+    currentActual: null,
+    status: 'tracking-live',
+    formula: 'Hours saved/doc = Baseline hrs × Target %\nAnnual hrs saved = Saved/doc × Annual country ICF volume',
+    owner: 'ICF PM / Medical Writer Lead',
+    dataSource: 'ICF Assistant timestamps — draft initiation to country approval state',
+    projectedImpact: '6 hrs/doc × 120 docs/yr = 720 hrs/yr',
+    actualImpact: null,
+    measurableFrom: 'MVP / Now',
+    notes: 'Primary data source must be ICF Assistant timestamps. Manual timecards should be avoided where possible.',
+  },
+  {
+    id: 'kpi-2', number: 2,
+    title: 'Site ICF Adaptation Timeline',
+    definition: 'Reduction in effort from Site ICF Draft Initiated to Site ICF Approved. Requires stage-level timestamp capture.',
+    baseline: 6, baselineUnit: 'hrs/doc',
+    target: 50, targetUnit: '%', targetLabel: '50% reduction in site adaptation effort',
+    currentActual: null,
+    status: 'tbd',
+    formula: 'Hours saved/doc = Baseline hrs × Target %\nAnnual hrs saved = Saved/doc × Annual site ICF volume',
+    owner: 'ICF PM / Site Operations Lead',
+    dataSource: 'ICF Assistant stage-level timestamps — site draft initiation to site approval',
+    projectedImpact: '3 hrs/doc × 300 docs/yr = 900 hrs/yr',
+    actualImpact: null,
+    measurableFrom: 'Q2 2026 — Site ICF adaptation enabled',
+    notes: 'Requires site ICF adaptation capability go-live and stage-level timestamp capture in the platform.',
+  },
+  {
+    id: 'kpi-3', number: 3,
+    title: 'End-to-End ICF Cycle Time',
+    definition: 'Reduction in total elapsed time from Master ICF Finalized through Country/Site ICF Approved across all stages.',
+    baseline: null, baselineUnit: 'days/study',
+    target: null, targetUnit: 'days', targetLabel: 'TBD — pending TFS study ops baseline',
+    currentActual: null,
+    status: 'tbd',
+    formula: 'Days saved/study = Baseline days × Target %\nAnnual days saved = Days/study × Annual study volume',
+    owner: 'Maria / TFS Study Operations',
+    dataSource: 'TFS historical cycle time data + ICF Assistant end-to-end timestamps',
+    projectedImpact: 'TBD — projected days saved per study once TFS baseline confirmed',
+    actualImpact: null,
+    measurableFrom: 'Q3 2026 — TFS baselines confirmed',
+    notes: 'KPI 3 cannot be quantified until Maria confirms the TFS end-to-end baseline. This is a critical path item for Q3 2026.',
+  },
+  {
+    id: 'kpi-4', number: 4,
+    title: 'Quality Improvement / QE Reduction',
+    definition: 'Reduction in ICF adaptation-related quality events. Version-correction QEs are explicitly excluded from this measure.',
+    baseline: null, baselineUnit: 'QEs/yr',
+    target: 20, targetUnit: '%', targetLabel: '20% reduction in adaptation-related QEs',
+    currentActual: null,
+    status: 'tbd',
+    formula: 'QEs avoided/yr = Baseline QEs/yr × Target %\nQE dollar value = QEs avoided × Avg cost per QE',
+    owner: 'Quality / Regulatory Affairs Lead',
+    dataSource: 'TFS quality event system — filtered to ICF adaptation events only',
+    projectedImpact: '40 QEs/yr baseline → 8 QEs avoided/yr at 20% reduction',
+    actualImpact: null,
+    measurableFrom: 'Q3 2026 — Proactive Compliance phase',
+    notes: 'Baseline QE data source and ownership must be confirmed with TFS Quality. Exclude version-correction QEs from scope.',
+  },
+  {
+    id: 'kpi-5', number: 5,
+    title: 'User Experience',
+    definition: 'Post-use survey satisfaction score across Medical Writer and ICF PM populations. Measured at regular intervals post-launch.',
+    baseline: null, baselineUnit: 'score',
+    target: null, targetUnit: 'score', targetLabel: 'Net positive experience vs pre-launch baseline',
+    currentActual: null,
+    status: 'tracking-live',
+    formula: 'Avg post-use survey score vs pre-launch baseline survey\nSegmented: Medical Writers vs ICF PMs',
+    owner: 'Product / Change Management Lead',
+    dataSource: 'Post-use survey tool — administered to Medical Writers and ICF PMs',
+    projectedImpact: 'Net positive user experience; qualitative indicator of adoption readiness',
+    actualImpact: null,
+    measurableFrom: 'MVP / Now — pilot Medical Writer group',
+    notes: 'Survey must segment Medical Writer and ICF PM responses separately. Pre-launch baseline required.',
+  },
+  {
+    id: 'kpi-6', number: 6,
+    title: 'Adoption and Utilization',
+    definition: 'Percentage of eligible ICFs processed through the ICF Assistant. Segmented by country, study, ICF type, quarter, and sponsor.',
+    baseline: null, baselineUnit: 'N/A',
+    target: 100, targetUnit: '%', targetLabel: 'Ramp to full coverage of eligible ICFs',
+    currentActual: null,
+    status: 'tracking-live',
+    formula: 'Adoption % = ICFs processed via Assistant ÷ Total eligible ICFs × 100\nSegment by: country, study, ICF type, quarter, sponsor',
+    owner: 'Product / Program Manager',
+    dataSource: 'ICF Assistant utilization reporting + total eligible ICF volume from TFS',
+    projectedImpact: 'Full adoption unlocks full realization of KPI 1, KPI 2, and KPI 3 impact',
+    actualImpact: null,
+    measurableFrom: 'MVP / Now',
+    notes: 'Sponsor-level segmentation is a future-state capability (Q4 2026). Current segmentation: country, study, ICF type, quarter.',
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────
+// DATA — SCORING CATEGORIES
+// ─────────────────────────────────────────────────────────────────
+const SCORING_DEFAULT = [
+  {
+    id: 'time-savings', name: 'Time Savings', projected: 80, actual: 35, weight: 30,
+    description: 'Reduction in country and site ICF adaptation hours per document and annually',
+    drivers: ['Country baseline: 12 hrs/doc', 'Site baseline: 6 hrs/doc', '50% reduction target set', 'KPI 1 tracking live — MVP'],
+  },
+  {
+    id: 'quality', name: 'Quality Improvement', projected: 65, actual: 15, weight: 25,
+    description: 'Reduction in adaptation-related QEs and compliance risk from standardized drafting',
+    drivers: ['QE baseline TBD from TFS', '20% reduction target confirmed', 'Plain-language automation in Q3 roadmap', 'Version control improvement scoped'],
+  },
+  {
+    id: 'adoption', name: 'Adoption', projected: 70, actual: 25, weight: 20,
+    description: 'Percentage of eligible ICFs processed through the Assistant across all ICF types',
+    drivers: ['Pilot Medical Writer group onboarded', 'KPI 6 tracking live', 'Target: 100% eligible ICF coverage', 'Sponsor segmentation Q4 2026'],
+  },
+  {
+    id: 'readiness', name: 'Measurement Readiness', projected: 75, actual: 40, weight: 15,
+    description: 'ICF Assistant timestamp coverage and TFS baseline data availability for full KPI framework',
+    drivers: ['End-to-end timestamps in progress', 'Stage-level timestamps Q2 2026', 'TFS baselines TBD for KPI 3 and 4', 'QE reporting mechanism being scoped'],
+  },
+  {
+    id: 'scalability', name: 'Strategic Scalability', projected: 85, actual: 20, weight: 10,
+    description: 'Capacity to scale ICF processing without linear headcount growth; FSP/SaaS revenue potential',
+    drivers: ['Removes linear headcount constraint', 'Parallel country drafting enabled', 'Sponsor-level reporting Q4 2026', 'North Star: autonomous ICF lifecycle agent'],
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────
+// DATA — ROADMAP
+// ─────────────────────────────────────────────────────────────────
+const ROADMAP = [
+  {
+    id: 'mvp', name: 'MVP / Foundation', timing: 'Now', status: 'in-progress', targetDate: 'Q1 2026',
+    capabilities: ['AI-assisted ICF drafting live', 'Country ICF adaptation enabled', 'Pilot Medical Writer group onboarded', 'Draft → Country approval timestamps captured'],
+    completed: ['AI-assisted ICF drafting live', 'Country ICF adaptation enabled'],
+    kpis: ['KPI 1 — Country ICF timeline', 'KPI 5 — User experience', 'KPI 6 — Adoption & utilization'],
+    milestone: 'First measurable country ICF hours saved; user experience and adoption baselines established',
+    deps: ['Pilot group onboarding complete', 'Timestamp capture validated in platform'],
+  },
+  {
+    id: 'q2', name: 'Intelligent Workspace', timing: 'Q2 2026', status: 'upcoming', targetDate: 'Q2 2026',
+    capabilities: ['ICF amendments automated', 'Query management live', 'Site ICF adaptation enabled', 'Stage-level timestamps for site workflow'],
+    completed: [],
+    kpis: ['KPI 2 — Site ICF adaptation timeline'],
+    milestone: 'Site ICF hours savings measurable; amendment automation eliminates manual rework cycle',
+    deps: ['Site ICF adaptation build complete', 'Stage-level timestamp capture implemented'],
+  },
+  {
+    id: 'q3', name: 'Proactive Compliance', timing: 'Q3 2026', status: 'upcoming', targetDate: 'Q3 2026',
+    capabilities: ['Master ICF GPT migration complete', 'Plain-language rewrite automated', 'TFS end-to-end baselines confirmed', 'QE measurement framework activated'],
+    completed: [],
+    kpis: ['KPI 3 — End-to-end cycle time', 'KPI 4 — QE reduction'],
+    milestone: 'Full 6-KPI measurement framework live; compliance risk value fully quantifiable',
+    deps: ['Maria confirms TFS end-to-end cycle time baseline', 'QE baseline data source and ownership agreed'],
+  },
+  {
+    id: 'q4', name: 'Full ICF Automation', timing: 'Q4 2026', status: 'upcoming', targetDate: 'Q4 2026',
+    capabilities: ['IRB/ethics submission package automated', 'Version control + audit trail automated', 'DSUR drafting live', 'Sponsor-level reporting enabled', 'Accenture → TFS handoff'],
+    completed: [],
+    kpis: ['All 6 KPIs — full measurement coverage', 'Sponsor-level KPI 6 segmentation live'],
+    milestone: 'Full automation ROI realized across all ICF types; sponsor-level value visibility for TFS leadership',
+    deps: ['Sponsor-level reporting architecture confirmed', 'Handoff scope and hypercare window agreed'],
+  },
+  {
+    id: 'north-star', name: 'Fully Autonomous', timing: 'North Star', status: 'future', targetDate: 'TBD',
+    capabilities: ['Fully autonomous ICF lifecycle agent', 'Zero manual version management', 'Real-time compliance monitoring', 'Revenue uplift measurable — SaaS/FSP clients'],
+    completed: [],
+    kpis: ['Revenue uplift KPI', 'Real-time compliance metrics', 'Competitive differentiation index'],
+    milestone: 'ICF lifecycle fully autonomous; FSP/SaaS revenue uplift measurable; zero manual intervention required',
+    deps: ['Full automation validated in production', 'SaaS/FSP commercial model confirmed'],
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────
+// DATA — PIPELINE
+// ─────────────────────────────────────────────────────────────────
+const PIPELINE = [
+  { id: 'mvp',  quarter: 'Q1 2026', phase: 'MVP / Foundation',       status: 'in-progress',
+    planned: ['AI-assisted ICF drafting', 'Country ICF adaptation', 'Pilot MW onboarding', 'Timestamp capture'],
+    done:    ['AI-assisted ICF drafting', 'Country ICF adaptation'],
+    projectedHrs: 720, actualHrs: null,
+    kpis: ['KPI 1', 'KPI 5', 'KPI 6'],
+    risks: ['Timestamp capture not yet validated end-to-end', 'Pilot cohort size limits statistical confidence'],
+  },
+  { id: 'q2',   quarter: 'Q2 2026', phase: 'Intelligent Workspace',  status: 'upcoming',
+    planned: ['Site ICF adaptation', 'Amendment automation', 'Query management', 'Stage-level timestamps'],
+    done:    [],
+    projectedHrs: 900, actualHrs: null,
+    kpis: ['KPI 2'],
+    risks: ['Site ICF adaptation build dependency unconfirmed', 'Stage-level timestamps not yet scoped in platform'],
+  },
+  { id: 'q3',   quarter: 'Q3 2026', phase: 'Proactive Compliance',   status: 'upcoming',
+    planned: ['Master ICF GPT migration', 'Plain-language rewrite', 'TFS baseline confirmation', 'QE tracking framework'],
+    done:    [],
+    projectedHrs: 1200, actualHrs: null,
+    kpis: ['KPI 3', 'KPI 4'],
+    risks: ['TFS baseline data source not confirmed', 'Maria availability for baseline sign-off'],
+  },
+  { id: 'q4',   quarter: 'Q4 2026', phase: 'Full ICF Automation',    status: 'upcoming',
+    planned: ['IRB/ethics automation', 'Audit trail + version control', 'DSUR drafting', 'Sponsor-level reporting', 'TFS handoff'],
+    done:    [],
+    projectedHrs: 2000, actualHrs: null,
+    kpis: ['All KPIs'],
+    risks: ['Sponsor reporting architecture TBD', 'Handoff scope and hypercare not agreed'],
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────
+// DATA — MEASUREMENT READINESS
+// ─────────────────────────────────────────────────────────────────
+const READINESS = [
+  { id: 'r1', name: 'End-to-End Timestamps',         status: 'partial',    owner: 'Product Engineering',      cat: 'Data Infrastructure',
+    dep: 'ICF Assistant platform configuration',
+    notes: 'Draft-to-country approval timestamps in progress. Gaps remain for stage-level and site workflow.',
+    contrib: 18 },
+  { id: 'r2', name: 'Stage-Level Timestamps',         status: 'not-ready',  owner: 'Product Engineering',      cat: 'Data Infrastructure',
+    dep: 'Stage-level timestamp feature build (Q2 2026)',
+    notes: 'Required for KPI 2 site ICF measurement. Not yet scoped in platform backlog.',
+    contrib: 14 },
+  { id: 'r3', name: 'ICF Type Identification',        status: 'partial',    owner: 'Product Manager',           cat: 'Scope & Tagging',
+    dep: 'ICF type tagging in platform + scope agreement',
+    notes: 'Partially scoped. Required for KPI 6 segmentation by Country / Site / Amendment / Master / DSUR.',
+    contrib: 10 },
+  { id: 'r4', name: 'Review Cycle Count (Automated)', status: 'not-ready',  owner: 'Product Engineering',       cat: 'Data Infrastructure',
+    dep: 'Feature scoping and build',
+    notes: 'Not yet in roadmap. Required for quality and rework measurement under KPI 4.',
+    contrib: 10 },
+  { id: 'r5', name: 'Volume Reporting (Country + Site)', status: 'partial', owner: 'ICF PM / Program Manager',  cat: 'Reporting',
+    dep: 'TFS volume data + ICF Assistant utilization reporting',
+    notes: 'Country volume (~120/yr) estimated. Site volume (~300/yr) estimated. Requires TFS validation.',
+    contrib: 10 },
+  { id: 'r6', name: 'TFS Baseline Data (Cycle Time + QE)', status: 'not-ready', owner: 'Maria / TFS Study Ops + Quality', cat: 'Baseline Data',
+    dep: 'Maria confirmation + TFS quality system access',
+    notes: 'Critical path for KPI 3 and KPI 4. End-to-end cycle time baseline and QE count must be confirmed by Q3 2026.',
+    contrib: 22 },
+  { id: 'r7', name: 'Sponsor-Level Reporting Views',  status: 'future',     owner: 'Engineering Lead',          cat: 'Architecture',
+    dep: 'Architecture decision + Q4 2026 build scope',
+    notes: 'Future-state capability. Technical feasibility must be confirmed before Q4 2026 planning.',
+    contrib: 8 },
+  { id: 'r8', name: 'Data Quality Confidence',        status: 'partial',    owner: 'Product Manager',           cat: 'Data Quality',
+    dep: 'Pilot data review + timestamp validation',
+    notes: 'Confidence level low until pilot timestamp data is reviewed and validated. Increases through Q2 2026.',
+    contrib: 8 },
+];
+
+// ─────────────────────────────────────────────────────────────────
+// DATA — ASSUMPTIONS & OPEN ITEMS
+// ─────────────────────────────────────────────────────────────────
+const ASSUMPTIONS = [
+  { id: 'a1', q: 'Can ICF Assistant capture end-to-end and stage-level timestamps today?',     cat: 'Data Infrastructure', status: 'open',        owner: 'Product Engineering',           impact: 'high',   notes: 'Required for KPI 1, 2, and 3 measurement. Primary data source for all time-based KPIs.', target: 'Q2 2026' },
+  { id: 'a2', q: 'What reporting mechanism shows ICFs processed per quarter by country and sponsor?', cat: 'Reporting',     status: 'in-progress',  owner: 'Product Manager',               impact: 'high',   notes: 'Needed for KPI 6 adoption tracking. Quarterly reporting frequency must be confirmed.', target: 'Q2 2026' },
+  { id: 'a3', q: 'Can the tool count review cycles automatically?',                             cat: 'Data Infrastructure', status: 'open',        owner: 'Product Engineering',           impact: 'medium', notes: 'Required for quality and rework measurement under KPI 4. Not yet scoped in backlog.', target: 'Q2 2026' },
+  { id: 'a4', q: 'Are sponsor-level reporting views technically feasible in current architecture?', cat: 'Architecture',  status: 'open',        owner: 'Engineering Lead',              impact: 'medium', notes: 'Designated future state (Q4 2026). Architectural decision needed before Q4 build planning.', target: 'Q4 2026' },
+  { id: 'a5', q: "Confirm Maria's end-to-end ICF cycle time baseline",                          cat: 'Baseline Data',       status: 'open',        owner: 'Maria / TFS Study Operations',  impact: 'high',   notes: 'KPI 3 cannot be quantified until this baseline is confirmed. Critical path for Q3 2026 milestone.', target: 'Q3 2026' },
+  { id: 'a6', q: 'Confirm QE baseline data source and ownership',                               cat: 'Baseline Data',       status: 'open',        owner: 'Quality / Regulatory Affairs',  impact: 'high',   notes: 'KPI 4 requires QE baseline filtered to ICF adaptation events only. Version-correction QEs excluded.', target: 'Q3 2026' },
+  { id: 'a7', q: 'Confirm handoff scope and hypercare window (Accenture → TFS)',                cat: 'Program',             status: 'open',        owner: 'Program Manager / TFS Sponsor', impact: 'high',   notes: 'Q4 2026 milestone. Scope and hypercare duration must be agreed before Q4 planning commences.', target: 'Q4 2026' },
+  { id: 'a8', q: 'Confirm whether manual timecards can be fully avoided as a data source',      cat: 'Data Infrastructure', status: 'in-progress',  owner: 'Product Engineering',           impact: 'medium', notes: 'ICF Assistant timestamps should be the primary source. Manual timecard dependency must be formally retired.', target: 'Q2 2026' },
+];
+
+// ─────────────────────────────────────────────────────────────────
+// DEFAULT CALCULATOR INPUTS
+// ─────────────────────────────────────────────────────────────────
+const CALC_DEFAULT = {
+  countryBaseline: 12,
+  countryReduction: 50,
+  countryVolume: 120,
+  siteBaseline: 6,
+  siteReduction: 50,
+  siteVolume: 300,
+  qeBaseline: 40,
+  qeReduction: 20,
+  costPerQE: 2500,
+  hourlyRate: 125,
+  e2eBaseline: 30,
+  e2eReduction: 25,
+  studyVolume: 40,
+};
+
+// ─────────────────────────────────────────────────────────────────
+// STATUS CONFIG
+// ─────────────────────────────────────────────────────────────────
+const KPI_STATUS = {
+  'tracking-live':      { label: 'Tracking Live',       cls: 'bg-teal-50 text-teal-700 border-teal-200' },
+  'on-track':           { label: 'On Track',             cls: 'bg-green-50 text-green-700 border-green-200' },
+  'baseline-confirmed': { label: 'Baseline Confirmed',   cls: 'bg-blue-50 text-blue-700 border-blue-200' },
+  'at-risk':            { label: 'At Risk',               cls: 'bg-amber-50 text-amber-700 border-amber-200' },
+  'tbd':                { label: 'TBD',                   cls: 'bg-gray-100 text-gray-500 border-gray-200' },
+};
+const PHASE_STATUS = {
+  'in-progress': { label: 'In Progress', cls: 'bg-blue-50 text-blue-700 border-blue-200',   borderL: '#3b82f6', dot: '#3b82f6' },
+  'upcoming':    { label: 'Upcoming',    cls: 'bg-gray-100 text-gray-500 border-gray-200',  borderL: '#d1d5db', dot: '#d1d5db' },
+  'complete':    { label: 'Complete',    cls: 'bg-teal-50 text-teal-700 border-teal-200',   borderL: C.teal,    dot: C.teal },
+  'future':      { label: 'North Star',  cls: 'bg-purple-50 text-purple-700 border-purple-200', borderL: '#a855f7', dot: '#a855f7' },
+};
+const READINESS_STATUS = {
+  'ready':     { label: 'Ready',        cls: 'bg-teal-50 text-teal-700 border-teal-200',    icon: '✓' },
+  'partial':   { label: 'Partial',      cls: 'bg-amber-50 text-amber-700 border-amber-200', icon: '◐' },
+  'not-ready': { label: 'Not Ready',    cls: 'bg-red-50 text-red-700 border-red-200',       icon: '○' },
+  'future':    { label: 'Future State', cls: 'bg-purple-50 text-purple-700 border-purple-200', icon: '◷' },
+};
+const ASSUMPTION_STATUS = {
+  'open':        { label: 'Open',        cls: 'bg-red-50 text-red-700 border-red-200',        icon: '●' },
+  'in-progress': { label: 'In Progress', cls: 'bg-blue-50 text-blue-700 border-blue-200',     icon: '◐' },
+  'confirmed':   { label: 'Confirmed',   cls: 'bg-teal-50 text-teal-700 border-teal-200',     icon: '✓' },
+  'blocked':     { label: 'Blocked',     cls: 'bg-gray-100 text-gray-500 border-gray-200',    icon: '✕' },
+};
+const IMPACT_CLS = {
+  high:   'bg-red-100 text-red-700 border-red-200',
+  medium: 'bg-amber-50 text-amber-700 border-amber-200',
+  low:    'bg-gray-100 text-gray-500 border-gray-200',
+};
+
+// ─────────────────────────────────────────────────────────────────
+// UTILITIES
+// ─────────────────────────────────────────────────────────────────
+const fmt  = (n, d=0) => (typeof n === 'number' ? n.toLocaleString('en-US', { maximumFractionDigits: d }) : '—');
+const fmtC = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+
+// ─────────────────────────────────────────────────────────────────
+// SHARED UI PRIMITIVES
+// ─────────────────────────────────────────────────────────────────
+function Card({ children, className = '', style = {} }) {
+  return (
+    <div className={`bg-white rounded-lg border border-gray-200 shadow-sm ${className}`} style={style}>
+      {children}
+    </div>
+  );
+}
+
+function StatusPill({ statusMap, value }) {
+  const cfg = statusMap[value] || { label: value, cls: 'bg-gray-100 text-gray-500 border-gray-200' };
+  return (
+    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${cfg.cls}`}>
+      {cfg.icon && <span>{cfg.icon}</span>}
+      {cfg.label}
+    </span>
+  );
+}
+
+function Bar({ value, max = 100, color = C.red, height = 6 }) {
+  return (
+    <div style={{ height, background: C.gray, borderRadius: 999, overflow: 'hidden' }}>
+      <div style={{ height: '100%', width: `${Math.min(100, Math.max(0, (value / max) * 100))}%`, background: color, borderRadius: 999, transition: 'width 0.3s' }} />
+    </div>
+  );
+}
+
+function SectionHeader({ title, subtitle }) {
+  return (
+    <div className="mb-5">
+      <h2 className="text-lg font-semibold text-gray-800 mb-0.5">{title}</h2>
+      {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
+    </div>
+  );
+}
+
+function InputRow({ label, value, onChange, unit, min = 0, step = 1 }) {
+  return (
+    <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+      <label className="text-sm text-gray-600 flex-1 pr-3">{label}</label>
+      <div className="flex items-center gap-2">
+        <input
+          type="number" value={value} min={min} step={step}
+          onChange={e => onChange(Number(e.target.value))}
+          className="w-24 border border-gray-200 rounded px-2 py-1 text-sm text-right focus:outline-none focus:ring-1"
+          style={{ '--tw-ring-color': C.red }}
+        />
+        {unit && <span className="text-xs text-gray-400 w-16 flex-shrink-0">{unit}</span>}
+      </div>
+    </div>
+  );
+}
+
+function ResultRow({ label, value, formula }) {
+  return (
+    <div className="py-2 border-b border-gray-100 last:border-0">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-gray-800">{label}</span>
+        <span className="text-sm font-bold" style={{ color: C.red }}>{value}</span>
+      </div>
+      <div className="text-xs text-gray-400 mt-0.5 font-mono">{formula}</div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SVG RADAR CHART
+// ─────────────────────────────────────────────────────────────────
+function RadarChart({ data, size = 260 }) {
+  const cx = size / 2, cy = size / 2, r = size * 0.36;
+  const n = data.length;
+  const angles = data.map((_, i) => (i / n) * 2 * Math.PI - Math.PI / 2);
+  const pt = (val, ai) => ({
+    x: cx + r * (val / 100) * Math.cos(angles[ai]),
+    y: cy + r * (val / 100) * Math.sin(angles[ai]),
+  });
+  const gridPts = (frac) => angles.map(a => ({ x: cx + r * frac * Math.cos(a), y: cy + r * frac * Math.sin(a) }));
+  const poly = (pts) => pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      {[0.25, 0.5, 0.75, 1].map(f => (
+        <polygon key={f} points={poly(gridPts(f))} fill="none" stroke={C.gray} strokeWidth="1" />
+      ))}
+      {angles.map((a, i) => (
+        <line key={i} x1={cx} y1={cy} x2={cx + r * Math.cos(a)} y2={cy + r * Math.sin(a)} stroke={C.gray} strokeWidth="1" />
+      ))}
+      <polygon points={poly(data.map((d, i) => pt(d.projected, i)))} fill="rgba(190,0,0,0.12)" stroke={C.red} strokeWidth="2" strokeLinejoin="round" />
+      <polygon points={poly(data.map((d, i) => pt(d.actual, i)))} fill="rgba(0,133,124,0.18)" stroke={C.teal} strokeWidth="2" strokeLinejoin="round" />
+      {data.map((d, i) => {
+        const lx = cx + (r + 20) * Math.cos(angles[i]);
+        const ly = cy + (r + 20) * Math.sin(angles[i]);
+        return (
+          <text key={i} x={lx.toFixed(1)} y={ly.toFixed(1)} textAnchor="middle" dominantBaseline="middle"
+            fontSize="10" fill="#555" fontFamily="Inter,sans-serif">
+            {d.name.split(' ')[0]}
+          </text>
+        );
+      })}
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// CSS BAR CHART — pipeline hours saved
+// ─────────────────────────────────────────────────────────────────
+function PipelineBarChart({ data }) {
+  const max = Math.max(...data.map(d => d.projectedHrs), 1);
+  return (
+    <div>
+      {data.map((d, i) => (
+        <div key={i} style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>{d.quarter}</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 56, fontSize: 10, color: C.red, textAlign: 'right', flexShrink: 0 }}>Projected</span>
+              <div style={{ flex: 1, height: 12, background: '#f3f4f6', borderRadius: 3, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${(d.projectedHrs / max) * 100}%`, background: C.red, borderRadius: 3 }} />
+              </div>
+              <span style={{ width: 42, fontSize: 10, color: C.red, fontWeight: 600 }}>{fmt(d.projectedHrs)}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 56, fontSize: 10, color: C.teal, textAlign: 'right', flexShrink: 0 }}>Actual</span>
+              <div style={{ flex: 1, height: 12, background: '#f3f4f6', borderRadius: 3, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: d.actualHrs ? `${(d.actualHrs / max) * 100}%` : '0%', background: C.teal, borderRadius: 3 }} />
+              </div>
+              <span style={{ width: 42, fontSize: 10, color: C.teal, fontWeight: 600 }}>{d.actualHrs != null ? fmt(d.actualHrs) : '—'}</span>
+            </div>
+          </div>
+        </div>
+      ))}
+      <div style={{ display: 'flex', gap: 16, marginTop: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+          <div style={{ width: 10, height: 10, background: C.red, borderRadius: 2 }} />
+          <span style={{ fontSize: 10, color: '#6b7280' }}>Projected hrs saved</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+          <div style={{ width: 10, height: 10, background: C.teal, borderRadius: 2 }} />
+          <span style={{ fontSize: 10, color: '#6b7280' }}>Actual hrs saved</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SIDEBAR
+// ─────────────────────────────────────────────────────────────────
+const NAV_ITEMS = [
+  { id: 'overview',     label: 'Executive Overview',       icon: '◧' },
+  { id: 'scoring',      label: 'Value Scoring',             icon: '◈' },
+  { id: 'kpi',          label: 'KPI Framework',             icon: '▣' },
+  { id: 'calculator',   label: 'Value Calculator',          icon: '⊞' },
+  { id: 'pipeline',     label: 'Pipeline Summary',          icon: '⊟' },
+  { id: 'roadmap',      label: 'Roadmap',                   icon: '◫' },
+  { id: 'readiness',    label: 'Measurement Readiness',     icon: '☑' },
+  { id: 'assumptions',  label: 'Assumptions & Open Items',  icon: '?' },
+];
+
+function Sidebar({ active, onNav }) {
+  return (
+    <aside style={{ width: 224, minWidth: 224, background: C.charcoal, display: 'flex', flexDirection: 'column', height: '100vh', position: 'fixed', left: 0, top: 0, zIndex: 50 }}>
+      {/* Brand header */}
+      <div style={{ background: C.red, padding: '16px 16px 14px', flexShrink: 0 }}>
+        <div style={{ color: '#fca5a5', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>
+          Thermo Fisher Scientific
+        </div>
+        <div style={{ color: 'white', fontSize: 15, fontWeight: 700, lineHeight: 1.2 }}>ICF Assistant</div>
+        <div style={{ color: '#fecaca', fontSize: 12, fontWeight: 400 }}>Value Framework</div>
+      </div>
+
+      {/* Nav */}
+      <nav style={{ flex: 1, padding: '8px 0', overflowY: 'auto' }}>
+        {NAV_ITEMS.map(item => {
+          const isActive = active === item.id;
+          return (
+            <button key={item.id} onClick={() => onNav(item.id)} style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+              padding: '10px 16px',
+              background: isActive ? 'rgba(255,255,255,0.1)' : 'transparent',
+              borderLeft: `3px solid ${isActive ? C.red : 'transparent'}`,
+              color: isActive ? 'white' : '#9ca3af',
+              fontSize: 13, fontWeight: isActive ? 600 : 400,
+              cursor: 'pointer', border: 'none',
+              borderLeft: `3px solid ${isActive ? C.red : 'transparent'}`,
+              textAlign: 'left', transition: 'all 0.15s',
+            }}>
+              <span style={{ fontSize: 14, opacity: isActive ? 1 : 0.55 }}>{item.icon}</span>
+              <span style={{ lineHeight: 1.3 }}>{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Footer */}
+      <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }}>
+        <div style={{ fontSize: 11, color: '#9ca3af' }}>
+          <div style={{ fontWeight: 600, color: '#d1d5db', marginBottom: 2 }}>Accenture × TFS</div>
+          <div>Value Realization 2026</div>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// TOP BAR
+// ─────────────────────────────────────────────────────────────────
+const TAB_LABELS = {
+  overview: 'Executive Overview', scoring: 'Value Scoring', kpi: 'KPI Framework',
+  calculator: 'Value Calculator', pipeline: 'Pipeline Summary', roadmap: 'Roadmap',
+  readiness: 'Measurement Readiness', assumptions: 'Assumptions & Open Items',
+};
+
+function TopBar({ active }) {
+  return (
+    <header style={{ background: 'white', borderBottom: `1px solid ${C.gray}`, padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'sticky', top: 0, zIndex: 40 }}>
+      <div>
+        <h1 style={{ fontSize: 15, fontWeight: 600, color: C.charcoal, margin: 0 }}>{TAB_LABELS[active]}</h1>
+        <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>ICF Assistant Value Framework — Thermo Fisher Scientific</p>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ padding: '4px 10px', borderRadius: 999, background: C.offwhite, border: `1px solid ${C.gray}`, fontSize: 11, fontWeight: 500, color: C.charcoal }}>
+          Q1 2026 — MVP Phase
+        </span>
+        <span style={{ padding: '4px 10px', borderRadius: 999, background: '#fff0f0', border: '1px solid #fca5a5', fontSize: 11, fontWeight: 500, color: C.red }}>
+          Live
+        </span>
+      </div>
+    </header>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SECTION 1 — EXECUTIVE OVERVIEW
+// ─────────────────────────────────────────────────────────────────
+function ExecutiveOverview({ kpis, calc }) {
+  const [icfsScope, setIcfsScope] = useState(420);
+
+  const countryAnnual = calc.countryBaseline * (calc.countryReduction / 100) * calc.countryVolume;
+  const siteAnnual    = calc.siteBaseline    * (calc.siteReduction    / 100) * calc.siteVolume;
+  const totalAnnual   = countryAnnual + siteAnnual;
+  const trackingLive  = kpis.filter(k => k.status === 'tracking-live').length;
+  const readinessPct  = Math.round((trackingLive / kpis.length) * 100);
+
+  const problemCards = [
+    {
+      icon: '⏱', title: 'Time', border: 'border-red-200', bg: 'bg-red-50',
+      headline: '18+ hours per ICF',
+      body: 'Country ICF adaptation averages 12 hrs/doc; site adaptation 6 hrs/doc. Both scale linearly with study volume, creating a direct headcount constraint on throughput.',
+    },
+    {
+      icon: '⚠', title: 'Risk', border: 'border-amber-200', bg: 'bg-amber-50',
+      headline: 'Manual = compliance exposure',
+      body: 'Version proliferation, inconsistent plain-language QC, and manual query tracking create quality events and regulatory risk that are difficult to track or prevent at scale.',
+    },
+    {
+      icon: '↗', title: 'Scale', border: 'border-teal-200', bg: 'bg-teal-50',
+      headline: 'Growth blocked by headcount',
+      body: 'Parallel country and amendment drafting requires linear headcount growth. ICF Assistant removes this constraint, enabling sponsor growth and FSP expansion without equivalent staffing increases.',
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Framing statement */}
+      <Card className="p-5">
+        <p className="text-sm text-gray-600 leading-relaxed max-w-4xl">
+          The <strong className="text-gray-800">ICF Assistant Value Framework</strong> tracks the realized and projected impact of
+          AI-assisted ICF lifecycle automation at Thermo Fisher Scientific. This dashboard provides executive visibility into
+          KPI progress, value realization milestones, open measurement assumptions, and the capability roadmap — enabling
+          data-driven quarterly value reviews with TFS leadership.
+        </p>
+      </Card>
+
+      {/* Problem cards */}
+      <div>
+        <h2 className="text-base font-semibold text-gray-800 mb-3">The Business Problem</h2>
+        <div className="grid grid-cols-3 gap-4">
+          {problemCards.map(p => (
+            <div key={p.title} className={`rounded-lg border p-5 ${p.border} ${p.bg}`}>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xl">{p.icon}</span>
+                <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">{p.title}</span>
+              </div>
+              <div className="text-sm font-bold text-gray-800 mb-2">{p.headline}</div>
+              <p className="text-xs text-gray-600 leading-relaxed">{p.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Summary stats */}
+      <div>
+        <h2 className="text-base font-semibold text-gray-800 mb-3">Value Realization Snapshot</h2>
+        <div className="grid grid-cols-3 gap-4 mb-4">
+          <Card className="p-5">
+            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Projected Annual Hours Saved</div>
+            <div className="text-3xl font-bold text-gray-800">{fmt(totalAnnual)}</div>
+            <div className="text-xs text-gray-500 mt-1">Country: {fmt(countryAnnual)} hrs + Site: {fmt(siteAnnual)} hrs</div>
+          </Card>
+          <Card className="p-5">
+            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Actual Hours Saved (YTD)</div>
+            <div className="text-3xl font-bold text-gray-300">TBD</div>
+            <div className="text-xs text-gray-400 mt-1">Pending timestamp capture validation</div>
+          </Card>
+          <Card className="p-5">
+            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">QE Reduction Target</div>
+            <div className="text-3xl font-bold text-amber-500">20%</div>
+            <div className="text-xs text-gray-500 mt-1">Adaptation QEs only — baseline TBD Q3 2026</div>
+          </Card>
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          <Card className="p-5">
+            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Adoption Rate (KPI 6)</div>
+            <div className="text-3xl font-bold" style={{ color: C.teal }}>Pilot</div>
+            <div className="text-xs text-gray-500 mt-1">Tracking live — ramp target 100% of eligible ICFs</div>
+          </Card>
+          <Card className="p-5">
+            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">ICFs in Scope (editable)</div>
+            <div className="flex items-baseline gap-2">
+              <input type="number" value={icfsScope} onChange={e => setIcfsScope(Number(e.target.value))}
+                className="w-28 text-3xl font-bold bg-transparent focus:outline-none"
+                style={{ color: C.blue, borderBottom: `2px solid ${C.blue}` }} />
+              <span className="text-sm text-gray-400">docs/yr</span>
+            </div>
+            <div className="text-xs text-gray-500 mt-1">Country + Site eligible ICFs (editable)</div>
+          </Card>
+          <Card className="p-5">
+            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">KPI Measurement Readiness</div>
+            <div className="text-3xl font-bold" style={{ color: C.red }}>{readinessPct}%</div>
+            <div className="text-xs text-gray-500 mt-1">{trackingLive} of {kpis.length} KPIs currently tracking live</div>
+          </Card>
+        </div>
+      </div>
+
+      {/* KPI status table */}
+      <div>
+        <h2 className="text-base font-semibold text-gray-800 mb-3">KPI Status at a Glance</h2>
+        <Card className="overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                {['#', 'KPI', 'Status', 'Measurable From', 'Projected Impact'].map(h => (
+                  <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {kpis.map((k, i) => (
+                <tr key={k.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
+                  <td className="px-4 py-3">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-xs font-bold" style={{ background: C.red }}>{k.number}</span>
+                  </td>
+                  <td className="px-4 py-3 font-medium text-gray-800">{k.title}</td>
+                  <td className="px-4 py-3"><StatusPill statusMap={KPI_STATUS} value={k.status} /></td>
+                  <td className="px-4 py-3 text-xs text-gray-500">{k.measurableFrom}</td>
+                  <td className="px-4 py-3 text-xs text-gray-600">{k.projectedImpact}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SECTION 2 — VALUE SCORING
+// ─────────────────────────────────────────────────────────────────
+function ValueScoring() {
+  const [cats, setCats] = useState(SCORING_DEFAULT.map(s => ({ ...s })));
+  const [editingWeights, setEditingWeights] = useState(false);
+  const [tempW, setTempW] = useState(Object.fromEntries(SCORING_DEFAULT.map(s => [s.id, s.weight])));
+
+  const totalW = cats.reduce((s, c) => s + c.weight, 0);
+  const projected = Math.round(cats.reduce((s, c) => s + c.projected * (c.weight / totalW), 0));
+  const actual    = Math.round(cats.reduce((s, c) => s + c.actual    * (c.weight / totalW), 0));
+  const gap       = projected - actual;
+
+  const saveWeights = () => {
+    const sum = Object.values(tempW).reduce((s, v) => s + v, 0);
+    if (sum !== 100) { alert(`Weights must sum to 100. Current total: ${sum}`); return; }
+    setCats(cats.map(c => ({ ...c, weight: tempW[c.id] })));
+    setEditingWeights(false);
+  };
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <SectionHeader title="Value Scoring" subtitle="Weighted composite score across 5 ICF value dimensions — projected vs actual" />
+        <button onClick={() => editingWeights ? saveWeights() : setEditingWeights(true)}
+          className="px-4 py-2 rounded-md text-sm font-medium transition-colors"
+          style={editingWeights ? { background: C.red, color: 'white' } : { background: 'white', color: C.charcoal, border: `1px solid ${C.gray}` }}>
+          {editingWeights ? 'Save Weights' : 'Edit Weights'}
+        </button>
+      </div>
+
+      {/* Score tiles */}
+      <div className="grid grid-cols-3 gap-4">
+        <Card className="p-5 text-center">
+          <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">Projected Value Score</div>
+          <div className="text-4xl font-bold" style={{ color: C.red }}>{projected}</div>
+          <div className="text-xs text-gray-400 mt-1">/ 100</div>
+        </Card>
+        <Card className="p-5 text-center">
+          <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">Actual Value Score</div>
+          <div className="text-4xl font-bold" style={{ color: C.charcoal }}>{actual}</div>
+          <div className="text-xs text-gray-400 mt-1">/ 100</div>
+        </Card>
+        <Card className="p-5 text-center">
+          <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">Realization Gap</div>
+          <div className="text-4xl font-bold text-amber-500">{gap}</div>
+          <div className="text-xs text-gray-400 mt-1">points to close</div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-2 gap-5">
+        {/* Radar */}
+        <Card className="p-5 flex flex-col items-center">
+          <h3 className="font-semibold text-gray-800 mb-3 self-start">Projected vs Actual Radar</h3>
+          <RadarChart data={cats} size={260} />
+          <div className="flex gap-6 mt-3">
+            <div className="flex items-center gap-2 text-xs text-gray-600">
+              <span style={{ display: 'inline-block', width: 16, height: 2, background: C.red }} /> Projected
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-600">
+              <span style={{ display: 'inline-block', width: 16, height: 2, background: C.teal }} /> Actual
+            </div>
+          </div>
+        </Card>
+
+        {/* Category breakdown */}
+        <Card className="overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-100">
+            <h3 className="font-semibold text-gray-800">Category Breakdown</h3>
+          </div>
+          <div className="divide-y divide-gray-100">
+            {cats.map(cat => (
+              <div key={cat.id} className="px-5 py-4">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1 pr-4">
+                    <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                      <span className="font-medium text-sm text-gray-800">{cat.name}</span>
+                      {editingWeights ? (
+                        <div className="flex items-center gap-1">
+                          <input type="number" value={tempW[cat.id]} min={0} max={100}
+                            onChange={e => setTempW(p => ({ ...p, [cat.id]: Number(e.target.value) }))}
+                            className="w-14 border border-gray-200 rounded px-1.5 py-0.5 text-xs text-right focus:outline-none" />
+                          <span className="text-xs text-gray-400">%</span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400">{cat.weight}% weight</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500">{cat.description}</p>
+                  </div>
+                  <div className="text-right text-sm font-bold flex-shrink-0">
+                    <span style={{ color: C.red }}>{cat.projected}</span>
+                    <span className="text-gray-300 mx-1">/</span>
+                    <span style={{ color: C.teal }}>{cat.actual}</span>
+                  </div>
+                </div>
+                <div className="space-y-1.5 mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-400 w-14 flex-shrink-0">Projected</span>
+                    <div className="flex-1"><Bar value={cat.projected} color={C.red} /></div>
+                    <span className="text-xs font-medium w-6 text-right" style={{ color: C.red }}>{cat.projected}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-400 w-14 flex-shrink-0">Actual</span>
+                    <div className="flex-1"><Bar value={cat.actual} color={C.teal} /></div>
+                    <span className="text-xs font-medium w-6 text-right" style={{ color: C.teal }}>{cat.actual}</span>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {cat.drivers.map(d => (
+                    <span key={d} className="px-2 py-0.5 rounded text-xs text-gray-500" style={{ background: C.offwhite, border: `1px solid ${C.gray}` }}>{d}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          {editingWeights && (
+            <div className="px-5 py-3 bg-amber-50 border-t border-amber-200 text-xs text-amber-700">
+              Weights must sum to 100. Current total: <strong>{Object.values(tempW).reduce((s, v) => s + v, 0)}</strong>
+            </div>
+          )}
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SECTION 3 — KPI FRAMEWORK
+// ─────────────────────────────────────────────────────────────────
+function KPICard({ kpi, onUpdate }) {
+  const [expanded, setExpanded] = useState(false);
+  const [editing,  setEditing]  = useState(false);
+  const [editActual, setEditActual] = useState(kpi.currentActual?.toString() ?? '');
+  const [editStatus, setEditStatus] = useState(kpi.status);
+
+  const save = () => {
+    onUpdate({ ...kpi, currentActual: editActual !== '' ? Number(editActual) : null, status: editStatus });
+    setEditing(false);
+  };
+
+  const sc = KPI_STATUS[kpi.status] || KPI_STATUS['tbd'];
+
+  return (
+    <Card className="overflow-hidden">
+      {/* Header */}
+      <div className="p-4 flex items-start gap-3">
+        <span className="flex-shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-bold" style={{ background: C.red }}>
+          {kpi.number}
+        </span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <h3 className="font-semibold text-gray-800 text-sm leading-tight">{kpi.title}</h3>
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border flex-shrink-0 ${sc.cls}`}>{sc.label}</span>
+          </div>
+          <p className="text-xs text-gray-500">{kpi.definition}</p>
+        </div>
+      </div>
+
+      {/* Metrics row */}
+      <div className="grid grid-cols-3 divide-x divide-gray-100 border-t border-gray-100">
+        <div className="px-4 py-3">
+          <div className="text-xs text-gray-400 mb-0.5">Baseline</div>
+          <div className="font-semibold text-gray-800 text-sm">{kpi.baseline != null ? `${kpi.baseline} ${kpi.baselineUnit}` : 'TBD'}</div>
+        </div>
+        <div className="px-4 py-3">
+          <div className="text-xs text-gray-400 mb-0.5">Target</div>
+          <div className="font-semibold text-sm" style={{ color: C.red }}>{kpi.target != null ? `${kpi.target}${kpi.targetUnit}` : 'TBD'}</div>
+        </div>
+        <div className="px-4 py-3">
+          <div className="text-xs text-gray-400 mb-0.5">Current Actual</div>
+          {editing ? (
+            <input type="number" value={editActual} onChange={e => setEditActual(e.target.value)} placeholder="Enter value"
+              className="w-full border border-gray-200 rounded px-2 py-0.5 text-sm focus:outline-none" />
+          ) : (
+            <div className="font-semibold text-sm" style={{ color: C.blue }}>{kpi.currentActual != null ? kpi.currentActual : '—'}</div>
+          )}
+        </div>
+      </div>
+
+      {/* Action bar */}
+      <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-t border-gray-100">
+        <span className="text-xs text-gray-400">Owner: <span className="text-gray-600">{kpi.owner}</span></span>
+        <div className="flex items-center gap-3">
+          {editing ? (
+            <>
+              <select value={editStatus} onChange={e => setEditStatus(e.target.value)}
+                className="text-xs border border-gray-200 rounded px-2 py-1 focus:outline-none">
+                <option value="tbd">TBD</option>
+                <option value="baseline-confirmed">Baseline Confirmed</option>
+                <option value="tracking-live">Tracking Live</option>
+                <option value="on-track">On Track</option>
+                <option value="at-risk">At Risk</option>
+              </select>
+              <button onClick={save} className="text-xs font-medium" style={{ color: C.teal }}>✓ Save</button>
+            </>
+          ) : (
+            <button onClick={() => setEditing(true)} className="text-xs font-medium text-gray-400 hover:text-gray-700">✎ Edit</button>
+          )}
+          <button onClick={() => setExpanded(!expanded)} className="text-xs font-medium text-gray-400 hover:text-gray-700">
+            {expanded ? '▲ Less' : '▼ Details'}
+          </button>
+        </div>
+      </div>
+
+      {/* Expanded detail */}
+      {expanded && (
+        <div className="px-4 pb-4 pt-3 space-y-3 border-t border-gray-100">
+          <div>
+            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Formula</div>
+            <pre className="text-xs text-gray-600 bg-gray-50 rounded p-2 whitespace-pre-wrap font-mono">{kpi.formula}</pre>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Data Source</div>
+              <p className="text-xs text-gray-600">{kpi.dataSource}</p>
+            </div>
+            <div>
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Measurable From</div>
+              <p className="text-xs text-gray-600">{kpi.measurableFrom}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Projected Impact</div>
+              <p className="text-xs text-gray-600">{kpi.projectedImpact}</p>
+            </div>
+            <div>
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Actual Impact</div>
+              <p className="text-xs text-gray-600">{kpi.actualImpact ?? '—'}</p>
+            </div>
+          </div>
+          {kpi.notes && (
+            <div className="bg-amber-50 border border-amber-200 rounded p-3">
+              <div className="text-xs font-semibold text-amber-700 mb-1">Notes</div>
+              <p className="text-xs text-amber-800">{kpi.notes}</p>
+            </div>
+          )}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function KPIFramework({ kpis, onKpisChange }) {
+  const [filter, setFilter] = useState('all');
+  const OPTIONS = [
+    { v: 'all', l: 'All KPIs' }, { v: 'tracking-live', l: 'Tracking Live' },
+    { v: 'tbd', l: 'TBD' }, { v: 'baseline-confirmed', l: 'Baseline Confirmed' }, { v: 'at-risk', l: 'At Risk' },
+  ];
+  const filtered = filter === 'all' ? kpis : kpis.filter(k => k.status === filter);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-start justify-between flex-wrap gap-3">
+        <SectionHeader title="KPI Framework" subtitle="6 ICF-specific KPIs across time savings, quality, adoption, and user experience" />
+        <div className="flex gap-1 flex-wrap">
+          {OPTIONS.map(o => (
+            <button key={o.v} onClick={() => setFilter(o.v)}
+              className="px-3 py-1 rounded-full text-xs font-medium transition-colors"
+              style={filter === o.v ? { background: C.red, color: 'white' } : { background: 'white', color: '#6b7280', border: `1px solid ${C.gray}` }}>
+              {o.l}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex gap-4 text-sm pb-1">
+        {Object.entries(KPI_STATUS).map(([s, cfg]) => {
+          const count = kpis.filter(k => k.status === s).length;
+          if (!count) return null;
+          return (
+            <span key={s} className="text-gray-500">
+              <span className="font-semibold text-gray-800">{count}</span> {cfg.label}
+            </span>
+          );
+        })}
+      </div>
+
+      <div className="space-y-4">
+        {filtered.map(k => (
+          <KPICard key={k.id} kpi={k} onUpdate={updated => onKpisChange(kpis.map(k2 => k2.id === updated.id ? updated : k2))} />
+        ))}
+      </div>
+
+      {filtered.length === 0 && (
+        <Card className="p-8 text-center text-gray-400 text-sm">No KPIs match the selected filter.</Card>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SECTION 4 — VALUE CALCULATOR
+// ─────────────────────────────────────────────────────────────────
+function ValueCalculator({ calc, setCalc }) {
+  const set = (k, v) => setCalc(p => ({ ...p, [k]: v }));
+
+  const cPerDoc  = calc.countryBaseline * (calc.countryReduction / 100);
+  const cAnnual  = cPerDoc * calc.countryVolume;
+  const sPerDoc  = calc.siteBaseline   * (calc.siteReduction    / 100);
+  const sAnnual  = sPerDoc * calc.siteVolume;
+  const total    = cAnnual + sAnnual;
+  const qeAvoid  = calc.qeBaseline * (calc.qeReduction / 100);
+  const qeDol    = qeAvoid * calc.costPerQE;
+  const hardVal  = total * calc.hourlyRate + qeDol;
+  const e2eDays  = calc.e2eBaseline * (calc.e2eReduction / 100);
+  const annDays  = e2eDays * calc.studyVolume;
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <SectionHeader title="Value Calculator" subtitle="Edit assumptions — all outputs update immediately" />
+        <button onClick={() => setCalc(CALC_DEFAULT)}
+          className="px-4 py-2 rounded-md text-sm font-medium transition-colors"
+          style={{ background: 'white', color: C.charcoal, border: `1px solid ${C.gray}` }}>
+          ↺ Reset to Defaults
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-5">
+        {/* Country ICF */}
+        <Card className="p-5">
+          <h3 className="font-semibold text-gray-800 mb-1">Country ICF Adaptation <span className="text-xs font-normal text-gray-400">(KPI 1)</span></h3>
+          <p className="text-xs text-gray-400 mb-3">Inputs</p>
+          <InputRow label="Baseline hours per document"  value={calc.countryBaseline}   onChange={v => set('countryBaseline',  v)} unit="hrs/doc" />
+          <InputRow label="Target reduction"             value={calc.countryReduction}  onChange={v => set('countryReduction', v)} unit="%" />
+          <InputRow label="Annual document volume"       value={calc.countryVolume}     onChange={v => set('countryVolume',    v)} unit="docs/yr" />
+          <p className="text-xs text-gray-400 mt-4 mb-2">Outputs</p>
+          <ResultRow label="Hours saved per document"  value={`${fmt(cPerDoc, 1)} hrs`}   formula={`${calc.countryBaseline} hrs × ${calc.countryReduction}% = ${fmt(cPerDoc, 1)} hrs/doc`} />
+          <ResultRow label="Annual hours saved"        value={`${fmt(cAnnual)} hrs/yr`}   formula={`${fmt(cPerDoc, 1)} hrs × ${calc.countryVolume} docs = ${fmt(cAnnual)} hrs`} />
+        </Card>
+
+        {/* Site ICF */}
+        <Card className="p-5">
+          <h3 className="font-semibold text-gray-800 mb-1">Site ICF Adaptation <span className="text-xs font-normal text-gray-400">(KPI 2 — Q2 2026)</span></h3>
+          <p className="text-xs text-gray-400 mb-3">Inputs</p>
+          <InputRow label="Baseline hours per document"  value={calc.siteBaseline}    onChange={v => set('siteBaseline',   v)} unit="hrs/doc" />
+          <InputRow label="Target reduction"             value={calc.siteReduction}   onChange={v => set('siteReduction',  v)} unit="%" />
+          <InputRow label="Annual document volume"       value={calc.siteVolume}      onChange={v => set('siteVolume',     v)} unit="docs/yr" />
+          <p className="text-xs text-gray-400 mt-4 mb-2">Outputs</p>
+          <ResultRow label="Hours saved per document"  value={`${fmt(sPerDoc, 1)} hrs`}   formula={`${calc.siteBaseline} hrs × ${calc.siteReduction}% = ${fmt(sPerDoc, 1)} hrs/doc`} />
+          <ResultRow label="Annual hours saved"        value={`${fmt(sAnnual)} hrs/yr`}   formula={`${fmt(sPerDoc, 1)} hrs × ${calc.siteVolume} docs = ${fmt(sAnnual)} hrs`} />
+        </Card>
+
+        {/* QE Reduction */}
+        <Card className="p-5">
+          <h3 className="font-semibold text-gray-800 mb-1">Quality Event Reduction <span className="text-xs font-normal text-gray-400">(KPI 4 — Q3 2026)</span></h3>
+          <p className="text-xs text-gray-400 mb-3">Inputs — adaptation QEs only, version-correction excluded</p>
+          <InputRow label="Baseline QEs per year"       value={calc.qeBaseline}   onChange={v => set('qeBaseline',   v)} unit="QEs/yr" />
+          <InputRow label="Target reduction"            value={calc.qeReduction}  onChange={v => set('qeReduction',  v)} unit="%" />
+          <InputRow label="Average cost per QE"         value={calc.costPerQE}    onChange={v => set('costPerQE',    v)} unit="$/QE" step={100} />
+          <InputRow label="Hourly fully-loaded rate"    value={calc.hourlyRate}   onChange={v => set('hourlyRate',   v)} unit="$/hr" />
+          <p className="text-xs text-gray-400 mt-4 mb-2">Outputs</p>
+          <ResultRow label="QEs avoided per year"      value={`${fmt(qeAvoid, 1)} QEs`}   formula={`${calc.qeBaseline} QEs × ${calc.qeReduction}% = ${fmt(qeAvoid, 1)} QEs avoided`} />
+          <ResultRow label="QE dollar value avoided"   value={fmtC(qeDol)}                 formula={`${fmt(qeAvoid, 1)} QEs × ${fmtC(calc.costPerQE)}/QE = ${fmtC(qeDol)}`} />
+        </Card>
+
+        {/* End-to-end */}
+        <Card className="p-5">
+          <h3 className="font-semibold text-gray-800 mb-1">End-to-End Cycle Time <span className="text-xs font-normal text-gray-400">(KPI 3 — Q3 2026, TFS baseline TBD)</span></h3>
+          <p className="text-xs text-gray-400 mb-3">Inputs — placeholder until Maria confirms TFS baseline</p>
+          <InputRow label="Baseline cycle days per study"  value={calc.e2eBaseline}   onChange={v => set('e2eBaseline',  v)} unit="days" />
+          <InputRow label="Target reduction"               value={calc.e2eReduction}  onChange={v => set('e2eReduction', v)} unit="%" />
+          <InputRow label="Annual study volume"            value={calc.studyVolume}   onChange={v => set('studyVolume',  v)} unit="studies/yr" />
+          <p className="text-xs text-gray-400 mt-4 mb-2">Outputs</p>
+          <ResultRow label="Days saved per study"   value={`${fmt(e2eDays, 1)} days`}   formula={`${calc.e2eBaseline} days × ${calc.e2eReduction}% = ${fmt(e2eDays, 1)} days/study`} />
+          <ResultRow label="Annual days saved"      value={`${fmt(annDays)} days/yr`}    formula={`${fmt(e2eDays, 1)} days × ${calc.studyVolume} studies = ${fmt(annDays)} days`} />
+        </Card>
+      </div>
+
+      {/* Total hard value */}
+      <div className="rounded-lg border-2 p-6 bg-red-50" style={{ borderColor: 'rgba(190,0,0,0.2)' }}>
+        <h3 className="font-bold text-gray-800 text-base mb-4">Total Hard Value Summary</h3>
+        <div className="grid grid-cols-3 gap-6">
+          <div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Total Annual Hours Saved</div>
+            <div className="text-2xl font-bold text-gray-800">{fmt(total)}</div>
+            <div className="text-xs text-gray-400 mt-0.5">Country + Site combined</div>
+          </div>
+          <div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Hours Dollar Value</div>
+            <div className="text-2xl font-bold text-gray-800">{fmtC(total * calc.hourlyRate)}</div>
+            <div className="text-xs text-gray-400 mt-0.5">at ${calc.hourlyRate}/hr fully loaded</div>
+          </div>
+          <div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Total Hard Value (Hours + QE)</div>
+            <div className="text-2xl font-bold" style={{ color: C.red }}>{fmtC(hardVal)}</div>
+            <div className="text-xs text-gray-400 mt-0.5">hrs value + QE cost avoided</div>
+          </div>
+        </div>
+        <div className="mt-4 pt-4 border-t border-red-200">
+          <p className="text-xs text-gray-500 font-mono">
+            Total Hard Value = ({fmt(total)} hrs × ${calc.hourlyRate}/hr) + {fmtC(qeDol)} QE avoided = {fmtC(hardVal)}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SECTION 5 — PIPELINE SUMMARY
+// ─────────────────────────────────────────────────────────────────
+const WINS_MATRIX = [
+  { name: 'AI-assisted ICF drafting',   q: [true,  true,  true,  true]  },
+  { name: 'Country ICF adaptation',     q: [true,  true,  true,  true]  },
+  { name: 'Site ICF adaptation',        q: [false, true,  true,  true]  },
+  { name: 'ICF amendment automation',   q: [false, true,  true,  true]  },
+  { name: 'Master ICF GPT migration',   q: [false, false, true,  true]  },
+  { name: 'QE measurement framework',   q: [false, false, true,  true]  },
+  { name: 'IRB/ethics submission',      q: [false, false, false, true]  },
+  { name: 'Sponsor-level reporting',    q: [false, false, false, true]  },
+];
+
+function PipelineSummary() {
+  return (
+    <div className="space-y-6">
+      <SectionHeader title="Pipeline Summary" subtitle="Quarterly capability delivery, projected vs actual impact, and ICF value realization" />
+
+      {/* Phase cards */}
+      <div className="grid grid-cols-2 gap-4">
+        {PIPELINE.map(p => {
+          const sc = PHASE_STATUS[p.status] || PHASE_STATUS.upcoming;
+          return (
+            <Card key={p.id} className="p-5">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <div className="font-semibold text-gray-800">{p.phase}</div>
+                  <div className="text-xs text-gray-400 mt-0.5">{p.quarter}</div>
+                </div>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${sc.cls}`}>{sc.label}</span>
+              </div>
+
+              <div className="mb-3">
+                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">ICF Capabilities</div>
+                <div className="space-y-1">
+                  {p.planned.map(cap => {
+                    const done = p.done.includes(cap);
+                    return (
+                      <div key={cap} className="flex items-center gap-2 text-xs">
+                        <span style={{ color: done ? C.teal : '#d1d5db' }}>{done ? '✓' : '○'}</span>
+                        <span className={done ? 'text-gray-800' : 'text-gray-500'}>{cap}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mb-3">
+                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">KPIs Measurable</div>
+                <div className="flex flex-wrap gap-1">
+                  {p.kpis.map(k => (
+                    <span key={k} className="px-2 py-0.5 rounded-full text-xs font-medium border"
+                      style={{ background: '#fff0f0', borderColor: '#fca5a5', color: C.red }}>{k}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between rounded p-2.5 bg-gray-50 mb-2">
+                <div>
+                  <div className="text-xs text-gray-400">Projected hrs saved</div>
+                  <div className="text-base font-bold text-gray-800">{fmt(p.projectedHrs)}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-gray-400">Actual</div>
+                  <div className="text-base font-bold text-gray-300">{p.actualHrs != null ? fmt(p.actualHrs) : '—'}</div>
+                </div>
+              </div>
+
+              {p.risks.length > 0 && (
+                <div className="space-y-1">
+                  {p.risks.map(r => (
+                    <div key={r} className="flex items-start gap-1.5 text-xs text-amber-700">
+                      <span className="flex-shrink-0">⚠</span>{r}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Charts row */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card className="p-5">
+          <h3 className="font-semibold text-gray-800 mb-4">Projected vs Actual Hours Saved by Quarter</h3>
+          <PipelineBarChart data={PIPELINE} />
+        </Card>
+
+        <Card className="p-5">
+          <h3 className="font-semibold text-gray-800 mb-4">Value Realization Wins Matrix</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="text-left py-2 pr-3 text-gray-400 font-semibold">ICF Capability</th>
+                  {['Q1 2026', 'Q2 2026', 'Q3 2026', 'Q4 2026'].map(q => (
+                    <th key={q} className="text-center py-2 px-2 text-gray-400 font-semibold whitespace-nowrap">{q}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {WINS_MATRIX.map(row => (
+                  <tr key={row.name} className="border-b border-gray-100/50">
+                    <td className="py-2 pr-3 text-gray-600">{row.name}</td>
+                    {row.q.map((active, i) => (
+                      <td key={i} className="text-center py-2 px-2">
+                        <span style={{ color: active ? C.teal : '#e5e7eb', fontSize: 14 }}>{active ? '✓' : '○'}</span>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SECTION 6 — ROADMAP
+// ─────────────────────────────────────────────────────────────────
+function Roadmap() {
+  return (
+    <div className="space-y-4">
+      <SectionHeader title="Capability Roadmap" subtitle="5-phase ICF automation journey — MVP through fully autonomous North Star" />
+
+      {/* Timeline strip */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 8px', marginBottom: 8 }}>
+        {ROADMAP.map((p, i) => {
+          const sc = PHASE_STATUS[p.status];
+          return (
+            <React.Fragment key={p.id}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ width: 12, height: 12, borderRadius: '50%', background: sc.dot, flexShrink: 0 }} />
+                <span style={{ fontSize: 10, color: '#9ca3af', marginTop: 4, whiteSpace: 'nowrap' }}>{p.timing}</span>
+              </div>
+              {i < ROADMAP.length - 1 && <div style={{ flex: 1, height: 1, background: C.gray }} />}
+            </React.Fragment>
+          );
+        })}
+      </div>
+
+      {/* Phase cards */}
+      <div className="space-y-3">
+        {ROADMAP.map(p => {
+          const sc = PHASE_STATUS[p.status];
+          return (
+            <div key={p.id} className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden"
+              style={{ borderLeft: `4px solid ${sc.borderL}` }}>
+              <div className="p-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${sc.cls}`}>{sc.label}</span>
+                  <span className="text-xs text-gray-400">{p.targetDate}</span>
+                </div>
+                <h3 className="text-base font-bold text-gray-800 mb-4">{p.name}</h3>
+
+                <div className="grid grid-cols-3 gap-5">
+                  {/* Capabilities */}
+                  <div>
+                    <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">ICF Capabilities</div>
+                    <div className="space-y-1.5">
+                      {p.capabilities.map(cap => {
+                        const done = p.completed.includes(cap);
+                        return (
+                          <div key={cap} className="flex items-start gap-1.5 text-xs">
+                            <span style={{ color: done ? C.teal : '#d1d5db', flexShrink: 0 }}>{done ? '✓' : '○'}</span>
+                            <span className={done ? 'text-gray-800' : 'text-gray-500'}>{cap}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* KPIs + milestone */}
+                  <div>
+                    <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">KPIs Unlocked</div>
+                    <div className="space-y-1 mb-4">
+                      {p.kpis.map(k => (
+                        <div key={k} className="flex items-center gap-1.5 text-xs">
+                          <span style={{ color: C.red }}>›</span>
+                          <span className="text-gray-600">{k}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Value Milestone</div>
+                    <p className="text-xs text-gray-600 leading-relaxed">{p.milestone}</p>
+                  </div>
+
+                  {/* Dependencies */}
+                  <div>
+                    <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Dependencies</div>
+                    <div className="space-y-1.5">
+                      {p.deps.map(d => (
+                        <div key={d} className="flex items-start gap-1.5 text-xs">
+                          <div style={{ width: 6, height: 6, borderRadius: '50%', background: C.amber, flexShrink: 0, marginTop: 3 }} />
+                          <span className="text-gray-500">{d}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SECTION 7 — MEASUREMENT READINESS
+// ─────────────────────────────────────────────────────────────────
+function MeasurementReadiness() {
+  const totalContrib = READINESS.reduce((s, i) => {
+    if (i.status === 'ready')   return s + i.contrib;
+    if (i.status === 'partial') return s + i.contrib * 0.5;
+    return s;
+  }, 0);
+  const maxContrib = READINESS.reduce((s, i) => s + i.contrib, 0);
+  const score = Math.round((totalContrib / maxContrib) * 100);
+
+  const counts = Object.fromEntries(['ready', 'partial', 'not-ready', 'future'].map(s => [s, READINESS.filter(i => i.status === s).length]));
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <SectionHeader title="Measurement Readiness" subtitle="ICF data infrastructure, timestamp coverage, and baseline data readiness for full KPI measurement" />
+        <Card className="px-5 py-3 flex items-center gap-4 flex-shrink-0">
+          <div>
+            <div className="text-xs text-gray-400 uppercase tracking-wide">Overall Readiness</div>
+            <div className="text-2xl font-bold" style={{ color: C.red }}>{score}%</div>
+          </div>
+          <div style={{ width: 80, height: 8, background: C.gray, borderRadius: 999, overflow: 'hidden' }}>
+            <div style={{ width: `${score}%`, height: '100%', background: C.red, borderRadius: 999 }} />
+          </div>
+        </Card>
+      </div>
+
+      {/* Status summary tiles */}
+      <div className="grid grid-cols-4 gap-3">
+        {[
+          { s: 'ready',     cls: 'border-teal-200' },
+          { s: 'partial',   cls: 'border-amber-200' },
+          { s: 'not-ready', cls: 'border-red-200' },
+          { s: 'future',    cls: 'border-purple-200' },
+        ].map(({ s, cls }) => {
+          const rc = READINESS_STATUS[s];
+          return (
+            <Card key={s} className={`p-4 border ${cls}`}>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-base">{rc.icon}</span>
+                <span className="text-xs font-semibold text-gray-500">{rc.label}</span>
+              </div>
+              <div className="text-2xl font-bold text-gray-800">{counts[s]}</div>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Readiness table */}
+      <Card className="overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-gray-50 border-b border-gray-200">
+              {['Readiness Item', 'Status', 'Owner', 'Category', 'Dependency', 'Contrib'].map(h => (
+                <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {READINESS.map((item, i) => {
+              const rc = READINESS_STATUS[item.status];
+              return (
+                <tr key={item.id} className={`border-b border-gray-100 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/40'}`}>
+                  <td className="px-4 py-3">
+                    <div className="font-medium text-gray-800 text-sm">{item.name}</div>
+                    <div className="text-xs text-gray-400 mt-0.5">{item.notes}</div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${rc.cls}`}>
+                      {rc.icon} {rc.label}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-xs text-gray-600">{item.owner}</td>
+                  <td className="px-4 py-3">
+                    <span className="px-2 py-0.5 rounded text-xs text-gray-500" style={{ background: C.offwhite, border: `1px solid ${C.gray}` }}>
+                      {item.cat}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-xs text-gray-500">{item.dep}</td>
+                  <td className="px-4 py-3 text-center text-xs font-semibold text-gray-600">{item.contrib}%</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </Card>
+
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-xs text-amber-800">
+        <strong>Readiness Score Formula:</strong> (Ready items × full contribution) + (Partial items × 50% contribution) ÷ total possible contribution.
+        Future State items are excluded from current readiness score.
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SECTION 8 — ASSUMPTIONS & OPEN ITEMS
+// ─────────────────────────────────────────────────────────────────
+function AssumptionsLog() {
+  const allCats = ['All', ...new Set(ASSUMPTIONS.map(a => a.cat))];
+  const allStats = ['All', 'open', 'in-progress', 'confirmed', 'blocked'];
+
+  const [catFilter,  setCatFilter]  = useState('All');
+  const [statFilter, setStatFilter] = useState('All');
+
+  const filtered = ASSUMPTIONS.filter(a =>
+    (catFilter  === 'All' || a.cat    === catFilter)  &&
+    (statFilter === 'All' || a.status === statFilter)
+  );
+
+  const openCount = ASSUMPTIONS.filter(a => a.status === 'open').length;
+  const ipCount   = ASSUMPTIONS.filter(a => a.status === 'in-progress').length;
+  const hiCount   = ASSUMPTIONS.filter(a => a.impact === 'high').length;
+
+  return (
+    <div className="space-y-5">
+      <SectionHeader title="Assumptions & Open Items" subtitle="Open questions that gate ICF KPI measurement and value realization — track and resolve" />
+
+      {/* Summary pills */}
+      <div className="flex gap-3 flex-wrap">
+        {[[openCount, 'Open', C.red], [ipCount, 'In Progress', C.blue], [hiCount, 'High Impact', C.amber]].map(([n, l, c]) => (
+          <Card key={l} className="px-4 py-2 flex items-center gap-2">
+            <span className="text-sm font-semibold text-gray-800">{n}</span>
+            <span className="text-sm text-gray-500">{l}</span>
+          </Card>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div className="flex items-start gap-6 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm text-gray-500 flex-shrink-0">Category:</span>
+          <div className="flex gap-1 flex-wrap">
+            {allCats.map(c => (
+              <button key={c} onClick={() => setCatFilter(c)}
+                className="px-2.5 py-1 rounded-full text-xs font-medium transition-colors"
+                style={catFilter === c ? { background: C.red, color: 'white' } : { background: 'white', color: '#6b7280', border: `1px solid ${C.gray}` }}>
+                {c}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-500 flex-shrink-0">Status:</span>
+          <div className="flex gap-1 flex-wrap">
+            {allStats.map(s => (
+              <button key={s} onClick={() => setStatFilter(s)}
+                className="px-2.5 py-1 rounded-full text-xs font-medium transition-colors capitalize"
+                style={statFilter === s ? { background: C.charcoal, color: 'white' } : { background: 'white', color: '#6b7280', border: `1px solid ${C.gray}` }}>
+                {s.replace(/-/g, ' ')}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <Card className="overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-gray-50 border-b border-gray-200">
+              {['Question / Assumption', 'Status', 'Impact', 'Owner', 'Target Date', 'Notes'].map(h => (
+                <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((item, i) => {
+              const sc = ASSUMPTION_STATUS[item.status];
+              return (
+                <tr key={item.id} className={`border-b border-gray-100 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/40'}`}>
+                  <td className="px-4 py-3">
+                    <div className="font-medium text-gray-800">{item.q}</div>
+                    <span className="px-2 py-0.5 rounded text-xs text-gray-400 mt-1 inline-block" style={{ background: C.offwhite, border: `1px solid ${C.gray}` }}>
+                      {item.cat}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${sc.cls}`}>
+                      {sc.icon} {sc.label}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border capitalize ${IMPACT_CLS[item.impact]}`}>
+                      {item.impact}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-xs text-gray-600">{item.owner}</td>
+                  <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{item.target}</td>
+                  <td className="px-4 py-3 text-xs text-gray-500 max-w-xs">{item.notes}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {filtered.length === 0 && (
+          <div className="p-8 text-center text-gray-400 text-sm">No items match the selected filters.</div>
+        )}
+      </Card>
+
+      {/* Critical path callout */}
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="text-sm font-semibold mb-2" style={{ color: C.red }}>Critical Path Actions</div>
+        <ul className="text-xs text-red-800 space-y-1.5">
+          <li>• <strong>A-5:</strong> Confirm Maria's TFS end-to-end cycle time baseline — gates KPI 3 (Q3 2026 critical path)</li>
+          <li>• <strong>A-6:</strong> Confirm QE baseline data source and ownership — gates KPI 4 measurement</li>
+          <li>• <strong>A-1:</strong> Validate ICF Assistant timestamp capture end-to-end — gates KPIs 1, 2, and 3</li>
+          <li>• <strong>A-7:</strong> Agree Accenture → TFS handoff scope and hypercare window — gates Q4 2026 milestone</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// APP ROOT
+// ─────────────────────────────────────────────────────────────────
+function App() {
+  const [active, setActive] = useState('overview');
+  const [kpis,   setKpis]   = useState(KPI_DATA.map(k => ({ ...k })));
+  const [calc,   setCalc]   = useState({ ...CALC_DEFAULT });
+
+  const SECTIONS = {
+    overview:    <ExecutiveOverview kpis={kpis} calc={calc} />,
+    scoring:     <ValueScoring />,
+    kpi:         <KPIFramework kpis={kpis} onKpisChange={setKpis} />,
+    calculator:  <ValueCalculator calc={calc} setCalc={setCalc} />,
+    pipeline:    <PipelineSummary />,
+    roadmap:     <Roadmap />,
+    readiness:   <MeasurementReadiness />,
+    assumptions: <AssumptionsLog />,
+  };
+
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh', background: C.offwhite, fontFamily: "'Inter',system-ui,sans-serif" }}>
+      <Sidebar active={active} onNav={setActive} />
+      <div style={{ marginLeft: 224, flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', minWidth: 0 }}>
+        <TopBar active={active} />
+        <main style={{ flex: 1, padding: 24, overflowY: 'auto' }}>
+          {SECTIONS[active]}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

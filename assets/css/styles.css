@@ -1054,6 +1054,88 @@ input[type=range].calc-slider::-moz-range-thumb {
 }
 
 /* ================================================================
+   33. PROJECTION LOGIC SECTION
+   ================================================================ */
+.proj-def-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:1rem;
+  margin-top:1.5rem; margin-bottom:1.5rem;
+}
+.proj-def-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:1.25rem 1.5rem; box-shadow:var(--sh-sm);
+}
+.proj-def-icon { font-size:1.25rem; margin-bottom:.5rem; }
+.proj-def-title { font-weight:700; font-size:.9rem; color:var(--navy); margin-bottom:.4rem; }
+.proj-def-text  { font-size:.85rem; color:var(--muted); line-height:1.65; }
+
+.proj-formula-card {
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:1.5rem; margin-bottom:1.5rem;
+}
+.proj-formula-title {
+  font-size:.72rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.08em; color:var(--muted); margin-bottom:1.1rem;
+}
+.proj-formula-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.proj-formula-label { font-size:.8rem; font-weight:700; color:var(--navy); margin-bottom:.3rem; }
+.proj-formula-eq    { font-size:.82rem; color:var(--muted); line-height:1.65; }
+.proj-formula-eq code {
+  display:inline-block; background:rgba(8,145,178,.09); color:var(--teal-dark);
+  padding:2px 6px; border-radius:3px; font-family:var(--mono); font-size:.78rem;
+}
+.proj-assumption-note {
+  margin-top:1rem; padding-top:.875rem; border-top:1px solid var(--border);
+  font-size:.8rem; color:var(--muted); font-style:italic;
+}
+
+.proj-summary-card {
+  background:linear-gradient(135deg,#EFF9FB 0%,#E6F1FB 100%);
+  border:1px solid #B7E3EC; border-left:4px solid var(--teal);
+  border-radius:var(--r-lg); padding:1.25rem 1.5rem; margin-bottom:1.5rem;
+}
+.proj-summary-label {
+  font-size:.68rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.09em; color:var(--teal-dark); margin-bottom:.5rem;
+}
+.proj-summary-text {
+  font-size:.9rem; color:var(--navy); line-height:1.75;
+  font-weight:500; margin:0;
+}
+
+.proj-vs-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:.5rem; }
+.proj-vs-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-md); padding:1rem 1.25rem; box-shadow:var(--sh-sm);
+}
+.proj-vs-label {
+  font-size:.78rem; font-weight:700; color:var(--navy);
+  margin-bottom:.625rem; padding-bottom:.5rem;
+  border-bottom:1px solid var(--border);
+}
+.proj-vs-row  { display:grid; grid-template-columns:repeat(4,1fr); gap:.5rem; }
+.proj-vs-cell { }
+.proj-vs-sub  {
+  font-size:.65rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.06em; color:var(--light); margin-bottom:.2rem;
+}
+.proj-vs-val  { font-size:.9rem; font-weight:700; color:var(--navy); }
+
+.proj-no-actuals {
+  font-size:.875rem; color:var(--muted); font-style:italic;
+  padding:1.5rem; text-align:center;
+  background:var(--surface); border-radius:var(--r-lg);
+  border:1px dashed var(--border);
+}
+.proj-no-actuals a { color:var(--blue); }
+
+@media (max-width:700px) {
+  .proj-def-grid    { grid-template-columns:1fr; }
+  .proj-formula-grid{ grid-template-columns:1fr; }
+  .proj-vs-grid     { grid-template-columns:1fr; }
+  .proj-vs-row      { grid-template-columns:1fr 1fr; gap:.375rem; }
+}
+
+/* ================================================================
    32. PRIORITIZATION CRITERIA CARDS
    ================================================================ */
 .criteria-grid {

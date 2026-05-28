@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-tfs-offwhite text-tfs-charcoal font-sans;
+    margin: 0;
+    padding: 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-lg border border-tfs-gray shadow-sm;
+  }
+
+  .status-pill {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-dark transition-colors;
+  }
+
+  .btn-secondary {
+    @apply bg-white border border-tfs-gray text-tfs-charcoal px-4 py-2 rounded-md text-sm font-medium hover:bg-tfs-gray transition-colors;
+  }
+
+  .input-field {
+    @apply w-full border border-tfs-gray rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+  }
+
+  .section-title {
+    @apply text-lg font-semibold text-tfs-charcoal mb-1;
+  }
+
+  .section-subtitle {
+    @apply text-sm text-gray-500 mb-4;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F8F8F6;
+}
+::-webkit-scrollbar-thumb {
+  background: #C8C8C4;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A8A8A4;
+}
