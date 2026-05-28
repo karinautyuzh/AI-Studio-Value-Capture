@@ -1,12 +1,23 @@
 import React, { useState } from 'react';
-import { Clock, ShieldAlert, TrendingUp, CheckCircle2, AlertCircle, Circle } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+import { Clock, ShieldAlert, TrendingUp, CheckCircle2, AlertCircle, Circle, Zap } from 'lucide-react';
 import { KPI, CalculatorInputs } from '../../types';
 import {
   calcTotalAnnualHoursSaved,
   calcCountryAnnualHoursSaved,
   calcSiteAnnualHoursSaved,
+  calcTotalHardValue,
 } from '../../lib/calculations';
-import { formatNumber } from '../../lib/utils';
+import { formatNumber, formatCurrency } from '../../lib/utils';
+import { pipelineData } from '../../data/pipeline';
 
 interface ExecutiveOverviewProps {
   kpis: KPI[];
@@ -15,190 +26,229 @@ interface ExecutiveOverviewProps {
 
 const problemCards = [
   {
-    icon: <Clock size={22} className="text-primary" />,
-    title: 'Time',
+    icon: <Clock size={20} className="text-primary" />,
+    label: 'Time',
     headline: '18+ hours per ICF',
-    body: 'Country and site ICF adaptations require 6–12 hours each of manual effort from Medical Writers and ICF PMs — a process that scales linearly with study volume.',
+    body: 'Country and site ICF adaptations require 6–12 hours each of manual effort per document — scaling linearly with study volume and creating a direct headcount constraint.',
     bg: 'bg-red-50',
     border: 'border-red-200',
   },
   {
-    icon: <ShieldAlert size={22} className="text-amber-600" />,
-    title: 'Risk',
+    icon: <ShieldAlert size={20} className="text-amber-600" />,
+    label: 'Risk',
     headline: 'Manual = compliance exposure',
-    body: 'Version control gaps, inconsistent language, and missed country-specific requirements create quality events and regulatory risk that are difficult to track systematically.',
+    body: 'Version control gaps, inconsistent plain-language QC, and manual query tracking create quality events and regulatory risk that compound at scale.',
     bg: 'bg-amber-50',
     border: 'border-amber-200',
   },
   {
-    icon: <TrendingUp size={22} className="text-tfs-teal" />,
-    title: 'Scale',
+    icon: <TrendingUp size={20} className="text-tfs-teal" />,
+    label: 'Scale',
     headline: 'Growth blocked by headcount',
-    body: 'Without automation, ICF throughput is constrained by team capacity. Sponsor growth and FSP expansion require removing this linear dependency.',
+    body: 'Without automation, ICF throughput is linearly constrained by team capacity. Sponsor growth and FSP expansion require eliminating this dependency.',
     bg: 'bg-teal-50',
     border: 'border-teal-200',
   },
 ];
 
-const kpiStatusColors: Record<string, string> = {
-  'tracking-live': 'text-tfs-teal',
-  'on-track': 'text-tfs-teal',
-  'baseline-confirmed': 'text-tfs-blue',
-  'at-risk': 'text-amber-600',
-  tbd: 'text-gray-400',
-};
-
-const kpiStatusIcons: Record<string, React.ReactNode> = {
-  'tracking-live': <CheckCircle2 size={14} className="text-tfs-teal" />,
-  'on-track': <CheckCircle2 size={14} className="text-tfs-teal" />,
-  'baseline-confirmed': <CheckCircle2 size={14} className="text-tfs-blue" />,
-  'at-risk': <AlertCircle size={14} className="text-amber-600" />,
-  tbd: <Circle size={14} className="text-gray-300" />,
+const kpiStatusConfig: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
+  'tracking-live':      { color: 'text-tfs-teal',  icon: <CheckCircle2 size={13} className="text-tfs-teal" />,  label: 'Tracking Live' },
+  'on-track':           { color: 'text-tfs-teal',  icon: <CheckCircle2 size={13} className="text-tfs-teal" />,  label: 'On Track' },
+  'baseline-confirmed': { color: 'text-tfs-blue',  icon: <CheckCircle2 size={13} className="text-tfs-blue" />,  label: 'Baseline Confirmed' },
+  'at-risk':            { color: 'text-amber-600', icon: <AlertCircle  size={13} className="text-amber-600" />, label: 'At Risk' },
+  'tbd':                { color: 'text-gray-400',  icon: <Circle       size={13} className="text-gray-300" />,  label: 'TBD' },
 };
 
 export default function ExecutiveOverview({ kpis, calculatorInputs }: ExecutiveOverviewProps) {
   const [icfsInScope, setIcfsInScope] = useState(420);
 
-  const totalProjected = calcTotalAnnualHoursSaved(calculatorInputs);
+  const totalProjected  = calcTotalAnnualHoursSaved(calculatorInputs);
   const countryProjected = calcCountryAnnualHoursSaved(calculatorInputs);
-  const siteProjected = calcSiteAnnualHoursSaved(calculatorInputs);
-  const trackingLive = kpis.filter((k) => k.status === 'tracking-live').length;
-  const readinessScore = Math.round((trackingLive / kpis.length) * 100);
+  const siteProjected   = calcSiteAnnualHoursSaved(calculatorInputs);
+  const totalHardValue  = calcTotalHardValue(calculatorInputs);
+  const trackingLive    = kpis.filter((k) => k.status === 'tracking-live').length;
+  const readinessScore  = Math.round((trackingLive / kpis.length) * 100);
+
+  const pipelineTotal = pipelineData.reduce((s, p) => s + p.projectedHoursSaved, 0);
+
+  const chartData = pipelineData.map((p) => ({
+    quarter: p.quarter.replace(' 2026', ''),
+    projected: p.projectedHoursSaved,
+    actual: p.actualHoursSaved ?? 0,
+  }));
 
   return (
     <div className="space-y-6">
-      {/* Framing paragraph */}
-      <div className="card p-5">
-        <p className="text-sm text-gray-600 leading-relaxed max-w-4xl">
-          The <span className="font-semibold text-tfs-charcoal">ICF Assistant Value Framework</span> tracks
-          the realized and projected impact of AI-assisted ICF lifecycle automation at Thermo Fisher Scientific.
-          This dashboard provides executive visibility into KPI progress, value realization milestones, open
-          measurement assumptions, and the capability roadmap — enabling data-driven decisions at each
-          quarterly review.
-        </p>
+
+      {/* ── Hero banner ── */}
+      <div className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #BE0000 0%, #7a0000 100%)' }}>
+        <div className="px-6 pt-5 pb-2">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/20 text-white text-xs font-semibold">
+              <Zap size={10} /> AI Studio Value Capture
+            </span>
+            <span className="text-red-300 text-xs">·</span>
+            <span className="text-red-200 text-xs font-medium">ICF Assistant — Featured Use Case</span>
+          </div>
+          <div className="grid grid-cols-4 gap-4 pb-5">
+            <div>
+              <div className="text-red-200 text-[10px] uppercase tracking-widest font-semibold mb-1">Projected Hrs / yr</div>
+              <div className="text-3xl font-bold text-white">{formatNumber(totalProjected)}</div>
+              <div className="text-red-300 text-xs mt-1">Country + Site combined</div>
+            </div>
+            <div>
+              <div className="text-red-200 text-[10px] uppercase tracking-widest font-semibold mb-1">Projected Hard Value</div>
+              <div className="text-3xl font-bold text-white">{formatCurrency(totalHardValue)}</div>
+              <div className="text-red-300 text-xs mt-1">Hours saved + QE avoided</div>
+            </div>
+            <div>
+              <div className="text-red-200 text-[10px] uppercase tracking-widest font-semibold mb-1">2026 Pipeline Total</div>
+              <div className="text-3xl font-bold text-white">{formatNumber(pipelineTotal)}</div>
+              <div className="text-red-300 text-xs mt-1">Projected hours across Q1–Q4</div>
+            </div>
+            <div>
+              <div className="text-red-200 text-[10px] uppercase tracking-widest font-semibold mb-1">KPI Readiness</div>
+              <div className="text-3xl font-bold text-white">{readinessScore}%</div>
+              <div className="text-red-300 text-xs mt-1">{trackingLive} of {kpis.length} KPIs tracking live</div>
+            </div>
+          </div>
+        </div>
+        {/* Bottom strip */}
+        <div className="bg-black/20 px-6 py-2.5 flex items-center gap-6 text-xs text-red-200">
+          <span>Thermo Fisher Scientific</span>
+          <span className="text-red-400">·</span>
+          <span>Accenture AI Studio</span>
+          <span className="text-red-400">·</span>
+          <span>2026 Value Realization</span>
+          <span className="text-red-400">·</span>
+          <span className="ml-auto font-semibold text-white">Portfolio-Ready Framework</span>
+        </div>
       </div>
 
-      {/* Problem cards */}
+      {/* ── Business problem ── */}
       <div>
         <h2 className="section-title">The Business Problem</h2>
         <div className="grid grid-cols-3 gap-4">
           {problemCards.map((card) => (
-            <div key={card.title} className={`card p-5 border ${card.border} ${card.bg}`}>
+            <div key={card.label} className={`card p-5 border ${card.border} ${card.bg}`}>
               <div className="flex items-center gap-2 mb-3">
                 {card.icon}
-                <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">{card.title}</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-gray-500">{card.label}</span>
               </div>
-              <div className="text-base font-bold text-tfs-charcoal mb-2">{card.headline}</div>
-              <p className="text-sm text-gray-600 leading-relaxed">{card.body}</p>
+              <div className="text-sm font-bold text-tfs-charcoal mb-2">{card.headline}</div>
+              <p className="text-xs text-gray-600 leading-relaxed">{card.body}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Summary stats */}
-      <div>
-        <h2 className="section-title">Value Realization Snapshot</h2>
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <div className="card p-5">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
-              Projected Annual Hours Saved
+      {/* ── Stats + Pipeline chart ── */}
+      <div className="grid grid-cols-2 gap-5">
+        {/* Stat cards */}
+        <div>
+          <h2 className="section-title">Value Realization Snapshot</h2>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="card p-4">
+              <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Country Hours / yr</div>
+              <div className="text-2xl font-bold text-tfs-charcoal">{formatNumber(countryProjected)}</div>
+              <div className="text-xs text-gray-400 mt-1">@ 12 hrs/doc × 120 docs</div>
             </div>
-            <div className="text-3xl font-bold text-tfs-charcoal">
-              {formatNumber(totalProjected)}
+            <div className="card p-4">
+              <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Site Hours / yr</div>
+              <div className="text-2xl font-bold text-tfs-charcoal">{formatNumber(siteProjected)}</div>
+              <div className="text-xs text-gray-400 mt-1">@ 6 hrs/doc × 300 docs</div>
             </div>
-            <div className="text-xs text-gray-500 mt-1">
-              Country: {formatNumber(countryProjected)} hrs + Site: {formatNumber(siteProjected)} hrs
+            <div className="card p-4">
+              <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">QE Reduction Target</div>
+              <div className="text-2xl font-bold text-amber-500">20%</div>
+              <div className="text-xs text-gray-400 mt-1">Baseline TBD — Q3 2026</div>
             </div>
-          </div>
-          <div className="card p-5">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
-              Actual Hours Saved (YTD)
+            <div className="card p-4">
+              <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Adoption (KPI 6)</div>
+              <div className="text-2xl font-bold text-tfs-teal">Pilot</div>
+              <div className="text-xs text-gray-400 mt-1">Target: 100% eligible ICFs</div>
             </div>
-            <div className="text-3xl font-bold text-gray-300">TBD</div>
-            <div className="text-xs text-gray-400 mt-1">Pending timestamp validation</div>
-          </div>
-          <div className="card p-5">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
-              QE Reduction Target
+            <div className="card p-4 col-span-2">
+              <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Documents in Scope (editable)</div>
+              <div className="flex items-baseline gap-2">
+                <input
+                  type="number"
+                  value={icfsInScope}
+                  onChange={(e) => setIcfsInScope(Number(e.target.value))}
+                  className="w-28 text-2xl font-bold text-tfs-blue bg-transparent border-b-2 border-tfs-blue focus:outline-none"
+                />
+                <span className="text-sm text-gray-400">docs / yr</span>
+              </div>
+              <div className="text-xs text-gray-400 mt-1">Country + Site eligible ICFs — edit to model different scope</div>
             </div>
-            <div className="text-3xl font-bold text-amber-500">20%</div>
-            <div className="text-xs text-gray-500 mt-1">Baseline TBD — Q3 2026</div>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-4">
-          <div className="card p-5">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
-              Adoption Rate (KPI 6)
-            </div>
-            <div className="text-3xl font-bold text-tfs-teal">Pilot</div>
-            <div className="text-xs text-gray-500 mt-1">Tracking live — full ramp target 100%</div>
-          </div>
-          <div className="card p-5">
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-                ICFs in Scope (editable)
-              </div>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <input
-                type="number"
-                value={icfsInScope}
-                onChange={(e) => setIcfsInScope(Number(e.target.value))}
-                className="w-28 text-3xl font-bold text-tfs-blue bg-transparent border-b-2 border-tfs-blue focus:outline-none"
-              />
-              <span className="text-sm text-gray-400">docs/yr</span>
-            </div>
-            <div className="text-xs text-gray-500 mt-1">Country + Site eligible ICFs</div>
-          </div>
-          <div className="card p-5">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
-              KPI Measurement Readiness
-            </div>
-            <div className="text-3xl font-bold text-primary">{readinessScore}%</div>
-            <div className="text-xs text-gray-500 mt-1">
-              {trackingLive} of {kpis.length} KPIs tracking live
+
+        {/* Pipeline bar chart */}
+        <div>
+          <h2 className="section-title">2026 Value Pipeline — Projected Hours Saved</h2>
+          <div className="card p-5 h-[calc(100%-2rem)]">
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={chartData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }} barGap={4}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E8E8E4" vertical={false} />
+                <XAxis dataKey="quarter" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={36} />
+                <Tooltip
+                  formatter={(v: unknown) => [`${formatNumber(Number(v))} hrs`, undefined]}
+                  contentStyle={{ fontSize: 12, borderRadius: 6, border: '1px solid #E8E8E4' }}
+                />
+                <Bar dataKey="projected" name="Projected" fill="#BE0000" radius={[4, 4, 0, 0]} opacity={0.9} />
+                <Bar dataKey="actual"    name="Actual"    fill="#00857C" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="flex items-center gap-5 mt-2 text-xs text-gray-500">
+              <span className="flex items-center gap-1.5"><span className="w-3 h-2 rounded-sm bg-primary inline-block" /> Projected</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-2 rounded-sm bg-tfs-teal inline-block" /> Actual</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* KPI status overview */}
+      {/* ── KPI status table ── */}
       <div>
         <h2 className="section-title">KPI Status at a Glance</h2>
         <div className="card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-tfs-offwhite border-b border-tfs-gray">
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide w-8">#</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">KPI</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Measurable From</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Projected Impact</th>
+                {['#', 'KPI', 'Status', 'Measurable From', 'Projected Impact'].map((h) => (
+                  <th key={h} className="text-left px-4 py-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {kpis.map((kpi, i) => (
-                <tr key={kpi.id} className={i % 2 === 0 ? 'bg-white' : 'bg-tfs-offwhite/50'}>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-xs font-bold">
-                      {kpi.number}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 font-medium text-tfs-charcoal">{kpi.title}</td>
-                  <td className="px-4 py-3">
-                    <span className={`flex items-center gap-1.5 ${kpiStatusColors[kpi.status]}`}>
-                      {kpiStatusIcons[kpi.status]}
-                      <span className="text-xs font-medium capitalize">{kpi.status.replace(/-/g, ' ')}</span>
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-500 text-xs">{kpi.measurableFrom}</td>
-                  <td className="px-4 py-3 text-gray-600 text-xs">{kpi.projectedImpact}</td>
-                </tr>
-              ))}
+              {kpis.map((kpi, i) => {
+                const cfg = kpiStatusConfig[kpi.status] ?? kpiStatusConfig['tbd'];
+                return (
+                  <tr key={kpi.id} className={`border-b border-tfs-gray/50 ${i % 2 === 0 ? 'bg-white' : 'bg-tfs-offwhite/40'}`}>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-xs font-bold">
+                        {kpi.number}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-medium text-tfs-charcoal text-sm">{kpi.title}</td>
+                    <td className="px-4 py-3">
+                      <span className={`flex items-center gap-1.5 text-xs font-medium ${cfg.color}`}>
+                        {cfg.icon} {cfg.label}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-gray-500">{kpi.measurableFrom}</td>
+                    <td className="px-4 py-3 text-xs text-gray-600">{kpi.projectedImpact}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       </div>
+
     </div>
   );
 }

@@ -551,13 +551,18 @@ const NAV_ITEMS = [
 function Sidebar({ active, onNav }) {
   return (
     <aside style={{ width: 224, minWidth: 224, background: C.charcoal, display: 'flex', flexDirection: 'column', height: '100vh', position: 'fixed', left: 0, top: 0, zIndex: 50 }}>
-      {/* Brand header */}
+      {/* Platform header */}
       <div style={{ background: C.red, padding: '16px 16px 14px', flexShrink: 0 }}>
-        <div style={{ color: '#fca5a5', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>
-          Thermo Fisher Scientific
+        <div style={{ color: '#fca5a5', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 2 }}>
+          Accenture AI Studio
         </div>
-        <div style={{ color: 'white', fontSize: 15, fontWeight: 700, lineHeight: 1.2 }}>ICF Assistant</div>
-        <div style={{ color: '#fecaca', fontSize: 12, fontWeight: 400 }}>Value Framework</div>
+        <div style={{ color: 'white', fontSize: 17, fontWeight: 800, lineHeight: 1.2 }}>Value Capture</div>
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.2)', margin: '10px 0 8px' }} />
+        <div style={{ color: '#fca5a5', fontSize: 9, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 3 }}>
+          Featured Use Case
+        </div>
+        <div style={{ color: 'white', fontSize: 13, fontWeight: 700, lineHeight: 1.2 }}>ICF Assistant</div>
+        <div style={{ color: '#fecaca', fontSize: 11, fontWeight: 400 }}>Thermo Fisher Scientific</div>
       </div>
 
       {/* Nav */}
@@ -608,7 +613,7 @@ function TopBar({ active }) {
     <header style={{ background: 'white', borderBottom: `1px solid ${C.gray}`, padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'sticky', top: 0, zIndex: 40 }}>
       <div>
         <h1 style={{ fontSize: 15, fontWeight: 600, color: C.charcoal, margin: 0 }}>{TAB_LABELS[active]}</h1>
-        <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>ICF Assistant Value Framework — Thermo Fisher Scientific</p>
+        <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>AI Studio Value Capture · ICF Assistant Use Case · Thermo Fisher Scientific</p>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{ padding: '4px 10px', borderRadius: 999, background: C.offwhite, border: `1px solid ${C.gray}`, fontSize: 11, fontWeight: 500, color: C.charcoal }}>
@@ -628,100 +633,127 @@ function TopBar({ active }) {
 function ExecutiveOverview({ kpis, calc }) {
   const [icfsScope, setIcfsScope] = useState(420);
 
-  const countryAnnual = calc.countryBaseline * (calc.countryReduction / 100) * calc.countryVolume;
-  const siteAnnual    = calc.siteBaseline    * (calc.siteReduction    / 100) * calc.siteVolume;
-  const totalAnnual   = countryAnnual + siteAnnual;
-  const trackingLive  = kpis.filter(k => k.status === 'tracking-live').length;
-  const readinessPct  = Math.round((trackingLive / kpis.length) * 100);
+  const countryAnnual  = calc.countryBaseline * (calc.countryReduction / 100) * calc.countryVolume;
+  const siteAnnual     = calc.siteBaseline    * (calc.siteReduction    / 100) * calc.siteVolume;
+  const totalAnnual    = countryAnnual + siteAnnual;
+  const qeValue        = calc.qeBaseline * (calc.qeReduction / 100) * calc.costPerQE;
+  const hardValue      = totalAnnual * calc.hourlyRate + qeValue;
+  const trackingLive   = kpis.filter(k => k.status === 'tracking-live').length;
+  const readinessPct   = Math.round((trackingLive / kpis.length) * 100);
+  const pipelineTotal  = PIPELINE.reduce((s, p) => s + p.projectedHrs, 0);
 
   const problemCards = [
-    {
-      icon: '⏱', title: 'Time', border: 'border-red-200', bg: 'bg-red-50',
+    { icon: '⏱', label: 'Time',  borderColor: '#fecaca', bg: '#fff5f5',
       headline: '18+ hours per ICF',
-      body: 'Country ICF adaptation averages 12 hrs/doc; site adaptation 6 hrs/doc. Both scale linearly with study volume, creating a direct headcount constraint on throughput.',
-    },
-    {
-      icon: '⚠', title: 'Risk', border: 'border-amber-200', bg: 'bg-amber-50',
+      body: 'Country and site ICF adaptations require 6–12 hours each of manual effort per document — scaling linearly with study volume and creating a direct headcount constraint.' },
+    { icon: '⚠', label: 'Risk',  borderColor: '#fde68a', bg: '#fffbeb',
       headline: 'Manual = compliance exposure',
-      body: 'Version proliferation, inconsistent plain-language QC, and manual query tracking create quality events and regulatory risk that are difficult to track or prevent at scale.',
-    },
-    {
-      icon: '↗', title: 'Scale', border: 'border-teal-200', bg: 'bg-teal-50',
+      body: 'Version control gaps, inconsistent plain-language QC, and manual query tracking create quality events and regulatory risk that compound at scale.' },
+    { icon: '↗', label: 'Scale', borderColor: '#99f6e4', bg: '#f0fdfa',
       headline: 'Growth blocked by headcount',
-      body: 'Parallel country and amendment drafting requires linear headcount growth. ICF Assistant removes this constraint, enabling sponsor growth and FSP expansion without equivalent staffing increases.',
-    },
+      body: 'Without automation, ICF throughput is linearly constrained by team capacity. Sponsor growth and FSP expansion require eliminating this dependency.' },
   ];
+
+  const kpiStatusCfg = {
+    'tracking-live':      { color: C.teal,  label: '✓ Tracking Live' },
+    'on-track':           { color: C.teal,  label: '✓ On Track' },
+    'baseline-confirmed': { color: C.blue,  label: '✓ Baseline Confirmed' },
+    'at-risk':            { color: '#d97706', label: '⚠ At Risk' },
+    'tbd':                { color: '#9ca3af', label: '○ TBD' },
+  };
 
   return (
     <div className="space-y-6">
-      {/* Framing statement */}
-      <Card className="p-5">
-        <p className="text-sm text-gray-600 leading-relaxed max-w-4xl">
-          The <strong className="text-gray-800">ICF Assistant Value Framework</strong> tracks the realized and projected impact of
-          AI-assisted ICF lifecycle automation at Thermo Fisher Scientific. This dashboard provides executive visibility into
-          KPI progress, value realization milestones, open measurement assumptions, and the capability roadmap — enabling
-          data-driven quarterly value reviews with TFS leadership.
-        </p>
-      </Card>
+
+      {/* Hero banner */}
+      <div style={{ borderRadius: 12, overflow: 'hidden', background: 'linear-gradient(135deg, #BE0000 0%, #7a0000 100%)' }}>
+        <div style={{ padding: '20px 24px 16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: 11, fontWeight: 600 }}>
+              ⚡ AI Studio Value Capture
+            </span>
+            <span style={{ color: '#fca5a5', fontSize: 11 }}>·</span>
+            <span style={{ color: '#fecaca', fontSize: 11, fontWeight: 500 }}>ICF Assistant — Featured Use Case</span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+            {[
+              { label: 'Projected Hrs / yr',   value: fmt(totalAnnual),     sub: 'Country + Site combined' },
+              { label: 'Projected Hard Value',  value: fmtC(hardValue),      sub: 'Hours saved + QE avoided' },
+              { label: '2026 Pipeline Total',   value: fmt(pipelineTotal)+' hrs', sub: 'Projected across Q1–Q4' },
+              { label: 'KPI Readiness',         value: readinessPct+'%',     sub: `${trackingLive} of ${kpis.length} KPIs live` },
+            ].map(item => (
+              <div key={item.label}>
+                <div style={{ color: '#fca5a5', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{item.label}</div>
+                <div style={{ color: 'white', fontSize: 26, fontWeight: 800, lineHeight: 1 }}>{item.value}</div>
+                <div style={{ color: '#fecaca', fontSize: 10, marginTop: 4 }}>{item.sub}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ background: 'rgba(0,0,0,0.2)', padding: '8px 24px', display: 'flex', alignItems: 'center', gap: 16, fontSize: 10, color: '#fca5a5' }}>
+          <span>Thermo Fisher Scientific</span>
+          <span>·</span>
+          <span>Accenture AI Studio</span>
+          <span>·</span>
+          <span>2026 Value Realization</span>
+          <span style={{ marginLeft: 'auto', color: 'white', fontWeight: 600 }}>Portfolio-Ready Framework</span>
+        </div>
+      </div>
 
       {/* Problem cards */}
       <div>
         <h2 className="text-base font-semibold text-gray-800 mb-3">The Business Problem</h2>
         <div className="grid grid-cols-3 gap-4">
           {problemCards.map(p => (
-            <div key={p.title} className={`rounded-lg border p-5 ${p.border} ${p.bg}`}>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xl">{p.icon}</span>
-                <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">{p.title}</span>
+            <div key={p.label} style={{ borderRadius: 8, border: `1px solid ${p.borderColor}`, background: p.bg, padding: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <span style={{ fontSize: 18 }}>{p.icon}</span>
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6b7280' }}>{p.label}</span>
               </div>
-              <div className="text-sm font-bold text-gray-800 mb-2">{p.headline}</div>
-              <p className="text-xs text-gray-600 leading-relaxed">{p.body}</p>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#2C2C2C', marginBottom: 6 }}>{p.headline}</div>
+              <p style={{ fontSize: 11, color: '#6b7280', lineHeight: 1.6 }}>{p.body}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Summary stats */}
-      <div>
-        <h2 className="text-base font-semibold text-gray-800 mb-3">Value Realization Snapshot</h2>
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <Card className="p-5">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Projected Annual Hours Saved</div>
-            <div className="text-3xl font-bold text-gray-800">{fmt(totalAnnual)}</div>
-            <div className="text-xs text-gray-500 mt-1">Country: {fmt(countryAnnual)} hrs + Site: {fmt(siteAnnual)} hrs</div>
-          </Card>
-          <Card className="p-5">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Actual Hours Saved (YTD)</div>
-            <div className="text-3xl font-bold text-gray-300">TBD</div>
-            <div className="text-xs text-gray-400 mt-1">Pending timestamp capture validation</div>
-          </Card>
-          <Card className="p-5">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">QE Reduction Target</div>
-            <div className="text-3xl font-bold text-amber-500">20%</div>
-            <div className="text-xs text-gray-500 mt-1">Adaptation QEs only — baseline TBD Q3 2026</div>
-          </Card>
-        </div>
-        <div className="grid grid-cols-3 gap-4">
-          <Card className="p-5">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Adoption Rate (KPI 6)</div>
-            <div className="text-3xl font-bold" style={{ color: C.teal }}>Pilot</div>
-            <div className="text-xs text-gray-500 mt-1">Tracking live — ramp target 100% of eligible ICFs</div>
-          </Card>
-          <Card className="p-5">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">ICFs in Scope (editable)</div>
-            <div className="flex items-baseline gap-2">
-              <input type="number" value={icfsScope} onChange={e => setIcfsScope(Number(e.target.value))}
-                className="w-28 text-3xl font-bold bg-transparent focus:outline-none"
-                style={{ color: C.blue, borderBottom: `2px solid ${C.blue}` }} />
-              <span className="text-sm text-gray-400">docs/yr</span>
+      {/* Stats + Pipeline chart */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+        {/* Stat cards */}
+        <div>
+          <h2 className="text-base font-semibold text-gray-800 mb-3">Value Realization Snapshot</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            {[
+              { label: 'Country Hours / yr', value: fmt(countryAnnual), sub: '@ 12 hrs/doc × 120 docs', color: '#2C2C2C' },
+              { label: 'Site Hours / yr',    value: fmt(siteAnnual),    sub: '@ 6 hrs/doc × 300 docs',  color: '#2C2C2C' },
+              { label: 'QE Reduction Target', value: '20%',             sub: 'Baseline TBD — Q3 2026',  color: '#d97706' },
+              { label: 'Adoption (KPI 6)',    value: 'Pilot',           sub: 'Target: 100% eligible',   color: C.teal },
+            ].map(s => (
+              <div key={s.label} style={{ background: 'white', border: '1px solid #E8E8E4', borderRadius: 8, padding: 16 }}>
+                <div style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: 6 }}>{s.label}</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: s.color }}>{s.value}</div>
+                <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 4 }}>{s.sub}</div>
+              </div>
+            ))}
+            {/* Editable scope - full width */}
+            <div style={{ gridColumn: '1 / -1', background: 'white', border: '1px solid #E8E8E4', borderRadius: 8, padding: 16 }}>
+              <div style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: 6 }}>Documents in Scope (editable)</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                <input type="number" value={icfsScope} onChange={e => setIcfsScope(Number(e.target.value))}
+                  style={{ width: 100, fontSize: 22, fontWeight: 800, background: 'transparent', border: 'none', borderBottom: `2px solid ${C.blue}`, color: C.blue, outline: 'none' }} />
+                <span style={{ fontSize: 12, color: '#9ca3af' }}>docs / yr</span>
+              </div>
+              <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 4 }}>Country + Site eligible ICFs — edit to model scope</div>
             </div>
-            <div className="text-xs text-gray-500 mt-1">Country + Site eligible ICFs (editable)</div>
-          </Card>
-          <Card className="p-5">
-            <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">KPI Measurement Readiness</div>
-            <div className="text-3xl font-bold" style={{ color: C.red }}>{readinessPct}%</div>
-            <div className="text-xs text-gray-500 mt-1">{trackingLive} of {kpis.length} KPIs currently tracking live</div>
-          </Card>
+          </div>
+        </div>
+
+        {/* Pipeline bar chart (CSS bars) */}
+        <div>
+          <h2 className="text-base font-semibold text-gray-800 mb-3">2026 Value Pipeline — Projected Hours</h2>
+          <div style={{ background: 'white', border: '1px solid #E8E8E4', borderRadius: 8, padding: 20 }}>
+            <PipelineBarChart data={PIPELINE} />
+          </div>
         </div>
       </div>
 
@@ -731,24 +763,29 @@ function ExecutiveOverview({ kpis, calc }) {
         <Card className="overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
+              <tr style={{ background: '#F8F8F6', borderBottom: '1px solid #E8E8E4' }}>
                 {['#', 'KPI', 'Status', 'Measurable From', 'Projected Impact'].map(h => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {kpis.map((k, i) => (
-                <tr key={k.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-xs font-bold" style={{ background: C.red }}>{k.number}</span>
-                  </td>
-                  <td className="px-4 py-3 font-medium text-gray-800">{k.title}</td>
-                  <td className="px-4 py-3"><StatusPill statusMap={KPI_STATUS} value={k.status} /></td>
-                  <td className="px-4 py-3 text-xs text-gray-500">{k.measurableFrom}</td>
-                  <td className="px-4 py-3 text-xs text-gray-600">{k.projectedImpact}</td>
-                </tr>
-              ))}
+              {kpis.map((k, i) => {
+                const cfg = kpiStatusCfg[k.status] || kpiStatusCfg['tbd'];
+                return (
+                  <tr key={k.id} style={{ background: i % 2 === 0 ? 'white' : '#fafafa', borderBottom: '1px solid #f0f0f0' }}>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-xs font-bold" style={{ background: C.red }}>{k.number}</span>
+                    </td>
+                    <td className="px-4 py-3 font-medium text-gray-800">{k.title}</td>
+                    <td className="px-4 py-3">
+                      <span style={{ fontSize: 11, fontWeight: 600, color: cfg.color }}>{cfg.label}</span>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-gray-500">{k.measurableFrom}</td>
+                    <td className="px-4 py-3 text-xs text-gray-600">{k.projectedImpact}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </Card>
@@ -780,7 +817,7 @@ function ValueScoring() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <SectionHeader title="Value Scoring" subtitle="Weighted composite score across 5 ICF value dimensions — projected vs actual" />
+        <SectionHeader title="Value Scoring" subtitle="Weighted composite score across 5 value dimensions — projected vs actual realization" />
         <button onClick={() => editingWeights ? saveWeights() : setEditingWeights(true)}
           className="px-4 py-2 rounded-md text-sm font-medium transition-colors"
           style={editingWeights ? { background: C.red, color: 'white' } : { background: 'white', color: C.charcoal, border: `1px solid ${C.gray}` }}>

@@ -28,14 +28,14 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { id: 'overview', label: 'Executive Overview', icon: <LayoutDashboard size={18} /> },
-  { id: 'scoring', label: 'Value Scoring', icon: <Star size={18} /> },
-  { id: 'kpi', label: 'KPI Framework', icon: <BarChart2 size={18} /> },
-  { id: 'calculator', label: 'Value Calculator', icon: <Calculator size={18} /> },
-  { id: 'pipeline', label: 'Pipeline Summary', icon: <GitBranch size={18} /> },
-  { id: 'roadmap', label: 'Roadmap', icon: <Map size={18} /> },
-  { id: 'readiness', label: 'Measurement Readiness', icon: <CheckSquare size={18} /> },
-  { id: 'assumptions', label: 'Assumptions & Open Items', icon: <HelpCircle size={18} /> },
+  { id: 'overview',    label: 'Executive Overview',      icon: <LayoutDashboard size={17} /> },
+  { id: 'scoring',     label: 'Value Scoring',            icon: <Star size={17} /> },
+  { id: 'kpi',         label: 'KPI Framework',            icon: <BarChart2 size={17} /> },
+  { id: 'calculator',  label: 'Value Calculator',         icon: <Calculator size={17} /> },
+  { id: 'pipeline',    label: 'Pipeline Summary',         icon: <GitBranch size={17} /> },
+  { id: 'roadmap',     label: 'Roadmap',                  icon: <Map size={17} /> },
+  { id: 'readiness',   label: 'Measurement Readiness',    icon: <CheckSquare size={17} /> },
+  { id: 'assumptions', label: 'Assumptions & Open Items', icon: <HelpCircle size={17} /> },
 ];
 
 interface SidebarProps {
@@ -46,44 +46,49 @@ interface SidebarProps {
 export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   return (
     <aside className="fixed left-0 top-0 h-full w-60 bg-tfs-charcoal flex flex-col z-10">
-      {/* Header */}
-      <div className="bg-primary px-4 py-5 flex-shrink-0">
-        <div className="text-white">
-          <div className="text-xs font-medium uppercase tracking-widest text-red-200 mb-1">
-            Thermo Fisher Scientific
-          </div>
-          <div className="text-base font-bold leading-tight">ICF Assistant</div>
-          <div className="text-sm font-normal text-red-100">Value Framework</div>
+      {/* Platform header */}
+      <div className="bg-primary px-4 pt-5 pb-4 flex-shrink-0">
+        <div className="text-[10px] font-semibold uppercase tracking-widest text-red-300 mb-0.5">
+          Accenture AI Studio
         </div>
+        <div className="text-lg font-bold text-white leading-tight">Value Capture</div>
+
+        <div className="border-t border-red-400/40 my-3" />
+
+        <div className="text-[10px] font-semibold uppercase tracking-widest text-red-300 mb-1">
+          Featured Use Case
+        </div>
+        <div className="text-sm font-bold text-white leading-snug">ICF Assistant</div>
+        <div className="text-xs text-red-200 mt-0.5">Thermo Fisher Scientific</div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 overflow-y-auto">
+      <nav className="flex-1 py-3 overflow-y-auto">
         {navItems.map((item) => (
           <button
             key={item.id}
             onClick={() => onTabChange(item.id)}
             className={cn(
-              'w-full flex items-center gap-3 px-4 py-3 text-left text-sm transition-colors relative',
+              'w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors relative border-l-4',
               activeTab === item.id
-                ? 'bg-white/10 text-white border-l-4 border-primary pl-3'
-                : 'text-gray-400 hover:bg-white/5 hover:text-white border-l-4 border-transparent pl-3'
+                ? 'bg-white/10 text-white border-primary'
+                : 'text-gray-400 hover:bg-white/5 hover:text-white border-transparent'
             )}
           >
-            <span className={cn(activeTab === item.id ? 'text-red-300' : 'text-gray-500')}>
+            <span className={cn('flex-shrink-0', activeTab === item.id ? 'text-red-300' : 'text-gray-500')}>
               {item.icon}
             </span>
-            <span className="leading-tight">{item.label}</span>
+            <span className="leading-tight text-xs font-medium">{item.label}</span>
           </button>
         ))}
       </nav>
 
       {/* Footer */}
       <div className="px-4 py-3 border-t border-white/10 flex-shrink-0">
-        <div className="text-xs text-gray-500">
-          <div className="font-medium text-gray-400 mb-0.5">Accenture × TFS</div>
-          <div>Value Realization 2026</div>
+        <div className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-0.5">
+          Portfolio-Ready Framework
         </div>
+        <div className="text-xs text-gray-500">Value Realization 2026</div>
       </div>
     </aside>
   );
