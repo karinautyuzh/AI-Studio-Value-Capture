@@ -81,6 +81,15 @@ export interface AssumptionItem {
   targetDate: string;
 }
 
+export type ReportingMode = 'monthly' | 'quarterly';
+
+export interface ReportingConfig {
+  mode: ReportingMode;
+  monthlyStart: string;   // YYYY-MM
+  monthlyEnd: string;     // YYYY-MM
+  quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4';
+}
+
 export interface CalculatorInputs {
   countryBaseline: number;
   countryTargetReduction: number;

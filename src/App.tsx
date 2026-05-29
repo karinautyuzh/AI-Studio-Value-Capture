@@ -14,7 +14,7 @@ import { defaultKPIs } from './data/kpis';
 import { roadmapPhases } from './data/roadmap';
 import { pipelineData } from './data/pipeline';
 import { defaultScoringCategories } from './data/scoring';
-import { KPI, CalculatorInputs, ScoringCategory } from './types';
+import { KPI, CalculatorInputs, ScoringCategory, ReportingConfig } from './types';
 
 const DEFAULT_CALCULATOR_INPUTS: CalculatorInputs = {
   countryBaseline: 12,
@@ -37,6 +37,12 @@ export default function App() {
   const [kpis, setKpis] = useState<KPI[]>(defaultKPIs);
   const [calculatorInputs, setCalculatorInputs] = useState<CalculatorInputs>(DEFAULT_CALCULATOR_INPUTS);
   const [scoringCategories, setScoringCategories] = useState<ScoringCategory[]>(defaultScoringCategories);
+  const [reportingConfig, setReportingConfig] = useState<ReportingConfig>({
+    mode: 'quarterly',
+    monthlyStart: '2026-01',
+    monthlyEnd: '2026-03',
+    quarter: 'Q1',
+  });
 
   const renderContent = () => {
     switch (activeTab) {
@@ -82,7 +88,7 @@ export default function App() {
   };
 
   return (
-    <AppShell activeTab={activeTab} onTabChange={setActiveTab}>
+    <AppShell activeTab={activeTab} onTabChange={setActiveTab} reportingConfig={reportingConfig} onReportingChange={setReportingConfig}>
       {renderContent()}
     </AppShell>
   );

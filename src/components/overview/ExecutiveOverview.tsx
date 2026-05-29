@@ -8,7 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { Clock, ShieldAlert, TrendingUp, CheckCircle2, AlertCircle, Circle, Zap } from 'lucide-react';
+import { Clock, ShieldAlert, TrendingUp, CheckCircle2, AlertCircle, Circle, Zap, MessageSquare, FlaskConical } from 'lucide-react';
 import { KPI, CalculatorInputs } from '../../types';
 import {
   calcTotalAnnualHoursSaved,
@@ -204,6 +204,81 @@ export default function ExecutiveOverview({ kpis, calculatorInputs }: ExecutiveO
             <div className="flex items-center gap-5 mt-2 text-xs text-gray-500">
               <span className="flex items-center gap-1.5"><span className="w-3 h-2 rounded-sm bg-primary inline-block" /> Projected</span>
               <span className="flex items-center gap-1.5"><span className="w-3 h-2 rounded-sm bg-tfs-teal inline-block" /> Actual</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Emerging Value Levers ── */}
+      <div>
+        <h2 className="section-title">Emerging Value Levers</h2>
+        <p className="section-subtitle mb-3">Additional value dimensions being tracked — baseline data pending</p>
+        <div className="grid grid-cols-2 gap-4">
+          {/* Query Reduction */}
+          <div className="card border-l-4 border-l-primary p-5">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="p-2 rounded-lg bg-red-50 flex-shrink-0">
+                <MessageSquare size={18} className="text-primary" />
+              </div>
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-amber-600 mb-0.5">KPI 7 · Placeholder</div>
+                <h3 className="font-semibold text-tfs-charcoal text-sm">ICF PM Query Reduction</h3>
+              </div>
+            </div>
+            <p className="text-xs text-gray-600 leading-relaxed mb-3">
+              Reduction in query cycles per ICF adaptation. Fewer queries accelerates country/site ICF approval and study startup timelines. Query management workflow enablement targeted Q2–Q3 2026.
+            </p>
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <div className="bg-tfs-offwhite rounded p-2.5">
+                <div className="text-[10px] text-gray-400 uppercase tracking-wide mb-0.5">Baseline</div>
+                <div className="text-sm font-bold text-gray-400">No data yet</div>
+              </div>
+              <div className="bg-tfs-offwhite rounded p-2.5">
+                <div className="text-[10px] text-gray-400 uppercase tracking-wide mb-0.5">Target</div>
+                <div className="text-sm font-bold text-gray-400">TBD</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-[10px] text-gray-400">
+              <Circle size={10} className="text-gray-300" />
+              <span>Measurable from: Q2–Q3 2026 · Data source: Query management workflow (pending go-live)</span>
+            </div>
+            <div className="mt-2 text-[10px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2.5 py-1.5">
+              ⚠ Do not overstate — baseline not yet established. Value will be quantified once query management workflow is live.
+            </div>
+          </div>
+
+          {/* AI Accuracy */}
+          <div className="card border-l-4 border-l-tfs-blue p-5">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="p-2 rounded-lg bg-blue-50 flex-shrink-0">
+                <FlaskConical size={18} className="text-tfs-blue" />
+              </div>
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-amber-600 mb-0.5">Measurement Model In Definition</div>
+                <h3 className="font-semibold text-tfs-charcoal text-sm">AI Accuracy & Document Quality</h3>
+              </div>
+            </div>
+            <p className="text-xs text-gray-600 leading-relaxed mb-3">
+              Tracking AI output quality and document accuracy across ICF adaptations. Measurement approach is still being defined — placeholder metrics identified below.
+            </p>
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              {[
+                { label: 'First-Pass Acceptance', value: 'TBD' },
+                { label: 'Human Correction Rate', value: 'TBD' },
+                { label: 'Compliance Completeness', value: 'TBD' },
+              ].map((m) => (
+                <div key={m.label} className="bg-tfs-offwhite rounded p-2">
+                  <div className="text-[10px] text-gray-400 leading-tight mb-0.5">{m.label}</div>
+                  <div className="text-sm font-bold text-gray-300">{m.value}</div>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center gap-2 text-[10px] text-gray-400">
+              <Circle size={10} className="text-gray-300" />
+              <span>Measurable from: Q2–Q3 2026 · Measurement model in definition</span>
+            </div>
+            <div className="mt-2 text-[10px] text-blue-700 bg-blue-50 border border-blue-200 rounded px-2.5 py-1.5">
+              Accuracy measurement approach is still being defined. Additional metrics: AI accuracy score, review comments/doc, rework rate.
             </div>
           </div>
         </div>

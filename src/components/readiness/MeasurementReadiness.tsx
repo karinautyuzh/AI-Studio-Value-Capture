@@ -84,6 +84,26 @@ const defaultReadiness: ReadinessItem[] = [
     readinessContribution: 10,
     category: 'Volume Data',
   },
+  {
+    id: 'r-9',
+    name: 'Query Management Workflow (KPI 7)',
+    status: 'future',
+    owner: 'ICF PM / Product Engineering',
+    dependency: 'Query management workflow go-live in ICF Assistant platform',
+    notes: 'KPI 7 (ICF PM Query Reduction) cannot be baselined until query management workflow is live. Targeted Q2–Q3 2026.',
+    readinessContribution: 8,
+    category: 'Data Infrastructure',
+  },
+  {
+    id: 'r-10',
+    name: 'AI Accuracy & Document Quality Measurement',
+    status: 'future',
+    owner: 'Product Manager / Quality Lead',
+    dependency: 'Accuracy measurement model definition — approach TBD',
+    notes: 'Measurement model is still being defined. Placeholder metrics: first-pass acceptance rate, human correction rate, AI accuracy score, review comments/doc, rework rate, compliance completeness.',
+    readinessContribution: 7,
+    category: 'Quality Measurement',
+  },
 ];
 
 const statusConfig: Record<ReadinessItem['status'], { icon: React.ReactNode; badge: string; label: string }> = {
@@ -202,6 +222,39 @@ export default function MeasurementReadiness() {
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* AI Accuracy placeholder */}
+      <div className="card border-l-4 border-l-tfs-blue p-5">
+        <div className="flex items-start justify-between mb-3">
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-widest text-amber-600 mb-0.5">Measurement Model In Definition</div>
+            <h3 className="font-semibold text-tfs-charcoal text-sm">AI Accuracy & Document Quality Tracking</h3>
+            <p className="text-xs text-gray-500 mt-0.5">Placeholder metrics — measurement approach is still being defined</p>
+          </div>
+          <span className="status-pill border bg-purple-50 text-purple-600 border-purple-200 flex items-center gap-1 whitespace-nowrap">
+            <Clock size={12} /> Future State
+          </span>
+        </div>
+        <div className="grid grid-cols-3 gap-3 mb-3">
+          {[
+            { label: 'First-Pass Acceptance Rate', desc: 'AI output accepted without human edits' },
+            { label: 'AI Accuracy Score', desc: 'Composite quality score per document' },
+            { label: 'Human Correction Rate', desc: 'Edits made per doc by Medical Writer' },
+            { label: 'Review Comments / Doc', desc: 'Average review cycle depth' },
+            { label: 'Rework Rate', desc: 'Documents requiring significant rework' },
+            { label: 'Compliance Completeness', desc: 'Required fields / language completeness' },
+          ].map((m) => (
+            <div key={m.label} className="bg-tfs-offwhite rounded p-3">
+              <div className="text-xs font-semibold text-tfs-charcoal mb-0.5">{m.label}</div>
+              <div className="text-[10px] text-gray-400 mb-2">{m.desc}</div>
+              <div className="text-sm font-bold text-gray-300">TBD</div>
+            </div>
+          ))}
+        </div>
+        <p className="text-[10px] text-blue-700 bg-blue-50 border border-blue-200 rounded px-3 py-2">
+          Accuracy measurement approach is still being defined. These metrics are placeholders and will be confirmed with the Quality and Product teams by Q2–Q3 2026.
+        </p>
       </div>
 
       {/* Note */}

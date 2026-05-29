@@ -163,6 +163,22 @@ const KPI_DATA = [
     measurableFrom: 'MVP / Now',
     notes: 'Sponsor-level segmentation is a future-state capability (Q4 2026). Current segmentation: country, study, ICF type, quarter.',
   },
+  {
+    id: 'kpi-7', number: 7,
+    title: 'ICF PM Query Reduction',
+    definition: 'Reduction in query cycles per ICF adaptation. Fewer queries accelerates country/site ICF approval and study startup.',
+    baseline: null, baselineUnit: 'queries/ICF',
+    target: null, targetUnit: '%', targetLabel: 'TBD — target to be set once baseline established',
+    currentActual: null,
+    status: 'tbd',
+    formula: 'Baseline query cycles × target reduction % = query cycles avoided\nTime saved = query cycles avoided × avg resolution time per query',
+    owner: 'ICF PM / TFS Study Operations',
+    dataSource: 'Query management workflow — once live in ICF Assistant platform',
+    projectedImpact: 'TBD — expected to accelerate ICF approval and study startup timelines',
+    actualImpact: null,
+    measurableFrom: 'Q2–Q3 2026 — query management workflow enablement',
+    notes: 'Query reduction is an expected value lever but currently lacks baseline data. Do not overstate until data source is confirmed.',
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────────
@@ -312,6 +328,14 @@ const READINESS = [
     dep: 'Pilot data review + timestamp validation',
     notes: 'Confidence level low until pilot timestamp data is reviewed and validated. Increases through Q2 2026.',
     contrib: 8 },
+  { id: 'r9', name: 'Query Management Workflow (KPI 7)', status: 'future', owner: 'ICF PM / Product Engineering', cat: 'Data Infrastructure',
+    dep: 'Query management workflow go-live in ICF Assistant platform',
+    notes: 'KPI 7 (ICF PM Query Reduction) cannot be baselined until query management workflow is live. Targeted Q2–Q3 2026.',
+    contrib: 8 },
+  { id: 'r10', name: 'AI Accuracy & Document Quality Measurement', status: 'future', owner: 'Product Manager / Quality Lead', cat: 'Quality Measurement',
+    dep: 'Accuracy measurement model definition — approach TBD',
+    notes: 'Measurement model still being defined. Placeholder metrics: first-pass acceptance rate, human correction rate, AI accuracy score, review comments/doc, rework rate, compliance completeness.',
+    contrib: 7 },
 ];
 
 // ─────────────────────────────────────────────────────────────────
@@ -326,6 +350,9 @@ const ASSUMPTIONS = [
   { id: 'a6', q: 'Confirm QE baseline data source and ownership',                               cat: 'Baseline Data',       status: 'open',        owner: 'Quality / Regulatory Affairs',  impact: 'high',   notes: 'KPI 4 requires QE baseline filtered to ICF adaptation events only. Version-correction QEs excluded.', target: 'Q3 2026' },
   { id: 'a7', q: 'Confirm handoff scope and hypercare window (Accenture → TFS)',                cat: 'Program',             status: 'open',        owner: 'Program Manager / TFS Sponsor', impact: 'high',   notes: 'Q4 2026 milestone. Scope and hypercare duration must be agreed before Q4 planning commences.', target: 'Q4 2026' },
   { id: 'a8', q: 'Confirm whether manual timecards can be fully avoided as a data source',      cat: 'Data Infrastructure', status: 'in-progress',  owner: 'Product Engineering',           impact: 'medium', notes: 'ICF Assistant timestamps should be the primary source. Manual timecard dependency must be formally retired.', target: 'Q2 2026' },
+  { id: 'a9', q: 'What is the data source for ICF PM query volume and resolution time (KPI 7)?', cat: 'Data Infrastructure', status: 'open', owner: 'ICF PM / Product Engineering', impact: 'high', notes: 'KPI 7 cannot be baselined until query management workflow is live. No current data source. Baseline targeted Q2–Q3 2026.', target: 'Q3 2026' },
+  { id: 'a10', q: 'How will AI accuracy and document quality be measured? (first-pass acceptance, correction rate, compliance completeness)', cat: 'Quality Measurement', status: 'open', owner: 'Product Manager / Quality Lead', impact: 'high', notes: 'Accuracy measurement approach is still being defined. Placeholder metrics identified. Measurement model TBD.', target: 'Q2–Q3 2026' },
+  { id: 'a11', q: 'What is the agreed reporting cadence and data pipeline for timestamp-based KPI reporting?', cat: 'Reporting', status: 'open', owner: 'Program Manager / Product Engineering', impact: 'medium', notes: 'Reporting period controls in dashboard are placeholders for future timestamp-based reporting from ICF Assistant and TFS. Cadence and pipeline design must be confirmed.', target: 'Q2 2026' },
 ];
 
 // ─────────────────────────────────────────────────────────────────
@@ -608,19 +635,62 @@ const TAB_LABELS = {
   readiness: 'Measurement Readiness', assumptions: 'Assumptions & Open Items',
 };
 
-function TopBar({ active }) {
+function TopBar({ active, reportingCfg, setReportingCfg }) {
+  const { mode, monthlyStart, monthlyEnd, quarter } = reportingCfg;
+  const QUARTERS = ['Q1','Q2','Q3','Q4'];
   return (
-    <header style={{ background: 'white', borderBottom: `1px solid ${C.gray}`, padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'sticky', top: 0, zIndex: 40 }}>
-      <div>
-        <h1 style={{ fontSize: 15, fontWeight: 600, color: C.charcoal, margin: 0 }}>{TAB_LABELS[active]}</h1>
-        <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>AI Studio Value Capture · ICF Assistant Use Case · Thermo Fisher Scientific</p>
+    <header style={{ background: 'white', borderBottom: `1px solid ${C.gray}`, flexShrink: 0, position: 'sticky', top: 0, zIndex: 40 }}>
+      {/* Row 1 */}
+      <div style={{ padding: '10px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${C.gray}` }}>
+        <div>
+          <h1 style={{ fontSize: 15, fontWeight: 600, color: C.charcoal, margin: 0 }}>{TAB_LABELS[active]}</h1>
+          <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>AI Studio Value Capture · ICF Assistant Use Case · Thermo Fisher Scientific</p>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ padding: '4px 10px', borderRadius: 999, background: C.offwhite, border: `1px solid ${C.gray}`, fontSize: 11, fontWeight: 500, color: C.charcoal }}>
+            Q1 2026 — MVP Phase
+          </span>
+          <span style={{ padding: '4px 10px', borderRadius: 999, background: '#fff0f0', border: '1px solid #fca5a5', fontSize: 11, fontWeight: 500, color: C.red }}>
+            ● Live
+          </span>
+        </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ padding: '4px 10px', borderRadius: 999, background: C.offwhite, border: `1px solid ${C.gray}`, fontSize: 11, fontWeight: 500, color: C.charcoal }}>
-          Q1 2026 — MVP Phase
-        </span>
-        <span style={{ padding: '4px 10px', borderRadius: 999, background: '#fff0f0', border: '1px solid #fca5a5', fontSize: 11, fontWeight: 500, color: C.red }}>
-          Live
+      {/* Row 2 — reporting controls */}
+      <div style={{ padding: '6px 24px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <span style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#9ca3af' }}>Reporting Period</span>
+        {/* Mode toggle */}
+        <div style={{ display: 'flex', border: `1px solid ${C.gray}`, borderRadius: 6, overflow: 'hidden', fontSize: 11 }}>
+          {['monthly','quarterly'].map(m => (
+            <button key={m} onClick={() => setReportingCfg(p => ({ ...p, mode: m }))}
+              style={{ padding: '3px 10px', fontWeight: 500, cursor: 'pointer', border: 'none', textTransform: 'capitalize',
+                background: mode === m ? C.red : 'white', color: mode === m ? 'white' : '#6b7280' }}>
+              {m}
+            </button>
+          ))}
+        </div>
+        {mode === 'monthly' ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11 }}>
+            <input type="month" value={monthlyStart} min="2026-01" max="2026-12"
+              onChange={e => setReportingCfg(p => ({ ...p, monthlyStart: e.target.value }))}
+              style={{ border: `1px solid ${C.gray}`, borderRadius: 4, padding: '2px 6px', fontSize: 11 }} />
+            <span style={{ color: '#9ca3af' }}>→</span>
+            <input type="month" value={monthlyEnd} min="2026-01" max="2026-12"
+              onChange={e => setReportingCfg(p => ({ ...p, monthlyEnd: e.target.value }))}
+              style={{ border: `1px solid ${C.gray}`, borderRadius: 4, padding: '2px 6px', fontSize: 11 }} />
+          </div>
+        ) : (
+          <div style={{ display: 'flex', border: `1px solid ${C.gray}`, borderRadius: 6, overflow: 'hidden', fontSize: 11 }}>
+            {QUARTERS.map(q => (
+              <button key={q} onClick={() => setReportingCfg(p => ({ ...p, quarter: q }))}
+                style={{ padding: '3px 10px', fontWeight: 500, cursor: 'pointer', border: 'none',
+                  background: quarter === q ? C.blue : 'white', color: quarter === q ? 'white' : '#6b7280' }}>
+                {q} 2026
+              </button>
+            ))}
+          </div>
+        )}
+        <span style={{ marginLeft: 'auto', fontSize: 9, color: '#d1d5db', fontStyle: 'italic' }}>
+          Reporting period controls are placeholders for future timestamp-based reporting from ICF Assistant and TFS source systems
         </span>
       </div>
     </header>
@@ -753,6 +823,63 @@ function ExecutiveOverview({ kpis, calc }) {
           <h2 className="text-base font-semibold text-gray-800 mb-3">2026 Value Pipeline — Projected Hours</h2>
           <div style={{ background: 'white', border: '1px solid #E8E8E4', borderRadius: 8, padding: 20 }}>
             <PipelineBarChart data={PIPELINE} />
+          </div>
+        </div>
+      </div>
+
+      {/* Emerging Value Levers */}
+      <div>
+        <h2 className="text-base font-semibold text-gray-800 mb-1">Emerging Value Levers</h2>
+        <p style={{ fontSize: 12, color: '#9ca3af', marginBottom: 12 }}>Additional value dimensions being tracked — baseline data pending</p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          {/* Query Reduction */}
+          <div style={{ background: 'white', border: '1px solid #E8E8E4', borderLeft: `4px solid ${C.red}`, borderRadius: 8, padding: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
+              <div style={{ background: '#fff5f5', borderRadius: 8, padding: 8, flexShrink: 0, fontSize: 16 }}>💬</div>
+              <div>
+                <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: C.amber, marginBottom: 2 }}>KPI 7 · Placeholder</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: C.charcoal }}>ICF PM Query Reduction</div>
+              </div>
+            </div>
+            <p style={{ fontSize: 11, color: '#6b7280', lineHeight: 1.6, marginBottom: 12 }}>
+              Reduction in query cycles per ICF adaptation. Fewer queries accelerates country/site ICF approval and study startup timelines. Query management workflow enablement targeted Q2–Q3 2026.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+              {[{ label: 'Baseline', value: 'No data yet' }, { label: 'Target', value: 'TBD' }].map(m => (
+                <div key={m.label} style={{ background: C.offwhite, borderRadius: 6, padding: '8px 10px' }}>
+                  <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#9ca3af', marginBottom: 2 }}>{m.label}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#d1d5db' }}>{m.value}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ fontSize: 10, background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 6, padding: '8px 10px', color: '#92400e' }}>
+              ⚠ Do not overstate — baseline not yet established. Value will be quantified once query management workflow is live.
+            </div>
+          </div>
+
+          {/* AI Accuracy */}
+          <div style={{ background: 'white', border: '1px solid #E8E8E4', borderLeft: `4px solid ${C.blue}`, borderRadius: 8, padding: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
+              <div style={{ background: '#eff6ff', borderRadius: 8, padding: 8, flexShrink: 0, fontSize: 16 }}>🔬</div>
+              <div>
+                <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: C.amber, marginBottom: 2 }}>Measurement Model In Definition</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: C.charcoal }}>AI Accuracy & Document Quality</div>
+              </div>
+            </div>
+            <p style={{ fontSize: 11, color: '#6b7280', lineHeight: 1.6, marginBottom: 12 }}>
+              Tracking AI output quality across ICF adaptations. Measurement approach is still being defined — placeholder metrics identified below.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginBottom: 10 }}>
+              {['First-Pass Acceptance', 'Human Correction Rate', 'Compliance Completeness'].map(m => (
+                <div key={m} style={{ background: C.offwhite, borderRadius: 6, padding: '6px 8px' }}>
+                  <div style={{ fontSize: 9, color: '#9ca3af', marginBottom: 2, lineHeight: 1.3 }}>{m}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#d1d5db' }}>TBD</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ fontSize: 10, background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 6, padding: '8px 10px', color: '#1e40af' }}>
+              Accuracy measurement approach is still being defined. Additional: AI accuracy score, review comments/doc, rework rate.
+            </div>
           </div>
         </div>
       </div>
@@ -1498,6 +1625,37 @@ function MeasurementReadiness() {
         </table>
       </Card>
 
+      {/* AI Accuracy placeholder */}
+      <div style={{ background: 'white', border: '1px solid #E8E8E4', borderLeft: `4px solid ${C.blue}`, borderRadius: 8, padding: 20 }}>
+        <div className="flex items-start justify-between mb-3">
+          <div>
+            <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: C.amber, marginBottom: 2 }}>Measurement Model In Definition</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: C.charcoal }}>AI Accuracy & Document Quality Tracking</div>
+            <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>Placeholder metrics — measurement approach is still being defined</div>
+          </div>
+          <span style={{ fontSize: 10, background: '#f5f3ff', border: '1px solid #e9d5ff', borderRadius: 999, padding: '3px 10px', color: '#7c3aed', fontWeight: 600, whiteSpace: 'nowrap' }}>◷ Future State</span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 12 }}>
+          {[
+            { label: 'First-Pass Acceptance Rate', desc: 'AI output accepted without human edits' },
+            { label: 'AI Accuracy Score', desc: 'Composite quality score per document' },
+            { label: 'Human Correction Rate', desc: 'Edits made per doc by Medical Writer' },
+            { label: 'Review Comments / Doc', desc: 'Average review cycle depth' },
+            { label: 'Rework Rate', desc: 'Documents requiring significant rework' },
+            { label: 'Compliance Completeness', desc: 'Required fields / language completeness' },
+          ].map(m => (
+            <div key={m.label} style={{ background: C.offwhite, borderRadius: 6, padding: '10px 12px' }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: C.charcoal, marginBottom: 2 }}>{m.label}</div>
+              <div style={{ fontSize: 10, color: '#9ca3af', marginBottom: 6 }}>{m.desc}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#d1d5db' }}>TBD</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ fontSize: 10, background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 6, padding: '8px 12px', color: '#1e40af' }}>
+          Accuracy measurement approach is still being defined. These metrics are placeholders and will be confirmed with Quality and Product teams by Q2–Q3 2026.
+        </div>
+      </div>
+
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-xs text-amber-800">
         <strong>Readiness Score Formula:</strong> (Ready items × full contribution) + (Partial items × 50% contribution) ÷ total possible contribution.
         Future State items are excluded from current readiness score.
@@ -1632,6 +1790,7 @@ function App() {
   const [active, setActive] = useState('overview');
   const [kpis,   setKpis]   = useState(KPI_DATA.map(k => ({ ...k })));
   const [calc,   setCalc]   = useState({ ...CALC_DEFAULT });
+  const [reportingCfg, setReportingCfg] = useState({ mode: 'quarterly', monthlyStart: '2026-01', monthlyEnd: '2026-03', quarter: 'Q1' });
 
   const SECTIONS = {
     overview:    <ExecutiveOverview kpis={kpis} calc={calc} />,
@@ -1648,7 +1807,7 @@ function App() {
     <div style={{ display: 'flex', minHeight: '100vh', background: C.offwhite, fontFamily: "'Inter',system-ui,sans-serif" }}>
       <Sidebar active={active} onNav={setActive} />
       <div style={{ marginLeft: 224, flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', minWidth: 0 }}>
-        <TopBar active={active} />
+        <TopBar active={active} reportingCfg={reportingCfg} setReportingCfg={setReportingCfg} />
         <main style={{ flex: 1, padding: 24, overflowY: 'auto' }}>
           {SECTIONS[active]}
         </main>
