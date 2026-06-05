@@ -98,9 +98,14 @@ export interface CalculatorInputs {
   siteTargetReduction: number;
   siteAnnualVolume: number;
   hourlyRate: number;
-  qeBaseline: number;
+  // Severity-based QE model (ICF adaptation/customization QEs only — version-correction excluded)
+  qeCriticalCount: number;
+  qeCriticalCost: number;
+  qeMajorCount: number;
+  qeMajorCost: number;
+  qeMinorCount: number;
+  qeMinorCost: number;
   qeTargetReduction: number;
-  costPerQE: number;
   endToEndBaseline: number;
   endToEndTargetReduction: number;
   annualStudyVolume: number;

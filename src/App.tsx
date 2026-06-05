@@ -24,9 +24,15 @@ const DEFAULT_CALCULATOR_INPUTS: CalculatorInputs = {
   siteTargetReduction: 50,
   siteAnnualVolume: 300,
   hourlyRate: 125,
-  qeBaseline: 40,
+  // Severity-based QE model — baseline period Jun 2025–Jun 2026
+  // ICF adaptation/customization QEs only — version-correction excluded
+  qeCriticalCount: 0,
+  qeCriticalCost: 2894,
+  qeMajorCount: 11,
+  qeMajorCost: 1820,
+  qeMinorCount: 12,
+  qeMinorCost: 894,
   qeTargetReduction: 20,
-  costPerQE: 2500,
   endToEndBaseline: 30,
   endToEndTargetReduction: 25,
   annualStudyVolume: 40,

@@ -365,9 +365,15 @@ const CALC_DEFAULT = {
   siteBaseline: 6,
   siteReduction: 50,
   siteVolume: 300,
-  qeBaseline: 40,
+  // Severity-based QE model — baseline Jun 2025–Jun 2026
+  // ICF adaptation/customization QEs only — version-correction excluded
+  qeCriticalCount: 0,
+  qeCriticalCost: 2894,
+  qeMajorCount: 11,
+  qeMajorCost: 1820,
+  qeMinorCount: 12,
+  qeMinorCost: 894,
   qeReduction: 20,
-  costPerQE: 2500,
   hourlyRate: 125,
   e2eBaseline: 30,
   e2eReduction: 25,
@@ -706,7 +712,8 @@ function ExecutiveOverview({ kpis, calc }) {
   const countryAnnual  = calc.countryBaseline * (calc.countryReduction / 100) * calc.countryVolume;
   const siteAnnual     = calc.siteBaseline    * (calc.siteReduction    / 100) * calc.siteVolume;
   const totalAnnual    = countryAnnual + siteAnnual;
-  const qeValue        = calc.qeBaseline * (calc.qeReduction / 100) * calc.costPerQE;
+  const qeBaselineCost = calc.qeCriticalCount * calc.qeCriticalCost + calc.qeMajorCount * calc.qeMajorCost + calc.qeMinorCount * calc.qeMinorCost;
+  const qeValue        = qeBaselineCost * (calc.qeReduction / 100);
   const hardValue      = totalAnnual * calc.hourlyRate + qeValue;
   const trackingLive   = kpis.filter(k => k.status === 'tracking-live').length;
   const readinessPct   = Math.round((trackingLive / kpis.length) * 100);
@@ -1224,8 +1231,10 @@ function ValueCalculator({ calc, setCalc }) {
   const sPerDoc  = calc.siteBaseline   * (calc.siteReduction    / 100);
   const sAnnual  = sPerDoc * calc.siteVolume;
   const total    = cAnnual + sAnnual;
-  const qeAvoid  = calc.qeBaseline * (calc.qeReduction / 100);
-  const qeDol    = qeAvoid * calc.costPerQE;
+  const qeTotal  = calc.qeCriticalCount + calc.qeMajorCount + calc.qeMinorCount;
+  const qeBaseCost = calc.qeCriticalCount * calc.qeCriticalCost + calc.qeMajorCount * calc.qeMajorCost + calc.qeMinorCount * calc.qeMinorCost;
+  const qeAvoid  = qeTotal * (calc.qeReduction / 100);
+  const qeDol    = qeBaseCost * (calc.qeReduction / 100);
   const hardVal  = total * calc.hourlyRate + qeDol;
   const e2eDays  = calc.e2eBaseline * (calc.e2eReduction / 100);
   const annDays  = e2eDays * calc.studyVolume;
@@ -1266,18 +1275,104 @@ function ValueCalculator({ calc, setCalc }) {
           <ResultRow label="Annual hours saved"        value={`${fmt(sAnnual)} hrs/yr`}   formula={`${fmt(sPerDoc, 1)} hrs × ${calc.siteVolume} docs = ${fmt(sAnnual)} hrs`} />
         </Card>
 
-        {/* QE Reduction */}
-        <Card className="p-5">
-          <h3 className="font-semibold text-gray-800 mb-1">Quality Event Reduction <span className="text-xs font-normal text-gray-400">(KPI 4 — Q3 2026)</span></h3>
-          <p className="text-xs text-gray-400 mb-3">Inputs — adaptation QEs only, version-correction excluded</p>
-          <InputRow label="Baseline QEs per year"       value={calc.qeBaseline}   onChange={v => set('qeBaseline',   v)} unit="QEs/yr" />
-          <InputRow label="Target reduction"            value={calc.qeReduction}  onChange={v => set('qeReduction',  v)} unit="%" />
-          <InputRow label="Average cost per QE"         value={calc.costPerQE}    onChange={v => set('costPerQE',    v)} unit="$/QE" step={100} />
-          <InputRow label="Hourly fully-loaded rate"    value={calc.hourlyRate}   onChange={v => set('hourlyRate',   v)} unit="$/hr" />
-          <p className="text-xs text-gray-400 mt-4 mb-2">Outputs</p>
-          <ResultRow label="QEs avoided per year"      value={`${fmt(qeAvoid, 1)} QEs`}   formula={`${calc.qeBaseline} QEs × ${calc.qeReduction}% = ${fmt(qeAvoid, 1)} QEs avoided`} />
-          <ResultRow label="QE dollar value avoided"   value={fmtC(qeDol)}                 formula={`${fmt(qeAvoid, 1)} QEs × ${fmtC(calc.costPerQE)}/QE = ${fmtC(qeDol)}`} />
-        </Card>
+        {/* QE Reduction — severity-based model */}
+        <div style={{ gridColumn: '1 / -1' }}>
+          <Card className="p-5">
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div>
+                <h3 className="font-semibold text-gray-800 mb-0.5">Quality Event Reduction <span className="text-xs font-normal text-gray-400">(KPI 4)</span></h3>
+                <p className="text-xs text-gray-400">Severity-based cost model · Baseline period: Jun 2025–Jun 2026 · ICF adaptation/customization QEs only — version-correction excluded</p>
+              </div>
+              <span style={{ fontSize: 10, background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 999, padding: '3px 10px', color: '#92400e', fontWeight: 600, whiteSpace: 'nowrap' }}>Measurable Q3 2026</span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+              {/* Left: baseline table + reduction target */}
+              <div>
+                <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: 10 }}>Baseline QE Profile (editable)</p>
+                {/* severity table */}
+                <table style={{ width: '100%', borderCollapse: 'collapse', border: `1px solid ${C.gray}`, borderRadius: 8, overflow: 'hidden', fontSize: 12 }}>
+                  <thead>
+                    <tr style={{ background: C.offwhite, borderBottom: `1px solid ${C.gray}` }}>
+                      {['Severity', 'Count', 'Cost / Event', 'Subtotal'].map(h => (
+                        <th key={h} style={{ textAlign: h === 'Severity' ? 'left' : 'right', padding: '6px 10px', fontSize: 10, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { key: 'Critical', countK: 'qeCriticalCount', costK: 'qeCriticalCost', count: calc.qeCriticalCount, cost: calc.qeCriticalCost, dot: C.red, label: C.red },
+                      { key: 'Major',    countK: 'qeMajorCount',    costK: 'qeMajorCost',    count: calc.qeMajorCount,    cost: calc.qeMajorCost,    dot: '#f59e0b', label: '#92400e' },
+                      { key: 'Minor',    countK: 'qeMinorCount',    costK: 'qeMinorCost',    count: calc.qeMinorCount,    cost: calc.qeMinorCost,    dot: '#9ca3af', label: '#4b5563' },
+                    ].map((row, i) => (
+                      <tr key={row.key} style={{ background: i % 2 === 0 ? 'white' : '#fafafa', borderBottom: `1px solid ${C.gray}` }}>
+                        <td style={{ padding: '6px 10px' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: row.dot, display: 'inline-block', flexShrink: 0 }} />
+                            <span style={{ fontWeight: 600, color: row.label, fontSize: 12 }}>{row.key}</span>
+                          </span>
+                        </td>
+                        <td style={{ padding: '6px 10px', textAlign: 'right' }}>
+                          <input type="number" min={0} value={row.count}
+                            onChange={e => set(row.countK, Number(e.target.value))}
+                            style={{ width: 56, border: `1px solid ${C.gray}`, borderRadius: 4, padding: '2px 6px', fontSize: 12, textAlign: 'center', outline: 'none' }} />
+                        </td>
+                        <td style={{ padding: '6px 10px', textAlign: 'right' }}>
+                          <input type="number" min={0} value={row.cost}
+                            onChange={e => set(row.costK, Number(e.target.value))}
+                            style={{ width: 80, border: `1px solid ${C.gray}`, borderRadius: 4, padding: '2px 6px', fontSize: 12, textAlign: 'right', outline: 'none' }} />
+                        </td>
+                        <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 600, color: row.label }}>{fmtC(row.count * row.cost)}</td>
+                      </tr>
+                    ))}
+                    <tr style={{ background: C.offwhite, borderTop: `1px solid ${C.gray}` }}>
+                      <td style={{ padding: '6px 10px', fontWeight: 700, fontSize: 12 }}>Total Baseline</td>
+                      <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 700, fontSize: 12 }}>{qeTotal}</td>
+                      <td />
+                      <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 700, fontSize: 13, color: C.red }}>{fmtC(qeBaseCost)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div style={{ marginTop: 10, border: `1px solid ${C.gray}`, borderRadius: 8, padding: '8px 12px', background: C.offwhite }}>
+                  <InputRow label="QE reduction target" value={calc.qeReduction} onChange={v => set('qeReduction', v)} unit="%" />
+                </div>
+              </div>
+
+              {/* Right: output cards */}
+              <div>
+                <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: 10 }}>Projected Savings</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div style={{ background: 'white', border: `1px solid ${C.gray}`, borderLeft: `4px solid ${C.red}`, borderRadius: 8, padding: '12px 14px' }}>
+                    <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: 4 }}>Total Baseline QE Cost</div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: C.charcoal }}>{fmtC(qeBaseCost)}</div>
+                    <div style={{ fontSize: 10, color: '#9ca3af', fontFamily: 'monospace', marginTop: 2 }}>
+                      ({calc.qeCriticalCount}×{fmtC(calc.qeCriticalCost)}) + ({calc.qeMajorCount}×{fmtC(calc.qeMajorCost)}) + ({calc.qeMinorCount}×{fmtC(calc.qeMinorCost)})
+                    </div>
+                  </div>
+                  <div style={{ background: 'white', border: `1px solid ${C.gray}`, borderLeft: `4px solid ${C.teal}`, borderRadius: 8, padding: '12px 14px' }}>
+                    <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: 4 }}>Projected Annual Savings</div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: C.teal }}>{fmtC(qeDol)}</div>
+                    <div style={{ fontSize: 10, color: '#9ca3af', fontFamily: 'monospace', marginTop: 2 }}>
+                      {fmtC(qeBaseCost)} × {calc.qeReduction}% reduction
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <div style={{ background: 'white', border: `1px solid ${C.gray}`, borderRadius: 8, padding: '12px 14px' }}>
+                      <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: 4 }}>Events Avoided</div>
+                      <div style={{ fontSize: 20, fontWeight: 800, color: C.charcoal }}>{fmt(qeAvoid, 1)}</div>
+                      <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 2 }}>QEs / yr</div>
+                    </div>
+                    <div style={{ background: 'white', border: `1px solid ${C.gray}`, borderRadius: 8, padding: '12px 14px' }}>
+                      <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: 4 }}>Reporting Period</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: C.charcoal, lineHeight: 1.3 }}>Jun 2025–<br/>Jun 2026</div>
+                      <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 2 }}>Baseline window</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
 
         {/* End-to-end */}
         <Card className="p-5">
@@ -1289,6 +1384,15 @@ function ValueCalculator({ calc, setCalc }) {
           <p className="text-xs text-gray-400 mt-4 mb-2">Outputs</p>
           <ResultRow label="Days saved per study"   value={`${fmt(e2eDays, 1)} days`}   formula={`${calc.e2eBaseline} days × ${calc.e2eReduction}% = ${fmt(e2eDays, 1)} days/study`} />
           <ResultRow label="Annual days saved"      value={`${fmt(annDays)} days/yr`}    formula={`${fmt(e2eDays, 1)} days × ${calc.studyVolume} studies = ${fmt(annDays)} days`} />
+        </Card>
+
+        {/* Hourly rate */}
+        <Card className="p-5">
+          <h3 className="font-semibold text-gray-800 mb-1">Hourly Rate Assumption</h3>
+          <p className="text-xs text-gray-400 mb-3">Used across all hours-based value calculations</p>
+          <InputRow label="Fully-loaded hourly rate" value={calc.hourlyRate} onChange={v => set('hourlyRate', v)} unit="$/hr" />
+          <p className="text-xs text-gray-400 mt-4 mb-2">Output</p>
+          <ResultRow label="Hours value (Country + Site)" value={fmtC(total * calc.hourlyRate)} formula={`${fmt(total)} hrs × $${calc.hourlyRate}/hr`} />
         </Card>
       </div>
 
@@ -1314,7 +1418,7 @@ function ValueCalculator({ calc, setCalc }) {
         </div>
         <div className="mt-4 pt-4 border-t border-red-200">
           <p className="text-xs text-gray-500 font-mono">
-            Total Hard Value = ({fmt(total)} hrs × ${calc.hourlyRate}/hr) + {fmtC(qeDol)} QE avoided = {fmtC(hardVal)}
+            Total Hard Value = ({fmt(total)} hrs × ${calc.hourlyRate}/hr) + {fmtC(qeDol)} QE savings = {fmtC(hardVal)}
           </p>
         </div>
       </div>

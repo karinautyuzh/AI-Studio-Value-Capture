@@ -20,12 +20,24 @@ export function calcTotalAnnualHoursSaved(inputs: CalculatorInputs): number {
   return calcCountryAnnualHoursSaved(inputs) + calcSiteAnnualHoursSaved(inputs);
 }
 
+export function calcQETotalBaseline(inputs: CalculatorInputs): number {
+  return inputs.qeCriticalCount + inputs.qeMajorCount + inputs.qeMinorCount;
+}
+
+export function calcQEBaselineCost(inputs: CalculatorInputs): number {
+  return (
+    inputs.qeCriticalCount * inputs.qeCriticalCost +
+    inputs.qeMajorCount * inputs.qeMajorCost +
+    inputs.qeMinorCount * inputs.qeMinorCost
+  );
+}
+
 export function calcQEsAvoided(inputs: CalculatorInputs): number {
-  return inputs.qeBaseline * (inputs.qeTargetReduction / 100);
+  return calcQETotalBaseline(inputs) * (inputs.qeTargetReduction / 100);
 }
 
 export function calcQEDollarValue(inputs: CalculatorInputs): number {
-  return calcQEsAvoided(inputs) * inputs.costPerQE;
+  return calcQEBaselineCost(inputs) * (inputs.qeTargetReduction / 100);
 }
 
 export function calcTotalHardValue(inputs: CalculatorInputs): number {
