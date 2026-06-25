@@ -9,20 +9,16 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { Clock, ShieldAlert, TrendingUp, CheckCircle2, AlertCircle, Circle, Zap, MessageSquare, FlaskConical } from 'lucide-react';
-import { KPI, CalculatorInputs } from '../../types';
 import {
   calcTotalAnnualHoursSaved,
   calcCountryAnnualHoursSaved,
   calcSiteAnnualHoursSaved,
   calcTotalHardValue,
 } from '../../lib/calculations';
+import { getEffectivePhasingPct, getPeriodMultiplier, getPeriodLabel } from '../../lib/periodCalculations';
+import { useDashboard } from '../../context/DashboardContext';
 import { formatNumber, formatCurrency } from '../../lib/utils';
 import { pipelineData } from '../../data/pipeline';
-
-interface ExecutiveOverviewProps {
-  kpis: KPI[];
-  calculatorInputs: CalculatorInputs;
-}
 
 const problemCards = [
   {
@@ -59,13 +55,21 @@ const kpiStatusConfig: Record<string, { color: string; icon: React.ReactNode; la
   'tbd':                { color: 'text-gray-400',  icon: <Circle       size={13} className="text-gray-300" />,  label: 'TBD' },
 };
 
-export default function ExecutiveOverview({ kpis, calculatorInputs }: ExecutiveOverviewProps) {
+export default function ExecutiveOverview() {
+  const { state } = useDashboard();
+  const { kpis, calculatorInputs, phasingModel, reportingConfig } = state;
   const [icfsInScope, setIcfsInScope] = useState(420);
+
+  const phasingPct = getEffectivePhasingPct(reportingConfig, phasingModel);
+  const periodMult = getPeriodMultiplier(reportingConfig);
+  const periodLabel = getPeriodLabel(reportingConfig);
 
   const totalProjected  = calcTotalAnnualHoursSaved(calculatorInputs);
   const countryProjected = calcCountryAnnualHoursSaved(calculatorInputs);
   const siteProjected   = calcSiteAnnualHoursSaved(calculatorInputs);
   const totalHardValue  = calcTotalHardValue(calculatorInputs);
+  const periodProjectedHrs = totalProjected * periodMult;
+  const periodHardValue = totalHardValue * periodMult;
   const trackingLive    = kpis.filter((k) => k.status === 'tracking-live').length;
   const readinessScore  = Math.round((trackingLive / kpis.length) * 100);
 
@@ -80,6 +84,14 @@ export default function ExecutiveOverview({ kpis, calculatorInputs }: ExecutiveO
   return (
     <div className="space-y-6">
 
+      {/* Disclaimer */}
+      <div className="bg-amber-50 border border-amber-200 rounded-lg px-5 py-3.5 flex items-start gap-3">
+        <span className="text-amber-500 mt-0.5 flex-shrink-0 text-base">⚠</span>
+        <p className="text-xs text-amber-800 leading-relaxed">
+          <strong>Directional estimates only.</strong> Current value estimates are based on available baseline assumptions, historical averages, and operational estimates provided by TFS. Actual value realization will depend on confirmed volumes, adoption rates, workflow usage, and validated TFS source data. KPI calculations are designed to be updated as additional data becomes available.
+        </p>
+      </div>
+
       {/* ── Hero banner ── */}
       <div className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #BE0000 0%, #7a0000 100%)' }}>
         <div className="px-6 pt-5 pb-2">
@@ -92,14 +104,20 @@ export default function ExecutiveOverview({ kpis, calculatorInputs }: ExecutiveO
           </div>
           <div className="grid grid-cols-4 gap-4 pb-5">
             <div>
-              <div className="text-red-200 text-[10px] uppercase tracking-widest font-semibold mb-1">Projected Hrs / yr</div>
-              <div className="text-3xl font-bold text-white">{formatNumber(totalProjected)}</div>
-              <div className="text-red-300 text-xs mt-1">Country + Site combined</div>
+              <div className="text-red-200 text-[10px] uppercase tracking-widest font-semibold mb-1">Projected Hrs ({periodLabel})</div>
+              <div className="text-3xl font-bold text-white">{formatNumber(periodProjectedHrs)}</div>
+              <div className="text-red-300 text-xs mt-1">Annual: {formatNumber(totalProjected)} hrs</div>
+              <span className="inline-flex items-center mt-1.5 px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-medium">
+                {periodLabel} · {Math.round(phasingPct)}% realized
+              </span>
             </div>
             <div>
-              <div className="text-red-200 text-[10px] uppercase tracking-widest font-semibold mb-1">Projected Hard Value</div>
-              <div className="text-3xl font-bold text-white">{formatCurrency(totalHardValue)}</div>
-              <div className="text-red-300 text-xs mt-1">Hours saved + QE avoided</div>
+              <div className="text-red-200 text-[10px] uppercase tracking-widest font-semibold mb-1">Projected Value ({periodLabel})</div>
+              <div className="text-3xl font-bold text-white">{formatCurrency(periodHardValue)}</div>
+              <div className="text-red-300 text-xs mt-1">Annual: {formatCurrency(totalHardValue)}</div>
+              <span className="inline-flex items-center mt-1.5 px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-medium">
+                Hours saved + QE avoided
+              </span>
             </div>
             <div>
               <div className="text-red-200 text-[10px] uppercase tracking-widest font-semibold mb-1">2026 Pipeline Total</div>
@@ -139,6 +157,56 @@ export default function ExecutiveOverview({ kpis, calculatorInputs }: ExecutiveO
               <p className="text-xs text-gray-600 leading-relaxed">{card.body}</p>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* ── ICF Workload Baseline ── */}
+      <div>
+        <h2 className="section-title">ICF Workload Baseline — Annual Opportunity</h2>
+        <p className="section-subtitle mb-3">Client-provided baseline estimates · Jun 2025–Jun 2026 · All values directional — subject to TFS validation</p>
+        <div className="grid grid-cols-4 gap-3 mb-3">
+          <div className="card p-4">
+            <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Total ICF Volume</div>
+            <div className="text-2xl font-bold text-tfs-charcoal">115,144</div>
+            <div className="text-xs text-gray-400 mt-1">ICFs / year (all types)</div>
+          </div>
+          <div className="card p-4">
+            <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Total CAS Hours</div>
+            <div className="text-2xl font-bold text-primary">320,245</div>
+            <div className="text-xs text-gray-400 mt-1">hrs / year (baseline)</div>
+          </div>
+          <div className="card p-4">
+            <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Country ICF Hours</div>
+            <div className="text-2xl font-bold text-tfs-charcoal">151,334</div>
+            <div className="text-xs text-gray-400 mt-1">hrs / year (29,429 ICFs)</div>
+          </div>
+          <div className="card p-4">
+            <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Site ICF Hours</div>
+            <div className="text-2xl font-bold text-tfs-charcoal">168,911</div>
+            <div className="text-xs text-gray-400 mt-1">hrs / year (85,715 ICFs)</div>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 gap-3">
+          <div className="card p-4">
+            <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Country Amendment Hrs</div>
+            <div className="text-2xl font-bold text-amber-600">68,756</div>
+            <div className="text-xs text-gray-400 mt-1">hrs / year (21,719 ICFs)</div>
+          </div>
+          <div className="card p-4">
+            <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Site Amendment Hrs</div>
+            <div className="text-2xl font-bold text-amber-600">64,916</div>
+            <div className="text-xs text-gray-400 mt-1">hrs / year (64,916 ICFs)</div>
+          </div>
+          <div className="card p-4">
+            <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Weighted Avg (Country)</div>
+            <div className="text-2xl font-bold text-tfs-blue">5.1</div>
+            <div className="text-xs text-gray-400 mt-1">hrs / ICF (country avg)</div>
+          </div>
+          <div className="card p-4">
+            <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Weighted Avg (Site)</div>
+            <div className="text-2xl font-bold text-tfs-blue">2.0</div>
+            <div className="text-xs text-gray-400 mt-1">hrs / ICF (site avg)</div>
+          </div>
         </div>
       </div>
 
@@ -221,7 +289,7 @@ export default function ExecutiveOverview({ kpis, calculatorInputs }: ExecutiveO
                 <MessageSquare size={18} className="text-primary" />
               </div>
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-amber-600 mb-0.5">KPI 7 · Placeholder</div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-amber-600 mb-0.5">KPI 9 · Placeholder</div>
                 <h3 className="font-semibold text-tfs-charcoal text-sm">ICF PM Query Reduction</h3>
               </div>
             </div>

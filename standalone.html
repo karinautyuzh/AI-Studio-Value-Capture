@@ -32,6 +32,12 @@
 
   <!-- Babel Standalone (JSX transform) -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script>
+    // Register a classic-runtime preset so text/babel scripts don't produce import statements
+    Babel.registerPreset('react-classic', {
+      presets: [[Babel.availablePresets['react'], { runtime: 'classic' }]]
+    });
+  </script>
 
   <style>
     * { box-sizing: border-box; }
@@ -46,8 +52,61 @@
 <body>
 <div id="root"></div>
 
-<script type="text/babel">
+<script type="text/babel" data-presets="react-classic">
 const { useState, useMemo } = React;
+
+// ── PERIOD HELPERS ──
+const STORAGE_KEY = 'icf-dashboard-state-v1';
+
+function getPeriodMultiplier(cfg) {
+  if (cfg.mode === 'monthly') return 1 / 12;
+  if (cfg.mode === 'quarterly') return 1 / 4;
+  if (cfg.mode === 'custom') {
+    const ms = new Date(cfg.customEnd).getTime() - new Date(cfg.customStart).getTime();
+    return Math.max(1, Math.round(ms / 86400000) + 1) / 365;
+  }
+  return 1 / 4;
+}
+
+function getEffPhasingPct(cfg, phasingModel) {
+  let q = cfg.quarter, yr = cfg.year;
+  if (cfg.mode === 'monthly') {
+    const mo = parseInt((cfg.monthlyStart || '2026-07').split('-')[1], 10);
+    yr = parseInt((cfg.monthlyStart || '2026-07').split('-')[0], 10);
+    q = mo <= 3 ? 'Q1' : mo <= 6 ? 'Q2' : mo <= 9 ? 'Q3' : 'Q4';
+  }
+  const label = q + ' ' + yr;
+  const m = (phasingModel || []).find(p => p.label === label);
+  return m ? m.totalRealizedPct : 35;
+}
+
+function getPeriodLabel(cfg) {
+  if (cfg.mode === 'monthly') return (cfg.monthlyStart || '') + ' – ' + (cfg.monthlyEnd || '');
+  if (cfg.mode === 'quarterly') return (cfg.quarter || 'Q3') + ' ' + (cfg.year || 2026);
+  return (cfg.customStart || '') + ' – ' + (cfg.customEnd || '');
+}
+
+function loadPersistedState(defaults) {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaults;
+    const saved = JSON.parse(raw);
+    return {
+      ...defaults,
+      ...saved,
+      reportingCfg: { ...defaults.reportingCfg, ...(saved.reportingCfg || {}) },
+      calcInputs: { ...defaults.calcInputs, ...(saved.calcInputs || {}) },
+    };
+  } catch { return defaults; }
+}
+
+function persistState(s) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {}
+}
+
+// ── CONTEXT ──
+const DashCtx = React.createContext(null);
+function useDash() { return React.useContext(DashCtx); }
 
 // ─────────────────────────────────────────────────────────────────
 // BRAND TOKENS
@@ -165,6 +224,38 @@ const KPI_DATA = [
   },
   {
     id: 'kpi-7', number: 7,
+    title: 'Country Amendments Productivity',
+    definition: 'Productivity gains from Country Amendment ICF drafting and customization workflows. Covers both Non-EU (4.8 hrs/ICF) and EU (2.0 hrs/ICF) country amendment processes.',
+    baseline: 68756, baselineUnit: 'hrs/year',
+    target: 50, targetUnit: '%', targetLabel: '35%–50% productivity impact phased over Q3 2026–Q4 2027',
+    currentActual: null,
+    status: 'tbd',
+    formula: 'Productivity savings = Annual amendment hours × Total realized impact %\nTotal realized impact % = Potential AI impact % × Adoption phasing %',
+    owner: 'ICF PM / TFS Study Operations',
+    dataSource: 'ICF Assistant amendment workflow timestamps — once live',
+    projectedImpact: 'Up to 34,378 hrs/yr saved at 50% productivity impact (full adoption)',
+    actualImpact: null,
+    measurableFrom: 'Q3 2026 — amendment automation enabled',
+    notes: 'Phased from 35% realized impact in Q3 2026 ramping to 50% by Q3 2027. Non-EU amendments (4.8 hrs/ICF) carry higher per-document value than EU (2.0 hrs/ICF).',
+  },
+  {
+    id: 'kpi-8', number: 8,
+    title: 'Site Amendments Productivity',
+    definition: 'Productivity gains from Site Amendment ICF workflows. High volume (64,916 ICFs/yr) at 1.0 hr/ICF makes this a significant opportunity at scale.',
+    baseline: 64916, baselineUnit: 'hrs/year',
+    target: 50, targetUnit: '%', targetLabel: '35%–50% productivity impact phased over time',
+    currentActual: null,
+    status: 'tbd',
+    formula: 'Productivity savings = 64,916 hrs × Total realized impact %\nTotal realized impact % = Potential AI impact % × Adoption phasing %',
+    owner: 'ICF PM / Site Operations Lead',
+    dataSource: 'ICF Assistant site amendment timestamps — once live',
+    projectedImpact: 'Up to 32,458 hrs/yr saved at 50% productivity impact (full adoption)',
+    actualImpact: null,
+    measurableFrom: 'Q3–Q4 2026 — site amendment workflow enabled',
+    notes: 'High volume makes this a key scale opportunity. Per-ICF productivity gain is lower than main ICFs but volume amplifies total impact.',
+  },
+  {
+    id: 'kpi-9', number: 9,
     title: 'ICF PM Query Reduction',
     definition: 'Reduction in query cycles per ICF adaptation. Fewer queries accelerates country/site ICF approval and study startup.',
     baseline: null, baselineUnit: 'queries/ICF',
@@ -186,29 +277,44 @@ const KPI_DATA = [
 // ─────────────────────────────────────────────────────────────────
 const SCORING_DEFAULT = [
   {
-    id: 'time-savings', name: 'Time Savings', projected: 80, actual: 35, weight: 30,
-    description: 'Reduction in country and site ICF adaptation hours per document and annually',
-    drivers: ['Country baseline: 12 hrs/doc', 'Site baseline: 6 hrs/doc', '50% reduction target set', 'KPI 1 tracking live — MVP'],
+    id: 'country-main-productivity', name: 'Country Main Productivity', projected: 80, actual: 30, weight: 18,
+    description: 'Productivity gains from Country Main ICF drafting (Non-EU: 20.2 hrs/ICF, EU: 10.0 hrs/ICF)',
+    drivers: ['Non-EU: 1,392 ICFs/yr × 20.2 hrs', 'EU: 1,413 ICFs/yr × 10.0 hrs', 'Total: 42,180 hrs/yr baseline', '35%–50% phased impact target'],
   },
   {
-    id: 'quality', name: 'Quality Improvement', projected: 65, actual: 15, weight: 25,
-    description: 'Reduction in adaptation-related QEs and compliance risk from standardized drafting',
-    drivers: ['QE baseline TBD from TFS', '20% reduction target confirmed', 'Plain-language automation in Q3 roadmap', 'Version control improvement scoped'],
+    id: 'country-additional-productivity', name: 'Country Additional Productivity', projected: 75, actual: 20, weight: 15,
+    description: 'Productivity from Country Additional ICF workflows (Non-EU: 13.6 hrs/ICF, EU: 4.0 hrs/ICF)',
+    drivers: ['Non-EU: 2,163 ICFs/yr × 13.6 hrs', 'EU: 2,742 ICFs/yr × 4.0 hrs', 'Total: 40,398 hrs/yr baseline', 'Phased impact Q3 2026 onward'],
   },
   {
-    id: 'adoption', name: 'Adoption', projected: 70, actual: 25, weight: 20,
-    description: 'Percentage of eligible ICFs processed through the Assistant across all ICF types',
-    drivers: ['Pilot Medical Writer group onboarded', 'KPI 6 tracking live', 'Target: 100% eligible ICF coverage', 'Sponsor segmentation Q4 2026'],
+    id: 'country-amendment-productivity', name: 'Country Amendments Productivity', projected: 70, actual: 10, weight: 15,
+    description: 'Productivity from Country Amendment workflows — KPI 7 (Non-EU: 4.8 hrs/ICF, EU: 2.0 hrs/ICF)',
+    drivers: ['Non-EU: 9,060 ICFs/yr × 4.8 hrs', 'EU: 12,659 ICFs/yr × 2.0 hrs', 'Total: 68,756 hrs/yr baseline', 'Amendment automation enabled Q3 2026'],
   },
   {
-    id: 'readiness', name: 'Measurement Readiness', projected: 75, actual: 40, weight: 15,
-    description: 'ICF Assistant timestamp coverage and TFS baseline data availability for full KPI framework',
-    drivers: ['End-to-end timestamps in progress', 'Stage-level timestamps Q2 2026', 'TFS baselines TBD for KPI 3 and 4', 'QE reporting mechanism being scoped'],
+    id: 'site-initial-productivity', name: 'Site Initial Productivity', projected: 70, actual: 15, weight: 15,
+    description: 'Productivity from Site Initial ICF adaptation (5.0 hrs/ICF, 20,799 ICFs/yr)',
+    drivers: ['20,799 ICFs/yr × 5.0 hrs', 'Total: 103,995 hrs/yr baseline', 'Site adaptation enabled Q2 2026', 'KPI 2 tracking'],
   },
   {
-    id: 'scalability', name: 'Strategic Scalability', projected: 85, actual: 20, weight: 10,
-    description: 'Capacity to scale ICF processing without linear headcount growth; FSP/SaaS revenue potential',
-    drivers: ['Removes linear headcount constraint', 'Parallel country drafting enabled', 'Sponsor-level reporting Q4 2026', 'North Star: autonomous ICF lifecycle agent'],
+    id: 'site-amendment-productivity', name: 'Site Amendments Productivity', projected: 65, actual: 10, weight: 12,
+    description: 'Productivity from Site Amendment workflows — KPI 8 (1.0 hr/ICF, 64,916 ICFs/yr)',
+    drivers: ['64,916 ICFs/yr × 1.0 hr', 'Total: 64,916 hrs/yr baseline', 'High volume scale opportunity', 'Site amendment workflow Q3–Q4 2026'],
+  },
+  {
+    id: 'qe-reduction', name: 'QE Reduction', projected: 65, actual: 15, weight: 12,
+    description: 'ICF adaptation-related quality event reduction — severity-based model (Jun 2025–Jun 2026 baseline)',
+    drivers: ['23 baseline QEs, $30,748 total cost', '20% reduction target', 'Major: 11 QEs @ $1,820', 'Minor: 12 QEs @ $894'],
+  },
+  {
+    id: 'query-reduction', name: 'ICF PM Query Reduction', projected: 50, actual: 0, weight: 7,
+    description: 'Reduction in ICF PM query cycles per adaptation — pending baseline data (KPI 9)',
+    drivers: ['Baseline: no data yet', 'Query management workflow pending', 'Measurable Q2–Q3 2026', 'Pending baseline'],
+  },
+  {
+    id: 'ai-accuracy', name: 'AI Accuracy & Document Quality', projected: 60, actual: 0, weight: 6,
+    description: 'AI output quality — first-pass acceptance, correction rate, compliance completeness',
+    drivers: ['Measurement model in definition', 'First-pass acceptance TBD', 'Human correction rate TBD', 'Compliance completeness TBD'],
   },
 ];
 
@@ -378,6 +484,59 @@ const CALC_DEFAULT = {
   e2eBaseline: 30,
   e2eReduction: 25,
   studyVolume: 40,
+};
+
+// ─────────────────────────────────────────────────────────────────
+// DATA — ICF SEGMENTS
+// ─────────────────────────────────────────────────────────────────
+const ICF_SEGMENTS = [
+  { id: 'country-main-non-eu',       name: 'Country Main – Non-EU',       category: 'country-main',       icfsPerYear: 1392,  casHoursPerIcf: 20.2, potentialAiImpactPct: 50, adoptionPct: 70 },
+  { id: 'country-main-eu',           name: 'Country Main – EU',           category: 'country-main',       icfsPerYear: 1413,  casHoursPerIcf: 10.0, potentialAiImpactPct: 50, adoptionPct: 70 },
+  { id: 'country-additional-non-eu', name: 'Country Additional – Non-EU', category: 'country-additional', icfsPerYear: 2163,  casHoursPerIcf: 13.6, potentialAiImpactPct: 50, adoptionPct: 70 },
+  { id: 'country-additional-eu',     name: 'Country Additional – EU',     category: 'country-additional', icfsPerYear: 2742,  casHoursPerIcf: 4.0,  potentialAiImpactPct: 50, adoptionPct: 70 },
+  { id: 'country-amendment-non-eu',  name: 'Country Amendment – Non-EU',  category: 'country-amendment',  icfsPerYear: 9060,  casHoursPerIcf: 4.8,  potentialAiImpactPct: 50, adoptionPct: 70 },
+  { id: 'country-amendment-eu',      name: 'Country Amendment – EU',      category: 'country-amendment',  icfsPerYear: 12659, casHoursPerIcf: 2.0,  potentialAiImpactPct: 50, adoptionPct: 70 },
+  { id: 'site-initial',              name: 'Site Initial',                category: 'site-initial',       icfsPerYear: 20799, casHoursPerIcf: 5.0,  potentialAiImpactPct: 50, adoptionPct: 70 },
+  { id: 'site-amendment',            name: 'Site Amendment',              category: 'site-amendment',     icfsPerYear: 64916, casHoursPerIcf: 1.0,  potentialAiImpactPct: 50, adoptionPct: 70 },
+];
+
+// ─────────────────────────────────────────────────────────────────
+// DATA — PHASING MODEL
+// ─────────────────────────────────────────────────────────────────
+const PHASING_MODEL = [
+  { id: 'q3-2026', label: 'Q3 2026', potentialAiImpactPct: 50, adoptionPct: 70,  totalRealizedPct: 35 },
+  { id: 'q4-2026', label: 'Q4 2026', potentialAiImpactPct: 50, adoptionPct: 70,  totalRealizedPct: 35 },
+  { id: 'q1-2027', label: 'Q1 2027', potentialAiImpactPct: 50, adoptionPct: 80,  totalRealizedPct: 40 },
+  { id: 'q2-2027', label: 'Q2 2027', potentialAiImpactPct: 50, adoptionPct: 88,  totalRealizedPct: 44 },
+  { id: 'q3-2027', label: 'Q3 2027', potentialAiImpactPct: 50, adoptionPct: 100, totalRealizedPct: 50 },
+  { id: 'q4-2027', label: 'Q4 2027', potentialAiImpactPct: 50, adoptionPct: 100, totalRealizedPct: 50 },
+  { id: 'q1-2028', label: 'Q1 2028', potentialAiImpactPct: 50, adoptionPct: 100, totalRealizedPct: 50 },
+  { id: 'q2-2028', label: 'Q2 2028', potentialAiImpactPct: 50, adoptionPct: 100, totalRealizedPct: 50 },
+  { id: 'q3-2028', label: 'Q3 2028', potentialAiImpactPct: 50, adoptionPct: 100, totalRealizedPct: 50 },
+  { id: 'q4-2028', label: 'Q4 2028', potentialAiImpactPct: 50, adoptionPct: 100, totalRealizedPct: 50 },
+];
+
+// ─────────────────────────────────────────────────────────────────
+// APP DEFAULTS
+// ─────────────────────────────────────────────────────────────────
+const DEFAULT_REPORTING_CFG = {
+  mode: 'quarterly',
+  year: 2026,
+  quarter: 'Q3',
+  monthlyStart: '2026-07',
+  monthlyEnd: '2026-09',
+  customStart: '2026-07-01',
+  customEnd: '2026-09-30',
+};
+
+const APP_DEFAULTS = {
+  activeTab: 'overview',
+  reportingCfg: DEFAULT_REPORTING_CFG,
+  calcInputs: CALC_DEFAULT,
+  segments: ICF_SEGMENTS,
+  phasingModel: PHASING_MODEL,
+  kpis: KPI_DATA,
+  scoringCats: SCORING_DEFAULT,
 };
 
 // ─────────────────────────────────────────────────────────────────
@@ -641,9 +800,13 @@ const TAB_LABELS = {
   readiness: 'Measurement Readiness', assumptions: 'Assumptions & Open Items',
 };
 
-function TopBar({ active, reportingCfg, setReportingCfg }) {
-  const { mode, monthlyStart, monthlyEnd, quarter } = reportingCfg;
+function TopBar() {
+  const ctx = useDash();
+  const s = ctx.s;
+  const active = s.activeTab;
+  const { mode, monthlyStart, monthlyEnd, quarter, year, customStart, customEnd } = s.reportingCfg;
   const QUARTERS = ['Q1','Q2','Q3','Q4'];
+  const YEARS = ['2026','2027','2028'];
   return (
     <header style={{ background: 'white', borderBottom: `1px solid ${C.gray}`, flexShrink: 0, position: 'sticky', top: 0, zIndex: 40 }}>
       {/* Row 1 */}
@@ -662,41 +825,64 @@ function TopBar({ active, reportingCfg, setReportingCfg }) {
         </div>
       </div>
       {/* Row 2 — reporting controls */}
-      <div style={{ padding: '6px 24px', display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ padding: '6px 24px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <span style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#9ca3af' }}>Reporting Period</span>
         {/* Mode toggle */}
         <div style={{ display: 'flex', border: `1px solid ${C.gray}`, borderRadius: 6, overflow: 'hidden', fontSize: 11 }}>
-          {['monthly','quarterly'].map(m => (
-            <button key={m} onClick={() => setReportingCfg(p => ({ ...p, mode: m }))}
+          {['monthly','quarterly','custom'].map(m => (
+            <button key={m} onClick={() => ctx.setReportingCfg({ mode: m })}
               style={{ padding: '3px 10px', fontWeight: 500, cursor: 'pointer', border: 'none', textTransform: 'capitalize',
                 background: mode === m ? C.red : 'white', color: mode === m ? 'white' : '#6b7280' }}>
               {m}
             </button>
           ))}
         </div>
-        {mode === 'monthly' ? (
+        {mode === 'monthly' && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11 }}>
-            <input type="month" value={monthlyStart} min="2026-01" max="2026-12"
-              onChange={e => setReportingCfg(p => ({ ...p, monthlyStart: e.target.value }))}
+            <input type="month" value={monthlyStart}
+              onChange={e => ctx.setReportingCfg({ monthlyStart: e.target.value })}
               style={{ border: `1px solid ${C.gray}`, borderRadius: 4, padding: '2px 6px', fontSize: 11 }} />
             <span style={{ color: '#9ca3af' }}>→</span>
-            <input type="month" value={monthlyEnd} min="2026-01" max="2026-12"
-              onChange={e => setReportingCfg(p => ({ ...p, monthlyEnd: e.target.value }))}
+            <input type="month" value={monthlyEnd}
+              onChange={e => ctx.setReportingCfg({ monthlyEnd: e.target.value })}
               style={{ border: `1px solid ${C.gray}`, borderRadius: 4, padding: '2px 6px', fontSize: 11 }} />
           </div>
-        ) : (
-          <div style={{ display: 'flex', border: `1px solid ${C.gray}`, borderRadius: 6, overflow: 'hidden', fontSize: 11 }}>
-            {QUARTERS.map(q => (
-              <button key={q} onClick={() => setReportingCfg(p => ({ ...p, quarter: q }))}
-                style={{ padding: '3px 10px', fontWeight: 500, cursor: 'pointer', border: 'none',
-                  background: quarter === q ? C.blue : 'white', color: quarter === q ? 'white' : '#6b7280' }}>
-                {q} 2026
-              </button>
-            ))}
+        )}
+        {mode === 'quarterly' && (
+          <React.Fragment>
+            <div style={{ display: 'flex', border: `1px solid ${C.gray}`, borderRadius: 6, overflow: 'hidden', fontSize: 11 }}>
+              {QUARTERS.map(q => (
+                <button key={q} onClick={() => ctx.setReportingCfg({ quarter: q })}
+                  style={{ padding: '3px 10px', fontWeight: 500, cursor: 'pointer', border: 'none',
+                    background: quarter === q ? C.blue : 'white', color: quarter === q ? 'white' : '#6b7280' }}>
+                  {q}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: 'flex', border: `1px solid ${C.gray}`, borderRadius: 6, overflow: 'hidden', fontSize: 11 }}>
+              {YEARS.map(yr => (
+                <button key={yr} onClick={() => ctx.setReportingCfg({ year: parseInt(yr) })}
+                  style={{ padding: '3px 10px', fontWeight: 600, cursor: 'pointer', border: 'none',
+                    background: year === parseInt(yr) ? C.charcoal : 'white', color: year === parseInt(yr) ? 'white' : '#6b7280' }}>
+                  {yr}
+                </button>
+              ))}
+            </div>
+          </React.Fragment>
+        )}
+        {mode === 'custom' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11 }}>
+            <input type="date" value={customStart}
+              onChange={e => ctx.setReportingCfg({ customStart: e.target.value })}
+              style={{ border: `1px solid ${C.gray}`, borderRadius: 4, padding: '2px 6px', fontSize: 12 }} />
+            <span style={{ margin: '0 4px', color: '#888' }}>to</span>
+            <input type="date" value={customEnd}
+              onChange={e => ctx.setReportingCfg({ customEnd: e.target.value })}
+              style={{ border: `1px solid ${C.gray}`, borderRadius: 4, padding: '2px 6px', fontSize: 12 }} />
           </div>
         )}
-        <span style={{ marginLeft: 'auto', fontSize: 9, color: '#d1d5db', fontStyle: 'italic' }}>
-          Reporting period controls are placeholders for future timestamp-based reporting from ICF Assistant and TFS source systems
+        <span style={{ marginLeft: 'auto', fontSize: 9, color: '#d1d5db', fontStyle: 'italic', maxWidth: 360, textAlign: 'right' }}>
+          Reporting period selections adjust calculations using annual baseline values, selected-period duration, and quarterly phasing assumptions. Until live timestamp reporting is connected, period values are modeled from baseline assumptions.
         </span>
       </div>
     </header>
@@ -706,7 +892,10 @@ function TopBar({ active, reportingCfg, setReportingCfg }) {
 // ─────────────────────────────────────────────────────────────────
 // SECTION 1 — EXECUTIVE OVERVIEW
 // ─────────────────────────────────────────────────────────────────
-function ExecutiveOverview({ kpis, calc }) {
+function ExecutiveOverview() {
+  const { s, phasingPct, periodMult, periodLabel } = useDash();
+  const kpis = s.kpis;
+  const calc = s.calcInputs;
   const [icfsScope, setIcfsScope] = useState(420);
 
   const countryAnnual  = calc.countryBaseline * (calc.countryReduction / 100) * calc.countryVolume;
@@ -715,6 +904,8 @@ function ExecutiveOverview({ kpis, calc }) {
   const qeBaselineCost = calc.qeCriticalCount * calc.qeCriticalCost + calc.qeMajorCount * calc.qeMajorCost + calc.qeMinorCount * calc.qeMinorCost;
   const qeValue        = qeBaselineCost * (calc.qeReduction / 100);
   const hardValue      = totalAnnual * calc.hourlyRate + qeValue;
+  const periodHrs      = totalAnnual * (phasingPct / 100) * periodMult;
+  const periodValue    = hardValue   * (phasingPct / 100) * periodMult;
   const trackingLive   = kpis.filter(k => k.status === 'tracking-live').length;
   const readinessPct   = Math.round((trackingLive / kpis.length) * 100);
   const pipelineTotal  = PIPELINE.reduce((s, p) => s + p.projectedHrs, 0);
@@ -742,6 +933,14 @@ function ExecutiveOverview({ kpis, calc }) {
   return (
     <div className="space-y-6">
 
+      {/* Disclaimer */}
+      <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 8, padding: '12px 20px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+        <span style={{ color: '#d97706', flexShrink: 0, fontSize: 14, marginTop: 1 }}>⚠</span>
+        <p style={{ fontSize: 11, color: '#92400e', lineHeight: 1.6, margin: 0 }}>
+          <strong>Directional estimates only.</strong> Current value estimates are based on available baseline assumptions, historical averages, and operational estimates provided by TFS. Actual value realization will depend on confirmed volumes, adoption rates, workflow usage, and validated TFS source data. KPI calculations are designed to be updated as additional data becomes available.
+        </p>
+      </div>
+
       {/* Hero banner */}
       <div style={{ borderRadius: 12, overflow: 'hidden', background: 'linear-gradient(135deg, #BE0000 0%, #7a0000 100%)' }}>
         <div style={{ padding: '20px 24px 16px' }}>
@@ -754,8 +953,8 @@ function ExecutiveOverview({ kpis, calc }) {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
             {[
-              { label: 'Projected Hrs / yr',   value: fmt(totalAnnual),     sub: 'Country + Site combined' },
-              { label: 'Projected Hard Value',  value: fmtC(hardValue),      sub: 'Hours saved + QE avoided' },
+              { label: 'Projected Hrs (' + periodLabel + ')',   value: fmt(periodHrs),   sub: 'Annual: ' + fmt(totalAnnual) + ' hrs', chip: periodLabel + ' · ' + Math.round(phasingPct) + '% realized' },
+              { label: 'Projected Value (' + periodLabel + ')', value: fmtC(periodValue), sub: 'Annual: ' + fmtC(hardValue), chip: 'Hours saved + QE avoided' },
               { label: '2026 Pipeline Total',   value: fmt(pipelineTotal)+' hrs', sub: 'Projected across Q1–Q4' },
               { label: 'KPI Readiness',         value: readinessPct+'%',     sub: `${trackingLive} of ${kpis.length} KPIs live` },
             ].map(item => (
@@ -763,6 +962,9 @@ function ExecutiveOverview({ kpis, calc }) {
                 <div style={{ color: '#fca5a5', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{item.label}</div>
                 <div style={{ color: 'white', fontSize: 26, fontWeight: 800, lineHeight: 1 }}>{item.value}</div>
                 <div style={{ color: '#fecaca', fontSize: 10, marginTop: 4 }}>{item.sub}</div>
+                {item.chip && (
+                  <span style={{ display: 'inline-block', marginTop: 6, padding: '2px 8px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: 9, fontWeight: 500 }}>{item.chip}</span>
+                )}
               </div>
             ))}
           </div>
@@ -789,6 +991,40 @@ function ExecutiveOverview({ kpis, calc }) {
               </div>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#2C2C2C', marginBottom: 6 }}>{p.headline}</div>
               <p style={{ fontSize: 11, color: '#6b7280', lineHeight: 1.6 }}>{p.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ICF Workload Baseline */}
+      <div>
+        <h2 className="text-base font-semibold text-gray-800 mb-1">ICF Workload Baseline — Annual Opportunity</h2>
+        <p style={{ fontSize: 11, color: '#9ca3af', marginBottom: 10 }}>Client-provided baseline estimates · Jun 2025–Jun 2026 · All values directional — subject to TFS validation</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 10 }}>
+          {[
+            { label: 'Total ICF Volume',    value: '115,144', sub: 'ICFs / year (all types)',        color: '#2C2C2C' },
+            { label: 'Total CAS Hours',     value: '320,245', sub: 'hrs / year (baseline)',           color: C.red },
+            { label: 'Country ICF Hours',   value: '151,334', sub: 'hrs / year (29,429 ICFs)',        color: '#2C2C2C' },
+            { label: 'Site ICF Hours',      value: '168,911', sub: 'hrs / year (85,715 ICFs)',        color: '#2C2C2C' },
+          ].map(s => (
+            <div key={s.label} style={{ background: 'white', border: '1px solid #E8E8E4', borderRadius: 8, padding: 14 }}>
+              <div style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: 4 }}>{s.label}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: s.color }}>{s.value}</div>
+              <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 3 }}>{s.sub}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+          {[
+            { label: 'Country Amendment Hrs', value: '68,756', sub: 'hrs / year (21,719 ICFs)',  color: '#d97706' },
+            { label: 'Site Amendment Hrs',    value: '64,916', sub: 'hrs / year (64,916 ICFs)',  color: '#d97706' },
+            { label: 'Weighted Avg (Country)', value: '5.1',   sub: 'hrs / ICF (country avg)',   color: C.blue },
+            { label: 'Weighted Avg (Site)',    value: '2.0',   sub: 'hrs / ICF (site avg)',       color: C.blue },
+          ].map(s => (
+            <div key={s.label} style={{ background: 'white', border: '1px solid #E8E8E4', borderRadius: 8, padding: 14 }}>
+              <div style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: 4 }}>{s.label}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: s.color }}>{s.value}</div>
+              <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 3 }}>{s.sub}</div>
             </div>
           ))}
         </div>
@@ -844,7 +1080,7 @@ function ExecutiveOverview({ kpis, calc }) {
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
               <div style={{ background: '#fff5f5', borderRadius: 8, padding: 8, flexShrink: 0, fontSize: 16 }}>💬</div>
               <div>
-                <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: C.amber, marginBottom: 2 }}>KPI 7 · Placeholder</div>
+                <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: C.amber, marginBottom: 2 }}>KPI 9 · Placeholder</div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: C.charcoal }}>ICF PM Query Reduction</div>
               </div>
             </div>
@@ -932,9 +1168,11 @@ function ExecutiveOverview({ kpis, calc }) {
 // SECTION 2 — VALUE SCORING
 // ─────────────────────────────────────────────────────────────────
 function ValueScoring() {
-  const [cats, setCats] = useState(SCORING_DEFAULT.map(s => ({ ...s })));
+  const ctx = useDash();
+  const cats = ctx.s.scoringCats;
+  const setCats = ctx.setScoringCats;
   const [editingWeights, setEditingWeights] = useState(false);
-  const [tempW, setTempW] = useState(Object.fromEntries(SCORING_DEFAULT.map(s => [s.id, s.weight])));
+  const [tempW, setTempW] = useState(Object.fromEntries(cats.map(s => [s.id, s.weight])));
 
   const totalW = cats.reduce((s, c) => s + c.weight, 0);
   const projected = Math.round(cats.reduce((s, c) => s + c.projected * (c.weight / totalW), 0));
@@ -1172,7 +1410,10 @@ function KPICard({ kpi, onUpdate }) {
   );
 }
 
-function KPIFramework({ kpis, onKpisChange }) {
+function KPIFramework() {
+  const ctx = useDash();
+  const kpis = ctx.s.kpis;
+  const onKpisChange = ctx.setKpis;
   const [filter, setFilter] = useState('all');
   const OPTIONS = [
     { v: 'all', l: 'All KPIs' }, { v: 'tracking-live', l: 'Tracking Live' },
@@ -1223,8 +1464,22 @@ function KPIFramework({ kpis, onKpisChange }) {
 // ─────────────────────────────────────────────────────────────────
 // SECTION 4 — VALUE CALCULATOR
 // ─────────────────────────────────────────────────────────────────
-function ValueCalculator({ calc, setCalc }) {
-  const set = (k, v) => setCalc(p => ({ ...p, [k]: v }));
+const SEG_CATEGORY_BG = {
+  'country-main':       '#fff5f5',
+  'country-additional': '#fffbeb',
+  'country-amendment':  '#fff7ed',
+  'site-initial':       '#f0fdfa',
+  'site-amendment':     '#eff6ff',
+};
+
+function ValueCalculator() {
+  const ctx = useDash();
+  const calc = ctx.s.calcInputs;
+  const segments = ctx.s.segments;
+  const phasing = ctx.s.phasingModel;
+  const periodMult = ctx.periodMult;
+  const periodLabel = ctx.periodLabel;
+  const set = (k, v) => ctx.setCalcInputs({ [k]: v });
 
   const cPerDoc  = calc.countryBaseline * (calc.countryReduction / 100);
   const cAnnual  = cPerDoc * calc.countryVolume;
@@ -1239,16 +1494,131 @@ function ValueCalculator({ calc, setCalc }) {
   const e2eDays  = calc.e2eBaseline * (calc.e2eReduction / 100);
   const annDays  = e2eDays * calc.studyVolume;
 
+  const updateSeg = (idx, partial) => ctx.setSegments(segments.map((s, i) => i === idx ? { ...s, ...partial } : s));
+  const updatePhase = (idx, partial) => ctx.setPhasingModel(phasing.map((p, i) => i === idx ? { ...p, ...partial } : p));
+  const totalSegBaseline = segments.reduce((s, seg) => s + seg.icfsPerYear * seg.casHoursPerIcf, 0);
+  const totalSegSavings  = segments.reduce((s, seg) => s + seg.icfsPerYear * seg.casHoursPerIcf * (seg.potentialAiImpactPct * seg.adoptionPct / 100) / 100, 0);
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <SectionHeader title="Value Calculator" subtitle="Edit assumptions — all outputs update immediately" />
-        <button onClick={() => setCalc(CALC_DEFAULT)}
+        <button onClick={() => { if (window.confirm('Reset all dashboard assumptions to defaults? This cannot be undone.')) ctx.reset(); }}
           className="px-4 py-2 rounded-md text-sm font-medium transition-colors"
           style={{ background: 'white', color: C.charcoal, border: `1px solid ${C.gray}` }}>
           ↺ Reset to Defaults
         </button>
       </div>
+
+      <p style={{ fontSize: 11, color: '#888', marginBottom: 8 }}>
+        All dashboard assumptions are editable and synced across sections.
+      </p>
+
+      {/* ICF Workload Segmentation */}
+      <Card className="p-5">
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div>
+            <h3 className="font-semibold text-gray-800 mb-0.5">ICF Workload Segmentation</h3>
+            <p className="text-xs text-gray-400">Edit volume, hrs/ICF, and adoption assumptions per segment. Savings auto-calculate.</p>
+          </div>
+          <span style={{ fontSize: 10, background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 999, padding: '3px 10px', color: '#92400e', fontWeight: 600, whiteSpace: 'nowrap' }}>Directional — subject to TFS validation</span>
+        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+            <thead>
+              <tr style={{ background: C.offwhite, borderBottom: `1px solid ${C.gray}` }}>
+                {['Segment', 'ICFs / yr', 'Hrs / ICF', 'Baseline Hrs', 'AI Impact %', 'Adoption %', 'Realized %', 'Projected Savings'].map((h, i) => (
+                  <th key={h} style={{ textAlign: i === 0 ? 'left' : 'right', padding: '6px 10px', fontSize: 10, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {segments.map((seg, idx) => {
+                const baseHrs  = seg.icfsPerYear * seg.casHoursPerIcf;
+                const realized = (seg.potentialAiImpactPct * seg.adoptionPct) / 100;
+                const savings  = baseHrs * realized / 100;
+                const bg = SEG_CATEGORY_BG[seg.category] || 'white';
+                return (
+                  <tr key={seg.id} style={{ background: bg, borderBottom: `1px solid ${C.gray}` }}>
+                    <td style={{ padding: '5px 10px', fontWeight: 500, color: C.charcoal }}>{seg.name}</td>
+                    <td style={{ padding: '5px 10px', textAlign: 'right' }}>
+                      <input type="number" min={0} value={seg.icfsPerYear}
+                        onChange={e => updateSeg(idx, { icfsPerYear: Number(e.target.value) })}
+                        style={{ width: 72, border: `1px solid ${C.gray}`, borderRadius: 4, padding: '2px 5px', fontSize: 11, textAlign: 'right', outline: 'none', background: 'rgba(255,255,255,0.8)' }} />
+                    </td>
+                    <td style={{ padding: '5px 10px', textAlign: 'right' }}>
+                      <input type="number" min={0} step={0.1} value={seg.casHoursPerIcf}
+                        onChange={e => updateSeg(idx, { casHoursPerIcf: Number(e.target.value) })}
+                        style={{ width: 56, border: `1px solid ${C.gray}`, borderRadius: 4, padding: '2px 5px', fontSize: 11, textAlign: 'right', outline: 'none', background: 'rgba(255,255,255,0.8)' }} />
+                    </td>
+                    <td style={{ padding: '5px 10px', textAlign: 'right', fontWeight: 500 }}>{fmt(baseHrs)}</td>
+                    <td style={{ padding: '5px 10px', textAlign: 'right' }}>
+                      <input type="number" min={0} max={100} value={seg.potentialAiImpactPct}
+                        onChange={e => updateSeg(idx, { potentialAiImpactPct: Number(e.target.value) })}
+                        style={{ width: 48, border: `1px solid ${C.gray}`, borderRadius: 4, padding: '2px 5px', fontSize: 11, textAlign: 'right', outline: 'none', background: 'rgba(255,255,255,0.8)' }} />
+                    </td>
+                    <td style={{ padding: '5px 10px', textAlign: 'right' }}>
+                      <input type="number" min={0} max={100} value={seg.adoptionPct}
+                        onChange={e => updateSeg(idx, { adoptionPct: Number(e.target.value) })}
+                        style={{ width: 48, border: `1px solid ${C.gray}`, borderRadius: 4, padding: '2px 5px', fontSize: 11, textAlign: 'right', outline: 'none', background: 'rgba(255,255,255,0.8)' }} />
+                    </td>
+                    <td style={{ padding: '5px 10px', textAlign: 'right', fontWeight: 600, color: C.blue }}>{fmt(realized, 1)}%</td>
+                    <td style={{ padding: '5px 10px', textAlign: 'right', fontWeight: 700, color: C.teal }}>{fmt(savings)} hrs</td>
+                  </tr>
+                );
+              })}
+              <tr style={{ background: C.offwhite, borderTop: `2px solid ${C.gray}`, fontWeight: 700 }}>
+                <td style={{ padding: '6px 10px' }}>Total</td>
+                <td style={{ padding: '6px 10px', textAlign: 'right' }}>{fmt(segments.reduce((s, seg) => s + seg.icfsPerYear, 0))}</td>
+                <td style={{ padding: '6px 10px' }} />
+                <td style={{ padding: '6px 10px', textAlign: 'right' }}>{fmt(totalSegBaseline)}</td>
+                <td style={{ padding: '6px 10px' }} />
+                <td style={{ padding: '6px 10px' }} />
+                <td style={{ padding: '6px 10px' }} />
+                <td style={{ padding: '6px 10px', textAlign: 'right', color: C.teal }}>{fmt(totalSegSavings)} hrs</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {/* Phased Impact Model */}
+      <Card className="p-5">
+        <div style={{ marginBottom: 12 }}>
+          <h3 className="font-semibold text-gray-800 mb-0.5">Phased Impact Model</h3>
+          <p className="text-xs text-gray-400">Total Realized Impact = Potential AI Impact % × Adoption / Phasing % — edit adoption ramp per quarter</p>
+        </div>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+          <thead>
+            <tr style={{ background: C.offwhite, borderBottom: `1px solid ${C.gray}` }}>
+              {['Quarter', 'Potential AI Impact %', 'Adoption / Phasing %', 'Total Realized %'].map((h, i) => (
+                <th key={h} style={{ textAlign: i === 0 ? 'left' : 'right', padding: '6px 10px', fontSize: 10, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {phasing.map((q, idx) => {
+              const realized = (q.potentialAiImpactPct * q.adoptionPct) / 100;
+              return (
+                <tr key={q.id} style={{ background: idx % 2 === 0 ? 'white' : '#fafafa', borderBottom: `1px solid ${C.gray}` }}>
+                  <td style={{ padding: '5px 10px', fontWeight: 500, color: C.charcoal }}>{q.label}</td>
+                  <td style={{ padding: '5px 10px', textAlign: 'right' }}>
+                    <input type="number" min={0} max={100} value={q.potentialAiImpactPct}
+                      onChange={e => updatePhase(idx, { potentialAiImpactPct: Number(e.target.value) })}
+                      style={{ width: 56, border: `1px solid ${C.gray}`, borderRadius: 4, padding: '2px 5px', fontSize: 11, textAlign: 'right', outline: 'none' }} />
+                  </td>
+                  <td style={{ padding: '5px 10px', textAlign: 'right' }}>
+                    <input type="number" min={0} max={100} value={q.adoptionPct}
+                      onChange={e => updatePhase(idx, { adoptionPct: Number(e.target.value) })}
+                      style={{ width: 56, border: `1px solid ${C.gray}`, borderRadius: 4, padding: '2px 5px', fontSize: 11, textAlign: 'right', outline: 'none' }} />
+                  </td>
+                  <td style={{ padding: '5px 10px', textAlign: 'right', fontWeight: 700, color: C.teal }}>{fmt(realized, 1)}%</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </Card>
 
       <div className="grid grid-cols-2 gap-5">
         {/* Country ICF */}
@@ -1261,6 +1631,7 @@ function ValueCalculator({ calc, setCalc }) {
           <p className="text-xs text-gray-400 mt-4 mb-2">Outputs</p>
           <ResultRow label="Hours saved per document"  value={`${fmt(cPerDoc, 1)} hrs`}   formula={`${calc.countryBaseline} hrs × ${calc.countryReduction}% = ${fmt(cPerDoc, 1)} hrs/doc`} />
           <ResultRow label="Annual hours saved"        value={`${fmt(cAnnual)} hrs/yr`}   formula={`${fmt(cPerDoc, 1)} hrs × ${calc.countryVolume} docs = ${fmt(cAnnual)} hrs`} />
+          <p style={{ fontSize: 11, color: C.blue, marginTop: 4 }}>Period ({periodLabel}): {fmt(cAnnual * periodMult)} hrs</p>
         </Card>
 
         {/* Site ICF */}
@@ -1891,16 +2262,39 @@ function AssumptionsLog() {
 // APP ROOT
 // ─────────────────────────────────────────────────────────────────
 function App() {
-  const [active, setActive] = useState('overview');
-  const [kpis,   setKpis]   = useState(KPI_DATA.map(k => ({ ...k })));
-  const [calc,   setCalc]   = useState({ ...CALC_DEFAULT });
-  const [reportingCfg, setReportingCfg] = useState({ mode: 'quarterly', monthlyStart: '2026-01', monthlyEnd: '2026-03', quarter: 'Q1' });
+  const [s, setS] = useState(() => loadPersistedState(APP_DEFAULTS));
+
+  function upd(partial) {
+    setS(prev => {
+      const next = { ...prev, ...partial };
+      persistState(next);
+      return next;
+    });
+  }
+
+  const phasingPct = getEffPhasingPct(s.reportingCfg, s.phasingModel);
+  const periodMult = getPeriodMultiplier(s.reportingCfg);
+  const periodLabel = getPeriodLabel(s.reportingCfg);
+
+  const ctx = {
+    s,
+    phasingPct,
+    periodMult,
+    periodLabel,
+    setReportingCfg: cfg => upd({ reportingCfg: { ...s.reportingCfg, ...cfg } }),
+    setCalcInputs: inp => upd({ calcInputs: { ...s.calcInputs, ...inp } }),
+    setSegments: segs => upd({ segments: segs }),
+    setPhasingModel: model => upd({ phasingModel: model }),
+    setKpis: kpis => upd({ kpis }),
+    setScoringCats: cats => upd({ scoringCats: cats }),
+    reset: () => { localStorage.removeItem(STORAGE_KEY); setS(APP_DEFAULTS); },
+  };
 
   const SECTIONS = {
-    overview:    <ExecutiveOverview kpis={kpis} calc={calc} />,
+    overview:    <ExecutiveOverview />,
     scoring:     <ValueScoring />,
-    kpi:         <KPIFramework kpis={kpis} onKpisChange={setKpis} />,
-    calculator:  <ValueCalculator calc={calc} setCalc={setCalc} />,
+    kpi:         <KPIFramework />,
+    calculator:  <ValueCalculator />,
     pipeline:    <PipelineSummary />,
     roadmap:     <Roadmap />,
     readiness:   <MeasurementReadiness />,
@@ -1908,15 +2302,17 @@ function App() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: C.offwhite, fontFamily: "'Inter',system-ui,sans-serif" }}>
-      <Sidebar active={active} onNav={setActive} />
-      <div style={{ marginLeft: 224, flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', minWidth: 0 }}>
-        <TopBar active={active} reportingCfg={reportingCfg} setReportingCfg={setReportingCfg} />
-        <main style={{ flex: 1, padding: 24, overflowY: 'auto' }}>
-          {SECTIONS[active]}
-        </main>
+    <DashCtx.Provider value={ctx}>
+      <div style={{ display: 'flex', minHeight: '100vh', background: C.offwhite, fontFamily: "'Inter',system-ui,sans-serif" }}>
+        <Sidebar active={s.activeTab} onNav={tab => upd({ activeTab: tab })} />
+        <div style={{ marginLeft: 224, flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', minWidth: 0 }}>
+          <TopBar />
+          <main style={{ flex: 1, padding: 24, overflowY: 'auto' }}>
+            {SECTIONS[s.activeTab]}
+          </main>
+        </div>
       </div>
-    </div>
+    </DashCtx.Provider>
   );
 }
 

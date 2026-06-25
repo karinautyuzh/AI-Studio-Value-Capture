@@ -60,3 +60,23 @@ export function calcWeightedValueScore(
   const actual = categories.reduce((s, c) => s + (c.actualScore * c.weight) / totalWeight, 0);
   return { projected: Math.round(projected), actual: Math.round(actual) };
 }
+
+export function calcSegmentBaselineHours(seg: { icfsPerYear: number; casHoursPerIcf: number }): number {
+  return seg.icfsPerYear * seg.casHoursPerIcf;
+}
+
+export function calcSegmentRealizedPct(seg: { potentialAiImpactPct: number; adoptionPct: number }): number {
+  return (seg.potentialAiImpactPct * seg.adoptionPct) / 100;
+}
+
+export function calcSegmentProjectedSavings(seg: { icfsPerYear: number; casHoursPerIcf: number; potentialAiImpactPct: number; adoptionPct: number }): number {
+  return calcSegmentBaselineHours(seg) * (calcSegmentRealizedPct(seg) / 100);
+}
+
+export function calcTotalSegmentedHours(segments: Array<{ icfsPerYear: number; casHoursPerIcf: number }>): number {
+  return segments.reduce((s, seg) => s + calcSegmentBaselineHours(seg), 0);
+}
+
+export function calcTotalSegmentedSavings(segments: Array<{ icfsPerYear: number; casHoursPerIcf: number; potentialAiImpactPct: number; adoptionPct: number }>): number {
+  return segments.reduce((s, seg) => s + calcSegmentProjectedSavings(seg), 0);
+}

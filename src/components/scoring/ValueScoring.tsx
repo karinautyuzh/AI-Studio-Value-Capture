@@ -8,13 +8,8 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
-import { ScoringCategory } from '../../types';
 import { calcWeightedValueScore } from '../../lib/calculations';
-
-interface ValueScoringProps {
-  categories: ScoringCategory[];
-  onCategoriesChange: (cats: ScoringCategory[]) => void;
-}
+import { useDashboard } from '../../context/DashboardContext';
 
 function ScoreRing({ value, color, size = 80 }: { value: number; color: string; size?: number }) {
   const r = size * 0.38;
@@ -37,7 +32,10 @@ function ScoreRing({ value, color, size = 80 }: { value: number; color: string; 
   );
 }
 
-export default function ValueScoring({ categories, onCategoriesChange }: ValueScoringProps) {
+export default function ValueScoring() {
+  const { state, updateScoringCategories } = useDashboard();
+  const categories = state.scoringCategories;
+  const onCategoriesChange = updateScoringCategories;
   const [editingWeights, setEditingWeights] = useState(false);
   const [localWeights, setLocalWeights] = useState<Record<string, number>>(
     Object.fromEntries(categories.map((c) => [c.id, c.weight]))

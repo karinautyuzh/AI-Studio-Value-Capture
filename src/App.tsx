@@ -9,93 +9,32 @@ import PipelineSummary from './components/pipeline/PipelineSummary';
 import Roadmap from './components/roadmap/Roadmap';
 import MeasurementReadiness from './components/readiness/MeasurementReadiness';
 import AssumptionsLog from './components/assumptions/AssumptionsLog';
-
-import { defaultKPIs } from './data/kpis';
-import { roadmapPhases } from './data/roadmap';
 import { pipelineData } from './data/pipeline';
-import { defaultScoringCategories } from './data/scoring';
-import { KPI, CalculatorInputs, ScoringCategory, ReportingConfig } from './types';
-
-const DEFAULT_CALCULATOR_INPUTS: CalculatorInputs = {
-  countryBaseline: 12,
-  countryTargetReduction: 50,
-  countryAnnualVolume: 120,
-  siteBaseline: 6,
-  siteTargetReduction: 50,
-  siteAnnualVolume: 300,
-  hourlyRate: 125,
-  // Severity-based QE model — baseline period Jun 2025–Jun 2026
-  // ICF adaptation/customization QEs only — version-correction excluded
-  qeCriticalCount: 0,
-  qeCriticalCost: 2894,
-  qeMajorCount: 11,
-  qeMajorCost: 1820,
-  qeMinorCount: 12,
-  qeMinorCost: 894,
-  qeTargetReduction: 20,
-  endToEndBaseline: 30,
-  endToEndTargetReduction: 25,
-  annualStudyVolume: 40,
-};
+import { roadmapPhases } from './data/roadmap';
+import { DashboardProvider } from './context/DashboardContext';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
-  const [kpis, setKpis] = useState<KPI[]>(defaultKPIs);
-  const [calculatorInputs, setCalculatorInputs] = useState<CalculatorInputs>(DEFAULT_CALCULATOR_INPUTS);
-  const [scoringCategories, setScoringCategories] = useState<ScoringCategory[]>(defaultScoringCategories);
-  const [reportingConfig, setReportingConfig] = useState<ReportingConfig>({
-    mode: 'quarterly',
-    monthlyStart: '2026-01',
-    monthlyEnd: '2026-03',
-    quarter: 'Q1',
-  });
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'overview':
-        return (
-          <ExecutiveOverview
-            kpis={kpis}
-            calculatorInputs={calculatorInputs}
-          />
-        );
-      case 'scoring':
-        return (
-          <ValueScoring
-            categories={scoringCategories}
-            onCategoriesChange={setScoringCategories}
-          />
-        );
-      case 'kpi':
-        return (
-          <KPIFramework
-            kpis={kpis}
-            onKpisChange={setKpis}
-          />
-        );
-      case 'calculator':
-        return (
-          <ValueCalculator
-            inputs={calculatorInputs}
-            onInputsChange={setCalculatorInputs}
-          />
-        );
-      case 'pipeline':
-        return <PipelineSummary pipeline={pipelineData} />;
-      case 'roadmap':
-        return <Roadmap phases={roadmapPhases} />;
-      case 'readiness':
-        return <MeasurementReadiness />;
-      case 'assumptions':
-        return <AssumptionsLog />;
-      default:
-        return null;
+      case 'overview': return <ExecutiveOverview />;
+      case 'scoring': return <ValueScoring />;
+      case 'kpi': return <KPIFramework />;
+      case 'calculator': return <ValueCalculator />;
+      case 'pipeline': return <PipelineSummary pipeline={pipelineData} />;
+      case 'roadmap': return <Roadmap phases={roadmapPhases} />;
+      case 'readiness': return <MeasurementReadiness />;
+      case 'assumptions': return <AssumptionsLog />;
+      default: return null;
     }
   };
 
   return (
-    <AppShell activeTab={activeTab} onTabChange={setActiveTab} reportingConfig={reportingConfig} onReportingChange={setReportingConfig}>
-      {renderContent()}
-    </AppShell>
+    <DashboardProvider>
+      <AppShell activeTab={activeTab} onTabChange={setActiveTab}>
+        {renderContent()}
+      </AppShell>
+    </DashboardProvider>
   );
 }

@@ -1,11 +1,7 @@
 import { useState } from 'react';
 import { KPI, KPIStatus } from '../../types';
 import KPICard from './KPICard';
-
-interface KPIFrameworkProps {
-  kpis: KPI[];
-  onKpisChange: (kpis: KPI[]) => void;
-}
+import { useDashboard } from '../../context/DashboardContext';
 
 const statusOptions: { value: KPIStatus | 'all'; label: string }[] = [
   { value: 'all', label: 'All KPIs' },
@@ -16,7 +12,10 @@ const statusOptions: { value: KPIStatus | 'all'; label: string }[] = [
   { value: 'at-risk', label: 'At Risk' },
 ];
 
-export default function KPIFramework({ kpis, onKpisChange }: KPIFrameworkProps) {
+export default function KPIFramework() {
+  const { state, updateKpis } = useDashboard();
+  const kpis = state.kpis;
+  const onKpisChange = updateKpis;
   const [statusFilter, setStatusFilter] = useState<KPIStatus | 'all'>('all');
 
   const filtered = statusFilter === 'all' ? kpis : kpis.filter((k) => k.status === statusFilter);

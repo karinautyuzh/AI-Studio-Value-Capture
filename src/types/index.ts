@@ -1,3 +1,31 @@
+export type IcfSegmentCategory = 'country-main' | 'country-additional' | 'country-amendment' | 'site-initial' | 'site-amendment';
+
+export interface IcfSegment {
+  id: string;
+  name: string;
+  category: IcfSegmentCategory;
+  icfsPerYear: number;
+  casHoursPerIcf: number;
+  potentialAiImpactPct: number;
+  adoptionPct: number;
+}
+
+export interface PhasingQuarter {
+  id: string;
+  label: string;
+  potentialAiImpactPct: number;
+  adoptionPct: number;
+  totalRealizedPct: number;
+}
+
+export interface AssumptionsConfig {
+  valueAssumptionsStatus: 'assumed' | 'estimated' | 'partially-validated' | 'confirmed';
+  baselineValidationStatus: 'assumed' | 'estimated' | 'partially-validated' | 'confirmed';
+  dataMaturityStatus: 'assumed' | 'estimated' | 'partially-validated' | 'confirmed';
+  assumptionConfidenceScore: number;
+  dataMaturityScore: number;
+}
+
 export type KPIStatus = 'tbd' | 'baseline-confirmed' | 'tracking-live' | 'at-risk' | 'on-track';
 export type PhaseStatus = 'complete' | 'in-progress' | 'upcoming' | 'future';
 
@@ -81,13 +109,16 @@ export interface AssumptionItem {
   targetDate: string;
 }
 
-export type ReportingMode = 'monthly' | 'quarterly';
+export type ReportingMode = 'monthly' | 'quarterly' | 'custom';
 
 export interface ReportingConfig {
   mode: ReportingMode;
+  year: number;           // 2026 | 2027 | 2028
   monthlyStart: string;   // YYYY-MM
   monthlyEnd: string;     // YYYY-MM
   quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4';
+  customStart: string;    // YYYY-MM-DD
+  customEnd: string;      // YYYY-MM-DD
 }
 
 export interface CalculatorInputs {

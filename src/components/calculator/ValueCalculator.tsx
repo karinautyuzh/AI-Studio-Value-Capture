@@ -1,5 +1,5 @@
 import { RotateCcw } from 'lucide-react';
-import { CalculatorInputs } from '../../types';
+import { CalculatorInputs, IcfSegment, PhasingQuarter } from '../../types';
 import {
   calcCountryHoursSavedPerDoc,
   calcCountryAnnualHoursSaved,
@@ -13,33 +13,14 @@ import {
   calcTotalHardValue,
   calcEndToEndDaysSaved,
   calcAnnualDaysSaved,
+  calcSegmentBaselineHours,
+  calcSegmentRealizedPct,
+  calcSegmentProjectedSavings,
+  calcTotalSegmentedSavings,
 } from '../../lib/calculations';
+import { getPeriodMultiplier, getPeriodLabel } from '../../lib/periodCalculations';
+import { useDashboard } from '../../context/DashboardContext';
 import { formatNumber, formatCurrency } from '../../lib/utils';
-
-const DEFAULT_INPUTS: CalculatorInputs = {
-  countryBaseline: 12,
-  countryTargetReduction: 50,
-  countryAnnualVolume: 120,
-  siteBaseline: 6,
-  siteTargetReduction: 50,
-  siteAnnualVolume: 300,
-  hourlyRate: 125,
-  qeCriticalCount: 0,
-  qeCriticalCost: 2894,
-  qeMajorCount: 11,
-  qeMajorCost: 1820,
-  qeMinorCount: 12,
-  qeMinorCost: 894,
-  qeTargetReduction: 20,
-  endToEndBaseline: 30,
-  endToEndTargetReduction: 25,
-  annualStudyVolume: 40,
-};
-
-interface ValueCalculatorProps {
-  inputs: CalculatorInputs;
-  onInputsChange: (inputs: CalculatorInputs) => void;
-}
 
 function InputRow({
   label,
@@ -89,9 +70,28 @@ function ResultRow({ label, value, formula }: { label: string; value: string; fo
   );
 }
 
-export default function ValueCalculator({ inputs, onInputsChange }: ValueCalculatorProps) {
+const SEGMENT_CATEGORY_STYLES: Record<string, string> = {
+  'country-main':       'bg-red-50',
+  'country-additional': 'bg-amber-50',
+  'country-amendment':  'bg-orange-50',
+  'site-initial':       'bg-teal-50',
+  'site-amendment':     'bg-blue-50',
+};
+
+export default function ValueCalculator() {
+  const { state, updateCalculatorInputs, updateSegments, updatePhasingModel, resetToDefaults } = useDashboard();
+  const inputs = state.calculatorInputs;
+  const icfSegments = state.icfSegments;
+  const phasingModel = state.phasingModel;
+  const periodMult = getPeriodMultiplier(state.reportingConfig);
+  const periodLabel = getPeriodLabel(state.reportingConfig);
+
+  const onInputsChange = (inp: CalculatorInputs) => updateCalculatorInputs(inp);
+  const onSegmentsChange = (segs: IcfSegment[]) => updateSegments(segs);
+  const onPhasingChange = (model: PhasingQuarter[]) => updatePhasingModel(model);
+
   const set = (key: keyof CalculatorInputs, val: number) =>
-    onInputsChange({ ...inputs, [key]: val });
+    updateCalculatorInputs({ [key]: val });
 
   const countryPerDoc = calcCountryHoursSavedPerDoc(inputs);
   const countryAnnual = calcCountryAnnualHoursSaved(inputs);
@@ -114,11 +114,134 @@ export default function ValueCalculator({ inputs, onInputsChange }: ValueCalcula
           <p className="section-subtitle">Adjust assumptions to model projected impact. All outputs recalculate live.</p>
         </div>
         <button
-          onClick={() => onInputsChange(DEFAULT_INPUTS)}
+          onClick={() => { if (window.confirm('Reset all dashboard assumptions to defaults? This cannot be undone.')) resetToDefaults(); }}
           className="flex items-center gap-2 btn-secondary"
         >
           <RotateCcw size={14} /> Reset to Defaults
         </button>
+      </div>
+
+      <p className="text-xs text-gray-400">
+        All dashboard assumptions are editable and synced across sections. Annual outputs below; period values shown for {periodLabel}.
+      </p>
+
+      {/* ICF Workload Segmentation */}
+      <div className="card p-5">
+        <div className="flex items-start justify-between mb-3">
+          <div>
+            <h3 className="font-semibold text-tfs-charcoal">ICF Workload Segmentation</h3>
+            <p className="text-xs text-gray-400 mt-0.5">Edit volume, hrs/ICF, and adoption assumptions per segment. Savings auto-calculate.</p>
+          </div>
+          <span className="text-[10px] px-2 py-1 rounded bg-amber-50 border border-amber-200 text-amber-700 font-semibold whitespace-nowrap">Directional — subject to TFS validation</span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="bg-tfs-offwhite border-b border-tfs-gray">
+                <th className="text-left px-3 py-2 font-semibold text-gray-500">Segment</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-500">ICFs / yr</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-500">Hrs / ICF</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-500">Baseline Hrs</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-500">AI Impact %</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-500">Adoption %</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-500">Realized %</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-500">Projected Savings</th>
+              </tr>
+            </thead>
+            <tbody>
+              {icfSegments.map((seg, idx) => {
+                const baselineHrs = calcSegmentBaselineHours(seg);
+                const realizedPct = calcSegmentRealizedPct(seg);
+                const savings = calcSegmentProjectedSavings(seg);
+                const rowBg = SEGMENT_CATEGORY_STYLES[seg.category] ?? '';
+                const updateSeg = (partial: Partial<IcfSegment>) =>
+                  onSegmentsChange(icfSegments.map((s, i) => i === idx ? { ...s, ...partial } : s));
+                return (
+                  <tr key={seg.id} className={`border-b border-tfs-gray/50 ${rowBg}`}>
+                    <td className="px-3 py-2 font-medium text-tfs-charcoal">{seg.name}</td>
+                    <td className="px-3 py-2 text-right">
+                      <input type="number" min={0} value={seg.icfsPerYear}
+                        onChange={(e) => updateSeg({ icfsPerYear: Number(e.target.value) })}
+                        className="w-20 border border-tfs-gray rounded px-1.5 py-0.5 text-xs text-right focus:outline-none focus:ring-1 focus:ring-primary bg-white/80" />
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      <input type="number" min={0} step={0.1} value={seg.casHoursPerIcf}
+                        onChange={(e) => updateSeg({ casHoursPerIcf: Number(e.target.value) })}
+                        className="w-16 border border-tfs-gray rounded px-1.5 py-0.5 text-xs text-right focus:outline-none focus:ring-1 focus:ring-primary bg-white/80" />
+                    </td>
+                    <td className="px-3 py-2 text-right font-medium text-tfs-charcoal">{formatNumber(baselineHrs)}</td>
+                    <td className="px-3 py-2 text-right">
+                      <input type="number" min={0} max={100} value={seg.potentialAiImpactPct}
+                        onChange={(e) => updateSeg({ potentialAiImpactPct: Number(e.target.value) })}
+                        className="w-14 border border-tfs-gray rounded px-1.5 py-0.5 text-xs text-right focus:outline-none focus:ring-1 focus:ring-primary bg-white/80" />
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      <input type="number" min={0} max={100} value={seg.adoptionPct}
+                        onChange={(e) => updateSeg({ adoptionPct: Number(e.target.value) })}
+                        className="w-14 border border-tfs-gray rounded px-1.5 py-0.5 text-xs text-right focus:outline-none focus:ring-1 focus:ring-primary bg-white/80" />
+                    </td>
+                    <td className="px-3 py-2 text-right text-tfs-blue font-semibold">{formatNumber(realizedPct, 1)}%</td>
+                    <td className="px-3 py-2 text-right font-bold text-tfs-teal">{formatNumber(savings)} hrs</td>
+                  </tr>
+                );
+              })}
+              {/* Totals row */}
+              <tr className="bg-tfs-offwhite border-t-2 border-tfs-gray font-bold">
+                <td className="px-3 py-2 text-tfs-charcoal">Total</td>
+                <td className="px-3 py-2 text-right text-tfs-charcoal">{formatNumber(icfSegments.reduce((s, seg) => s + seg.icfsPerYear, 0))}</td>
+                <td className="px-3 py-2" />
+                <td className="px-3 py-2 text-right text-tfs-charcoal">{formatNumber(icfSegments.reduce((s, seg) => s + calcSegmentBaselineHours(seg), 0))}</td>
+                <td className="px-3 py-2" />
+                <td className="px-3 py-2" />
+                <td className="px-3 py-2" />
+                <td className="px-3 py-2 text-right text-tfs-teal">{formatNumber(calcTotalSegmentedSavings(icfSegments))} hrs</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Phased Impact Model */}
+      <div className="card p-5">
+        <div className="mb-3">
+          <h3 className="font-semibold text-tfs-charcoal">Phased Impact Model</h3>
+          <p className="text-xs text-gray-400 mt-0.5">Total Realized Impact = Potential AI Impact % × Adoption / Phasing % — edit adoption ramp per quarter</p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="bg-tfs-offwhite border-b border-tfs-gray">
+                <th className="text-left px-3 py-2 font-semibold text-gray-500">Quarter</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-500">Potential AI Impact %</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-500">Adoption / Phasing %</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-500">Total Realized %</th>
+              </tr>
+            </thead>
+            <tbody>
+              {phasingModel.map((q, idx) => {
+                const realized = (q.potentialAiImpactPct * q.adoptionPct) / 100;
+                const updateQ = (partial: Partial<PhasingQuarter>) =>
+                  onPhasingChange(phasingModel.map((p, i) => i === idx ? { ...p, ...partial } : p));
+                return (
+                  <tr key={q.id} className={`border-b border-tfs-gray/50 ${idx % 2 === 0 ? 'bg-white' : 'bg-tfs-offwhite/40'}`}>
+                    <td className="px-3 py-2 font-medium text-tfs-charcoal">{q.label}</td>
+                    <td className="px-3 py-2 text-right">
+                      <input type="number" min={0} max={100} value={q.potentialAiImpactPct}
+                        onChange={(e) => updateQ({ potentialAiImpactPct: Number(e.target.value) })}
+                        className="w-16 border border-tfs-gray rounded px-1.5 py-0.5 text-xs text-right focus:outline-none focus:ring-1 focus:ring-primary" />
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      <input type="number" min={0} max={100} value={q.adoptionPct}
+                        onChange={(e) => updateQ({ adoptionPct: Number(e.target.value) })}
+                        className="w-16 border border-tfs-gray rounded px-1.5 py-0.5 text-xs text-right focus:outline-none focus:ring-1 focus:ring-primary" />
+                    </td>
+                    <td className="px-3 py-2 text-right font-bold text-tfs-teal">{formatNumber(realized, 1)}%</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-5">
@@ -140,6 +263,7 @@ export default function ValueCalculator({ inputs, onInputsChange }: ValueCalcula
             value={`${formatNumber(countryAnnual)} hrs/yr`}
             formula={`${formatNumber(countryPerDoc, 1)} hrs × ${inputs.countryAnnualVolume} docs = ${formatNumber(countryAnnual)} hrs`}
           />
+          <p className="text-xs text-tfs-blue mt-1">Period ({periodLabel}): {formatNumber(countryAnnual * periodMult)} hrs</p>
         </div>
 
         {/* Site ICF */}
