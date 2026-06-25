@@ -86,7 +86,6 @@ export default function ValueCalculator() {
   const periodMult = getPeriodMultiplier(state.reportingConfig);
   const periodLabel = getPeriodLabel(state.reportingConfig);
 
-  const onInputsChange = (inp: CalculatorInputs) => updateCalculatorInputs(inp);
   const onSegmentsChange = (segs: IcfSegment[]) => updateSegments(segs);
   const onPhasingChange = (model: PhasingQuarter[]) => updatePhasingModel(model);
 
